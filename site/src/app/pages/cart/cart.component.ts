@@ -7,7 +7,7 @@ import {OrderSummaryComponent} from './order-summary/order-summary.component';
   selector: 'app-cart',
   imports: [
     CartItemComponent,
-    OrderSummaryComponent
+    OrderSummaryComponent,
   ],
   template: `
     <div class="p-6 flex flex-col gap-4">
