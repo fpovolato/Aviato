@@ -1,23 +1,28 @@
-import {Component, signal} from '@angular/core';
+import {Component, computed, inject} from '@angular/core';
 import {PrimaryButtonComponent} from '../primary-button/primary-button.component';
+import {RouterLink} from '@angular/router';
+import {CartService} from '../../services/cart.service';
 
 @Component({
   selector: 'app-header',
+  standalone: true,
   imports: [
-    PrimaryButtonComponent
+    PrimaryButtonComponent,
+    RouterLink
   ],
   template: `
     <div class="bg-slate-100 px-4 py-3 shadow-md flex justify-between items-center">
-      <span class="text-xl"> Aviato </span>
-      <app-primary-button [label]="cart()" (btnClicked)="showBtnClicked()" />
+      <button class="text-xl" routerLink="/"> Aviato</button>
+      <div class="ml-auto flex gap-3 items-center">
+        <app-primary-button label="Log In" routerLink="#"/>
+        <app-primary-button label="{{ cartLabel() }}" routerLink="/cart"/>
+      </div>
     </div>
   `,
   styles: ``
 })
 export class HeaderComponent {
-  cart = signal('Cart');
+  cartService = inject(CartService);
 
-  showBtnClicked() {
-    console.log('showBtnClicked');
-  }
+  cartLabel = computed(() => `Cart (${this.cartService.cart().length})`);
 }

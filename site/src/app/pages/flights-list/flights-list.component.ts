@@ -8,10 +8,12 @@ import {FlightCardComponent} from './flight-card/flight-card.component';
     FlightCardComponent
   ],
   template: `
-    <div class="p-8 grid grid-cols-1 gap-5">
-      @for (flight of flights(); track flight.id) {
-        <app-flight-card [flight]="flight" />
-      }
+    <div class="p-4 flex justify-center">
+      <div class="w-full max-w-screen-xl flex flex-col gap-5">
+        @for (flight of flights(); track flight.id) {
+          <app-flight-card [flight]="flight" />
+        }
+      </div>
     </div>
   `,
   styles: ``

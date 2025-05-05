@@ -1,13 +1,13 @@
 import { Component } from '@angular/core';
 import {HeaderComponent} from './components/header/header.component';
-import {FlightsListComponent} from './pages/flights-list/flights-list.component';
+import {RouterOutlet} from '@angular/router';
 
 @Component({
   selector: 'app-root',
-  imports: [HeaderComponent, FlightsListComponent],
+  imports: [HeaderComponent, RouterOutlet],
   template: `
     <app-header/>
-    <app-flights-list />
+    <router-outlet/>
   `,
   styles: [],
 })
