@@ -1,0 +1,126 @@
+{
+  "info": {
+    "name": "Aviato Airlines API",
+    "_postman_id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+    "description": "Collection for testing Airlines endpoints in Aviato project",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Create Airline",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"Test Airline\",\n  \"code\": \"TA\",\n  \"country\": \"Italy\"\n}"
+        },
+        "url": {
+          "raw": "http://localhost:3000/api/airlines",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "3000",
+          "path": [
+            "api",
+            "airlines"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Get All Airlines",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:3000/api/airlines",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "3000",
+          "path": [
+            "api",
+            "airlines"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Get Airline By ID",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:3000/api/airlines/:id",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "3000",
+          "path": [
+            "api",
+            "airlines",
+            ":id"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Update Airline",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"Updated Airline Name\"\n}"
+        },
+        "url": {
+          "raw": "http://localhost:3000/api/airlines/:id",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "3000",
+          "path": [
+            "api",
+            "airlines",
+            ":id"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Delete Airline",
+      "request": {
+        "method": "DELETE",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:3000/api/airlines/:id",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "3000",
+          "path": [
+            "api",
+            "airlines",
+            ":id"
+          ]
+        }
+      }
+    }
+  ]
+}
