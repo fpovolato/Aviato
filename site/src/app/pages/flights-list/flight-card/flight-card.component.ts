@@ -1,8 +1,7 @@
-import {Component, inject, input} from '@angular/core';
-import {Flight} from '../../../models/flights.model';
-import {PrimaryButtonComponent} from '../../../components/primary-button/primary-button.component';
-import {CartService} from '../../../services/cart.service';
-import {RouterLink} from '@angular/router';
+import { Component, inject, input } from '@angular/core';
+import { Flight } from '../../../models/flights.model';
+import { PrimaryButtonComponent } from '../../../components/primary-button/primary-button.component';
+import { CartService } from '../../../services/cart.service';
 
 @Component({
   selector: 'app-flight-card',

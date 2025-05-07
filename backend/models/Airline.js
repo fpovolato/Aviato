@@ -13,10 +13,6 @@ const airlineSchema = new mongoose.Schema({
         uppercase: true,
         trim: true,
     },
-    admins: [{
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'User',
-    }],
 }, {
     timestamps: true,
 });

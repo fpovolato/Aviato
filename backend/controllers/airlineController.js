@@ -1,3 +1,4 @@
+const User = require('../models/User');
 const Airline = require('../models/Airline');
 
 const createAirline = async (req, res) => {
@@ -27,7 +28,9 @@ const getAirlines = async (req, res) => {
         const airlines = await Airline.find().populate('admins', 'name email');
         res.json(airlines);
     } catch (error) {
-        res.status(500).json({ message: 'Server error' });
+        //res.status(500).json({message: 'Server error'});
+        console.error('❌ Error in getAirlines:', error);
+        res.status(500).json({message: 'Server error', error: error.message});
     }
 };
 
@@ -45,8 +48,87 @@ const getAirlineById = async (req, res) => {
     }
 };
 
+const inviteEmployee = async (req, res) => {
+    const { userId, airlineId } = req.body;
+
+    try {
+        const inviter = req.user;
+        const userToInvite = await User.findById(userId);
+        const airline = await Airline.findById(airlineId);
+
+        if (!userToInvite || !airline) {
+            return res.status(404).json({ message: 'User or Airline not found' });
+        }
+
+        const isAdmin = inviter.roles.includes('admin');
+        const isEmployeeOfAirline = inviter.roles.includes('employee') && inviter.airlines.includes(airlineId);
+
+        if (!isAdmin && !isEmployeeOfAirline) {
+            return res.status(404).json({ message: 'Not authorized' });
+        }
+
+        if (!userToInvite.airlines.includes(airlineId)) {
+            userToInvite.airlines.push(airlineId);
+        }
+
+        if (userToInvite.roles.includes('customer')) {
+            userToInvite.roles.push('employee');
+        }
+
+        await userToInvite.save();
+        res.status(200).json({ message: 'Invitation successful' });
+    } catch (error) {
+        // res.status(500).json({ message: 'Server error' });
+        console.error('❌ Error in inviteEmployee:', error);
+        res.status(500).json({ message: 'Server error', error: error.message });
+    }
+};
+
+const getAllEmployees = async (req, res) => {
+    try {
+        const requester = req.user;
+        if (!requester.roles.includes('admin')) {
+            return res.status(403).json({ message: 'Access denied' });
+        }
+
+        const employees = await User.find({ roles: 'employee' }).select('name surname email airlines');
+        res.json(employees);
+    } catch (error) {
+        console.error('❌ Error in getAllEmployees:', error);
+        res.status(500).json({ message: 'Server error', error: error.message });
+    }
+};
+
+const getEmployeesByAirline = async (req, res) => {
+    const { airlineId } = req.params;
+
+    try {
+        const requester = req.user;
+
+        const isAdmin = requester.roles.includes('admin');
+        const isEmployeeOfAirline = requester.roles.includes('employee') && requester.airlines.includes(airlineId);
+
+        if (!isAdmin && !isEmployeeOfAirline) {
+            return res.status(403).json({ message: 'Access denied' });
+        }
+
+        const employees = await User.find({
+            roles: 'employee',
+            airlines: airlineId,
+        }).select('name surname email');
+
+        res.json(employees);
+    } catch (error) {
+        console.error('❌ Error in getEmployeesByAirline:', error);
+        res.status(500).json({ message: 'Server error', error: error.message });
+    }
+};
+
 module.exports = {
     createAirline,
     getAirlines,
     getAirlineById,
+    inviteEmployee,
+    getAllEmployees,
+    getEmployeesByAirline,
 };
