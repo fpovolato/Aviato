@@ -32,11 +32,10 @@ const userSchema = new mongoose.Schema({
         enum: ['customer', 'employee', 'admin'],
         default: ['customer'],
     },
-    airline: {
+    airlines: [{
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Airline',
-        default: null,
-    },
+    }],
 }, {
     timestamps: true,
 });
