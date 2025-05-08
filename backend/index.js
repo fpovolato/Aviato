@@ -4,6 +4,8 @@ const dotenv = require("dotenv");
 const usersRoutes = require("./routes/userRoutes");
 const airlinesRoutes = require("./routes/airlineRoutes");
 const planeRoutes = require("./routes/planeRoutes");
+const airportRoutes = require("./routes/airportRoutes");
+
 const cors = require("cors");
 
 dotenv.config();
@@ -15,6 +17,7 @@ app.use(express.json());
 app.use("/api/users", usersRoutes);
 app.use("/api/airlines", airlinesRoutes);
 app.use("/api/planes", planeRoutes);
+app.use("/api/airports", airportRoutes);
 
 require("./config/db")();
 
