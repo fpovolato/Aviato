@@ -17,7 +17,16 @@ const airlineSchema = new mongoose.Schema(
   },
   {
     timestamps: true,
+    toObject: { virtuals: true },
+    toJSON: { virtuals: true },
   }
 );
+
+airlineSchema.virtual("employees", {
+  ref: "User",
+  localField: "_id",
+  foreignField: "airline",
+  match: { roles: "employee" },
+});
 
 module.exports = mongoose.model("Airline", airlineSchema);
