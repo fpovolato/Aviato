@@ -1,6 +1,4 @@
 const Plane = require("../models/Plane");
-const Airline = require("../models/Airline");
-const User = require("../models/User");
 
 const createPlane = async (req, res) => {
   const { code, manifacturer, model, seats, airlineId } = req.body;

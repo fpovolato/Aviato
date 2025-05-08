@@ -5,6 +5,7 @@ const usersRoutes = require("./routes/userRoutes");
 const airlinesRoutes = require("./routes/airlineRoutes");
 const planeRoutes = require("./routes/planeRoutes");
 const airportRoutes = require("./routes/airportRoutes");
+const flightRoutes = require("./routes/flightRoutes");
 
 const cors = require("cors");
 
@@ -18,6 +19,7 @@ app.use("/api/users", usersRoutes);
 app.use("/api/airlines", airlinesRoutes);
 app.use("/api/planes", planeRoutes);
 app.use("/api/airports", airportRoutes);
+app.use("/api/flights", flightRoutes);
 
 require("./config/db")();
 
