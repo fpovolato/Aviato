@@ -6,6 +6,8 @@ const airlinesRoutes = require("./routes/airlineRoutes");
 const planeRoutes = require("./routes/planeRoutes");
 const airportRoutes = require("./routes/airportRoutes");
 const flightRoutes = require("./routes/flightRoutes");
+const cartRoutes = require("./routes/cartRoutes");
+const orderRoutes = require("./routes/orderRoutes");
 
 const cors = require("cors");
 
@@ -20,6 +22,8 @@ app.use("/api/airlines", airlinesRoutes);
 app.use("/api/planes", planeRoutes);
 app.use("/api/airports", airportRoutes);
 app.use("/api/flights", flightRoutes);
+app.use("/api/cart", cartRoutes);
+app.use("/api/orders", orderRoutes);
 
 require("./config/db")();
 
