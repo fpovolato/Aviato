@@ -28,7 +28,6 @@ const getAirlines = async (req, res) => {
     const airlines = await Airline.find();
     res.json(airlines);
   } catch (error) {
-    //res.status(500).json({message: 'Server error'});
     console.error("❌ Error in getAirlines:", error);
     res.status(500).json({ message: "Server error", error: error.message });
   }
@@ -83,7 +82,6 @@ const inviteEmployee = async (req, res) => {
     await userToInvite.save();
     res.status(200).json({ message: "Invitation successful" });
   } catch (error) {
-    // res.status(500).json({ message: 'Server error' });
     console.error("❌ Error in inviteEmployee:", error);
     res.status(500).json({ message: "Server error", error: error.message });
   }
