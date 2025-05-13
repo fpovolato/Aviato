@@ -17,5 +17,12 @@ services:
     volumes:
       - mongo-data:/data/db
 
+  dashboard:
+    build: ./dashboard
+    ports:
+      - "4200:80"
+    depends_on:
+      - backend
+
 volumes:
   mongo-data:

@@ -65,7 +65,7 @@ const updateCartItem = async (req, res) => {
   res.json(cart);
 };
 
-const removCartItem = async (req, res) => {
+const removeCartItem = async (req, res) => {
   const userId = req.user._id;
   const { itemId } = req.params;
 
@@ -89,6 +89,6 @@ module.exports = {
   getCart,
   addToCart,
   updateCartItem,
-  removCartItem,
+  removeCartItem,
   clearCart,
 };
