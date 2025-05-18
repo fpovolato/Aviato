@@ -3,6 +3,9 @@ const fs = require("fs");
 const path = require("path");
 const csv = require("csv-parser");
 
+// @desc    Create a new airport
+// @route   POST /api/airports
+// @access  Private
 const createAirport = async (req, res) => {
   const {
     airportId,
@@ -52,6 +55,9 @@ const createAirport = async (req, res) => {
   }
 };
 
+// @desc    Bulk create airports
+// @route   POST /api/airports/bulk
+// @access  Private
 const bulkCreateAirports = async (req, res) => {
   const airports = req.body;
 
@@ -64,6 +70,9 @@ const bulkCreateAirports = async (req, res) => {
   }
 };
 
+// @desc    Get all airports
+// @route   GET /api/airports
+// @access  Private
 const getAirports = async (req, res) => {
   try {
     const airports = await Airport.find();
@@ -74,6 +83,9 @@ const getAirports = async (req, res) => {
   }
 };
 
+// @desc    Get airport by ID
+// @route   GET /api/airports/:id
+// @access  Private
 const getAirportById = async (req, res) => {
   try {
     const airport = await Airport.findById(req.params.id);
@@ -89,6 +101,9 @@ const getAirportById = async (req, res) => {
   }
 };
 
+// @desc    Get airports by IATA code
+// @route   GET /api/airports/iata/:iata
+// @access  Private
 const getAirportsByIata = async (req, res) => {
   const { iata } = req.params;
 

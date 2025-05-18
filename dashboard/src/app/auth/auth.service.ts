@@ -1,8 +1,8 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { BehaviorSubject, tap } from 'rxjs';
+import { BehaviorSubject, catchError, of, switchMap, tap } from 'rxjs';
 import { Router } from '@angular/router';
-import { User } from './models/user.model';
+import { User } from '../models/user.model';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
@@ -10,25 +10,39 @@ export class AuthService {
   user$ = this.userSub.asObservable();
 
   constructor(private http: HttpClient, private router: Router) {
-    const saved = localStorage.getItem('user');
-    if (saved) this.userSub.next(JSON.parse(saved));
+    this.http
+      .get<User>('/api/users/profile', { withCredentials: true })
+      .pipe(catchError(() => of(null)))
+      .subscribe((user) => this.userSub.next(user));
   }
 
   login(email: string, password: string) {
     return this.http
-      .post<User>(`http://localhost:3000/api/users/login`, { email, password })
+      .post<{ roles: string[] }>(
+        '/api/users/login',
+        { email, password },
+        { withCredentials: true }
+      )
       .pipe(
+        switchMap(() =>
+          this.http.get<User>('/api/users/profile', { withCredentials: true })
+        ),
         tap((user) => {
-          localStorage.setItem('user', JSON.stringify(user));
           this.userSub.next(user);
         })
       );
   }
 
   logout() {
-    localStorage.removeItem('user');
-    this.userSub.next(null);
-    this.router.navigate(['/login']);
+    return this.http
+      .post('/api/users/logout', {}, { withCredentials: true })
+      .pipe(
+        tap(() => {
+          this.userSub.next(null);
+          this.router.navigate(['/login']);
+        })
+      )
+      .subscribe();
   }
 
   get currentUser(): User | null {

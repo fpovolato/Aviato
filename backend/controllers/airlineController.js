@@ -1,6 +1,9 @@
 const User = require("../models/User");
 const Airline = require("../models/Airline");
 
+// @desc    Create a new airline
+// @route   POST /api/airlines
+// @access  Private
 const createAirline = async (req, res) => {
   const { name, code } = req.body;
 
@@ -23,6 +26,9 @@ const createAirline = async (req, res) => {
   }
 };
 
+// @desc    Get all airlines
+// @route   GET /api/airlines
+// @access  Public
 const getAirlines = async (req, res) => {
   try {
     const airlines = await Airline.find();
@@ -33,6 +39,9 @@ const getAirlines = async (req, res) => {
   }
 };
 
+// @desc    Get airline by ID
+// @route   GET /api/airlines/:id
+// @access  Public
 const getAirlineById = async (req, res) => {
   try {
     const airline = await Airline.findById(req.params.id).populate(
@@ -50,6 +59,9 @@ const getAirlineById = async (req, res) => {
   }
 };
 
+// @desc    Invite an employee to an airline
+// @route   POST /api/airlines/invite
+// @access  Private
 const inviteEmployee = async (req, res) => {
   const { userId, airlineId } = req.body;
 
@@ -87,6 +99,9 @@ const inviteEmployee = async (req, res) => {
   }
 };
 
+// @desc    Get all employees of all airlines
+// @route   GET /api/airlines/employees
+// @access  Private
 const getAllEmployees = async (req, res) => {
   try {
     const requester = req.user;
@@ -133,6 +148,9 @@ const getAllEmployees = async (req, res) => {
   }
 };
 
+// @desc    Get employees of a specific airline
+// @route   GET /api/airlines/:airlineId/employees
+// @access  Private
 const getEmployeesByAirline = async (req, res) => {
   const { airlineId } = req.params;
 
