@@ -2,10 +2,13 @@ services:
   backend:
     build: ./backend
     ports:
-      - "3000:3000"
+      - "3000:3000"    # se passi in HTTPS da Nginx esterno, qui puoi anche omettere
+      - "3443:3443"    # HTTPS backend
+    volumes:
+      - ./certs:/app/certs:ro    # monta i certificati
     environment:
       - MONGO_URI=mongodb://mongo:27017/backenddb
-      - PORT=3000
+      - PORT=3443                # cambia porta interna per HTTPS
     depends_on:
       - mongo
 
@@ -20,7 +23,10 @@ services:
   dashboard:
     build: ./dashboard
     ports:
-      - "4200:80"
+      - "4200:80"                # opzionale: mantiene dev HTTP
+      - "4443:443"               # HTTPS dashboard
+    volumes:
+      - ./certs:/etc/nginx/certs:ro
     depends_on:
       - backend
 

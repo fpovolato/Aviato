@@ -1,31 +1,16 @@
-const express = require("express");
-const mongoose = require("mongoose");
-const dotenv = require("dotenv");
-const usersRoutes = require("./routes/userRoutes");
-const airlinesRoutes = require("./routes/airlineRoutes");
-const planeRoutes = require("./routes/planeRoutes");
-const airportRoutes = require("./routes/airportRoutes");
-const flightRoutes = require("./routes/flightRoutes");
-const cartRoutes = require("./routes/cartRoutes");
-const orderRoutes = require("./routes/orderRoutes");
+require("dotenv").config();
 
-const cors = require("cors");
+const fs = require("fs");
+const https = require("https");
+const app = require("./app");
 
-dotenv.config();
-const app = express();
+const SSL_PORT = process.env.SSL_PORT || 3443;
+const keyPath = "/app/certs/localhost-key.pem";
+const certPath = "/app/certs/localhost.pem";
 
-app.use(cors());
-app.use(express.json());
+const key = fs.readFileSync(keyPath);
+const cert = fs.readFileSync(certPath);
 
-app.use("/api/users", usersRoutes);
-app.use("/api/airlines", airlinesRoutes);
-app.use("/api/planes", planeRoutes);
-app.use("/api/airports", airportRoutes);
-app.use("/api/flights", flightRoutes);
-app.use("/api/cart", cartRoutes);
-app.use("/api/orders", orderRoutes);
-
-require("./config/db")();
-
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`Server running on port: ${PORT}`));
+https.createServer({ key, cert }, app).listen(SSL_PORT, () => {
+  console.log(`🚀 HTTPS Server listening on https://localhost:${SSL_PORT}`);
+});
