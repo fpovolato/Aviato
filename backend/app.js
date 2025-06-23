@@ -11,6 +11,7 @@ const airportsRoutes = require("./routes/airportRoutes");
 const flightsRoutes = require("./routes/flightRoutes");
 const cartRoutes = require("./routes/cartRoutes");
 const ordersRoutes = require("./routes/orderRoutes");
+const routeRoutes = require("./routes/routeRoutes");
 
 connectDB();
 
@@ -32,5 +33,6 @@ app.use("/api/airports", airportsRoutes);
 app.use("/api/flights", flightsRoutes);
 app.use("/api/cart", cartRoutes);
 app.use("/api/orders", ordersRoutes);
+app.use("/api/routes", routeRoutes);
 
 module.exports = app;

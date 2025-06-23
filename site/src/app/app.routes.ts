@@ -1,12 +1,23 @@
-import {Routes} from '@angular/router';
-import {FlightsListComponent} from './pages/flights-list/flights-list.component';
-import {CartComponent} from './pages/cart/cart.component';
+import { Routes } from '@angular/router';
+import { CartComponent } from './pages/cart/cart.component';
+import { HomeComponent } from './pages/home/home.component';
+import { LoginComponent } from './pages/login.component';
+import { UserPageComponent } from './pages/user-page.component';
 
-export const routes: Routes = [{
-  path: '',
-  pathMatch: 'full',
-  component: FlightsListComponent
-},
+export const routes: Routes = [
+  {
+    path: 'login',
+    component: LoginComponent,
+  },
+  {
+    path: 'user',
+    component: UserPageComponent,
+  },
+  {
+    path: '',
+    pathMatch: 'full',
+    component: HomeComponent,
+  },
   {
     path: 'cart',
     component: CartComponent,
