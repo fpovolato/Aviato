@@ -3,6 +3,7 @@ export interface User {
   name: string;
   surname: string;
   email: string;
+  birthDate: string;
   roles: string[];
-  token: string;
+  airlines: { _id: string; name: string; code: string }[];
 }
