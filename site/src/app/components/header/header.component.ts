@@ -47,7 +47,7 @@ import { Router } from '@angular/router';
               <span
                 class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-blue-200 text-blue-800 font-bold text-lg"
               >
-                {{ (u.name?.[0] || '') + (u.surname?.[0] || '') }}
+                {{ (u.name[0] || '') + (u.surname[0] || '') }}
               </span>
               <span class="font-semibold">{{ u.name }} {{ u.surname }}</span>
             </a>
@@ -102,7 +102,7 @@ import { Router } from '@angular/router';
           <a routerLink="/user" class="flex items-center gap-2 py-2">
             <span
               class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-blue-200 text-blue-800 font-bold text-lg"
-              >{{ (u.name?.[0] || '') + (u.surname?.[0] || '') }}</span
+              >{{ (u.name[0] || '') + (u.surname[0] || '') }}</span
             >
             <span class="font-semibold">{{ u.name }} {{ u.surname }}</span>
           </a>

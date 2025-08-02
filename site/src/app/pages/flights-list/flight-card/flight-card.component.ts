@@ -6,6 +6,7 @@ function formatDate(dateStr: string): string {
   const d = new Date(dateStr);
   return d.toLocaleDateString('en-GB');
 }
+
 function formatTime(dateStr: string): string {
   if (!dateStr) return '';
   const d = new Date(dateStr);
@@ -24,7 +25,6 @@ function formatTime(dateStr: string): string {
     <div
       class="flex flex-col md:flex-row justify-between items-center bg-gradient-to-br from-blue-50 to-white shadow-xl border border-blue-200 rounded-3xl px-6 py-3 gap-6 hover:scale-[1.015] hover:shadow-2xl transition-all w-full max-w-3xl mx-auto relative overflow-hidden min-h-[140px]"
     >
-      <!-- Badge Direct/Stop in alto a destra -->
       <div class="absolute top-4 left-4 flex flex-col gap-2 z-10 items-end">
         <span
           *ngIf="flight.stops === 0"
@@ -37,7 +37,6 @@ function formatTime(dateStr: string): string {
           >1 stop</span
         >
       </div>
-      <!-- Badge Airline in basso a sinistra -->
       <div class="absolute bottom-4 left-4 z-10">
         <span
           *ngIf="flight.airline?.name"
@@ -59,7 +58,6 @@ function formatTime(dateStr: string): string {
           {{ flight.airline?.name }}
         </span>
       </div>
-      <!-- Times & Dates -->
       <div class="flex-1 text-center flex flex-col gap-2">
         <div class="flex items-center justify-center gap-10">
           <div class="flex flex-col items-center">

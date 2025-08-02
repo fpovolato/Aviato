@@ -4,6 +4,8 @@ import { HttpClient } from '@angular/common/http';
 import { CommonModule } from '@angular/common';
 import { debounceTime, distinctUntilChanged, switchMap, of } from 'rxjs';
 import { FlightCardComponent } from '../flights-list/flight-card/flight-card.component';
+import { CartService } from '../../services/cart.service';
+import { Flight } from '../../models/flights.model';
 
 @Component({
   selector: 'app-home',
@@ -270,7 +272,7 @@ export class HomeComponent {
   private justSelectedFrom = false;
   private justSelectedTo = false;
 
-  constructor(private http: HttpClient) {
+  constructor(private http: HttpClient, private cartService: CartService) {
     this.fromControl.valueChanges
       .pipe(
         debounceTime(300),
@@ -431,8 +433,88 @@ export class HomeComponent {
     return d.toISOString().slice(0, 10);
   }
 
-  addToCart(flight: any) {
-    // TODO: integrare con il carrello
-    alert('Added to cart: ' + flight.flightNumber);
+  addToCart(flightOrSegments: any) {
+    // Handle both single flight and array of segments
+    const flights = Array.isArray(flightOrSegments)
+      ? flightOrSegments
+      : [flightOrSegments];
+
+    let addedCount = 0;
+    let alreadyInCartCount = 0;
+
+    for (const flight of flights) {
+      // Convert the flight data to match the Flight interface
+      const cartFlight: Flight = {
+        id: flight._id || Math.random(), // Use _id if available, otherwise generate random id
+        number: flight.flightNumber,
+        airline: flight.airline?.name || 'Unknown Airline',
+        from:
+          flight.route?.departureAirport?.iata ||
+          flight.route?.departureAirport?.name ||
+          '',
+        to:
+          flight.route?.arrivalAirport?.iata ||
+          flight.route?.arrivalAirport?.name ||
+          '',
+        departure: flight.departureDate,
+        departureDate: flight.departureDate,
+        arrival: flight.arrivalDate,
+        arrivalDate: flight.arrivalDate,
+        price: flight.price || 0,
+        seats: flight.seatsAvailable || 0,
+        additionalLuggagePrice: flight.additionalLuggagePrice || 30,
+      };
+
+      // Check if flight is already in cart
+      const existingFlight = this.cartService
+        .cart()
+        .find((item) => item.flight.id === cartFlight.id);
+      if (existingFlight) {
+        alreadyInCartCount++;
+        continue;
+      }
+
+      this.cartService.addToCart(cartFlight);
+      addedCount++;
+    }
+
+    // Show appropriate notification
+    if (addedCount > 0 && alreadyInCartCount === 0) {
+      const message =
+        flights.length === 1
+          ? `Added flight ${flights[0].flightNumber} to cart!`
+          : `Added ${addedCount} flights to cart!`;
+      this.showNotification(message, 'success');
+    } else if (addedCount > 0 && alreadyInCartCount > 0) {
+      const message = `Added ${addedCount} flights to cart! (${alreadyInCartCount} were already in cart)`;
+      this.showNotification(message, 'success');
+    } else if (addedCount === 0 && alreadyInCartCount > 0) {
+      const message =
+        flights.length === 1
+          ? `Flight ${flights[0].flightNumber} is already in your cart!`
+          : `All ${alreadyInCartCount} flights are already in your cart!`;
+      this.showNotification(message, 'error');
+    }
+  }
+
+  private showNotification(
+    message: string,
+    type: 'success' | 'error' = 'success'
+  ) {
+    // Create a simple notification
+    const notification = document.createElement('div');
+    notification.className = `fixed top-4 right-4 z-50 px-6 py-3 rounded-lg shadow-lg text-white font-semibold ${
+      type === 'success' ? 'bg-green-500' : 'bg-red-500'
+    }`;
+    notification.textContent = message;
+
+    document.body.appendChild(notification);
+
+    // Remove notification after 3 seconds
+    setTimeout(() => {
+      if (document.body.contains(notification)) {
+        document.body.removeChild(notification);
+      }
+    }, 3000);
   }
 }

@@ -344,6 +344,10 @@ const searchFlights = async (req, res) => {
 		if (!from || !to) {
 			return res.status(400).json({ message: "from and to are required" });
 		}
+
+		// Get current date and time to exclude past flights
+		const currentDate = new Date();
+
 		// Trova tutte le rotte dirette
 		const directRoutes = await Route.find({
 			departureAirport: from,
@@ -351,14 +355,26 @@ const searchFlights = async (req, res) => {
 		}).select("_id");
 		const directRouteIds = directRoutes.map((r) => r._id);
 		let flightQuery = { route: { $in: directRouteIds } };
+
+		// Add current date filter to exclude past flights
+		flightQuery["departureDate"] = { $gte: currentDate };
+
 		if (departureDate && departureDateEnd) {
 			flightQuery["departureDate"] = {
-				$gte: new Date(departureDate),
+				$gte: new Date(
+					Math.max(new Date(departureDate).getTime(), currentDate.getTime())
+				),
 				$lt: new Date(departureDateEnd),
 			};
 		} else if (departureDate) {
-			flightQuery["departureDate"] = { $gte: new Date(departureDate) };
+			const requestedDate = new Date(departureDate);
+			flightQuery["departureDate"] = {
+				$gte: new Date(
+					Math.max(requestedDate.getTime(), currentDate.getTime())
+				),
+			};
 		}
+
 		if (returnDate && returnDateEnd) {
 			flightQuery["arrivalDate"] = {
 				$gte: new Date(returnDate),
@@ -367,6 +383,7 @@ const searchFlights = async (req, res) => {
 		} else if (returnDate) {
 			flightQuery["arrivalDate"] = { $gte: new Date(returnDate) };
 		}
+
 		const directFlights = await Flight.find(flightQuery)
 			.populate({
 				path: "route",
@@ -399,19 +416,28 @@ const searchFlights = async (req, res) => {
 			});
 			for (const secondLeg of secondLegRoutes) {
 				// Trova i voli per il primo segmento
-				const firstFlights = await Flight.find({
+				let firstFlightQuery = {
 					route: firstLeg._id,
-					...(departureDate && departureDateEnd
-						? {
-								departureDate: {
-									$gte: new Date(departureDate),
-									$lt: new Date(departureDateEnd),
-								},
-						  }
-						: departureDate
-						? { departureDate: { $gte: new Date(departureDate) } }
-						: {}),
-				})
+					departureDate: { $gte: currentDate }, // Add current date filter
+				};
+
+				if (departureDate && departureDateEnd) {
+					firstFlightQuery["departureDate"] = {
+						$gte: new Date(
+							Math.max(new Date(departureDate).getTime(), currentDate.getTime())
+						),
+						$lt: new Date(departureDateEnd),
+					};
+				} else if (departureDate) {
+					const requestedDate = new Date(departureDate);
+					firstFlightQuery["departureDate"] = {
+						$gte: new Date(
+							Math.max(requestedDate.getTime(), currentDate.getTime())
+						),
+					};
+				}
+
+				const firstFlights = await Flight.find(firstFlightQuery)
 					.populate({
 						path: "route",
 						populate: [
@@ -427,24 +453,27 @@ const searchFlights = async (req, res) => {
 					})
 					.populate({ path: "airline", select: "name code" })
 					.populate({ path: "plane", select: "code manifacturer model seats" });
+
 				// Per ogni volo del primo segmento, cerca voli del secondo segmento compatibili
 				for (const firstFlight of firstFlights) {
 					const minConnectionTime = new Date(firstFlight.arrivalDate);
 					minConnectionTime.setMinutes(minConnectionTime.getMinutes() + 30); // almeno 30 min di scalo
-					const secondFlights = await Flight.find({
+
+					let secondFlightQuery = {
 						route: secondLeg._id,
 						departureDate: { $gte: minConnectionTime },
-						...(returnDate && returnDateEnd
-							? {
-									arrivalDate: {
-										$gte: new Date(returnDate),
-										$lt: new Date(returnDateEnd),
-									},
-							  }
-							: returnDate
-							? { arrivalDate: { $gte: new Date(returnDate) } }
-							: {}),
-					})
+					};
+
+					if (returnDate && returnDateEnd) {
+						secondFlightQuery["arrivalDate"] = {
+							$gte: new Date(returnDate),
+							$lt: new Date(returnDateEnd),
+						};
+					} else if (returnDate) {
+						secondFlightQuery["arrivalDate"] = { $gte: new Date(returnDate) };
+					}
+
+					const secondFlights = await Flight.find(secondFlightQuery)
 						.populate({
 							path: "route",
 							populate: [

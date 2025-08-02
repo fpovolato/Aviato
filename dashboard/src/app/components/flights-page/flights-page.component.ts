@@ -62,7 +62,7 @@ import { formatDate } from '@angular/common';
           >
             <thead>
               <tr class="bg-indigo-50">
-                <th class="p-2">Flight#></th>
+                <th class="p-2">Flight#</th>
                 <th class="p-2">Airline</th>
                 <th class="p-2">From</th>
                 <th class="p-2">To</th>
