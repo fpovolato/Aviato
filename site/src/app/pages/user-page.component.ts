@@ -39,7 +39,7 @@ import { Router } from '@angular/router';
             </div>
             <div class="text-sm text-gray-500">{{ u.email }}</div>
             <div class="text-xs text-gray-400 mb-2">
-              Roles: {{ u.roles?.join(', ') }}
+              Roles: {{ u.roles.join(', ') }}
             </div>
           </div>
           <div *ngIf="u.airlines?.length">

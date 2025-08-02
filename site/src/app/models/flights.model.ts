@@ -10,7 +10,8 @@ export interface Flight {
   arrivalDate: string;
   price: number;
   seats: number;
-/*
+  additionalLuggagePrice?: number;
+  /*
   planeType: Object;
 */
 }
