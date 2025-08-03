@@ -35,6 +35,11 @@ import { AuthService } from '../../auth/auth.service';
           >Airlines</a
         >
         <a
+          (click)="onPlanesClick($event)"
+          class="block px-3 py-2 rounded hover:bg-gray-700 cursor-pointer"
+          >Aircraft</a
+        >
+        <a
           (click)="onUsersClick($event)"
           class="block px-3 py-2 rounded hover:bg-gray-700 cursor-pointer"
           >Users</a
@@ -81,6 +86,15 @@ export class SidebarComponent {
       alert('Accesso consentito solo agli admin.');
     } else {
       this.router.navigate(['/airlines']);
+    }
+  }
+
+  onPlanesClick(event: Event) {
+    if (!this.isAdmin) {
+      event.preventDefault();
+      alert('Accesso consentito solo agli admin.');
+    } else {
+      this.router.navigate(['/planes']);
     }
   }
 }

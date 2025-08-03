@@ -12,16 +12,17 @@ const flightsRoutes = require("./routes/flightRoutes");
 const cartRoutes = require("./routes/cartRoutes");
 const ordersRoutes = require("./routes/orderRoutes");
 const routeRoutes = require("./routes/routeRoutes");
+const seatRoutes = require("./routes/seatRoutes");
 
 connectDB();
 
 const app = express();
 
 app.use(
-  cors({
-    origin: "https://localhost:4443",
-    credentials: true,
-  })
+	cors({
+		origin: "https://localhost:4443",
+		credentials: true,
+	})
 );
 app.use(cookieParser());
 app.use(express.json());
@@ -34,5 +35,6 @@ app.use("/api/flights", flightsRoutes);
 app.use("/api/cart", cartRoutes);
 app.use("/api/orders", ordersRoutes);
 app.use("/api/routes", routeRoutes);
+app.use("/api/seats", seatRoutes);
 
 module.exports = app;
