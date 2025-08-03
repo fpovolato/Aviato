@@ -6,6 +6,12 @@ export interface CartItem {
   passengers: number;
   luggageQuantity: number;
   seatSelection: boolean;
+  selectedSeat?: {
+    row: string;
+    number: number;
+    seatClass: 'first' | 'economy';
+  };
+  ticketClass: 'first' | 'economy';
 }
 
 @Injectable({
@@ -21,6 +27,8 @@ export class CartService {
       passengers: 1,
       luggageQuantity: 0,
       seatSelection: false,
+      selectedSeat: undefined,
+      ticketClass: 'economy',
     };
     this.cart.set([...this.cart(), cartItem]);
   }

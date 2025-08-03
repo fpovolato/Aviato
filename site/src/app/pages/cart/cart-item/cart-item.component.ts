@@ -2,11 +2,12 @@ import { Component, input, signal, computed, inject } from '@angular/core';
 import { CartItem } from '../../../services/cart.service';
 import { ButtonComponent } from '../../../components/button/button.component';
 import { CartService } from '../../../services/cart.service';
+import { SeatSelectorComponent } from '../../../components/seat-selector/seat-selector.component';
 
 @Component({
   selector: 'app-cart-item',
   standalone: true,
-  imports: [ButtonComponent],
+  imports: [ButtonComponent, SeatSelectorComponent],
   template: `
     <div
       class="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden hover:shadow-xl transition-shadow"
@@ -283,20 +284,28 @@ import { CartService } from '../../../services/cart.service';
               <div>
                 <span class="font-medium text-gray-700">Seat Selection</span>
                 <p class="text-sm text-gray-500">+15€ per passenger</p>
+                @if (item().selectedSeat) {
+                <p class="text-xs text-gray-600 mt-1">
+                  Seat: {{ item().selectedSeat?.row }}{{ item().selectedSeat?.number }}
+                </p>
+                }
               </div>
             </div>
-            <label class="relative inline-flex items-center cursor-pointer">
-              <input
-                type="checkbox"
-                [checked]="item().seatSelection"
-                (change)="onSeatChange($event)"
-                class="sr-only peer"
-              />
-              <div
-                class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"
-              ></div>
-            </label>
+            <button
+              class="px-4 py-2 rounded-lg text-white bg-blue-600 hover:bg-blue-700"
+              (click)="openSeatSelector()"
+            >
+              {{ item().seatSelection ? 'Change' : 'Select' }} Seat
+            </button>
           </div>
+          @if (showSeatSelector()) {
+          <app-seat-selector
+            [flightId]="item().flight.id"
+            [seatClass]="item().ticketClass"
+            (seatSelected)="onSeatChosen($event)"
+            (closed)="onSelectorClosed()"
+          />
+          }
         </div>
 
         <!-- Price Breakdown -->
@@ -347,6 +356,7 @@ import { CartService } from '../../../services/cart.service';
 export class CartItemComponent {
   item = input.required<CartItem>();
   cartService = inject(CartService);
+  showSeatSelector = signal(false);
 
   formatDate(dateStr: string): string {
     if (!dateStr) return '';
@@ -396,11 +406,23 @@ export class CartItemComponent {
     }
   }
 
-  onSeatChange(event: Event) {
-    const target = event.target as HTMLInputElement | null;
-    if (target) {
+  openSeatSelector() {
+    this.showSeatSelector.set(true);
+  }
+
+  onSeatChosen(seat: { row: string; number: number; seatClass: 'first' | 'economy' }) {
+    this.cartService.updateCartItem(this.item().flight.id, {
+      seatSelection: true,
+      selectedSeat: seat,
+    });
+    this.showSeatSelector.set(false);
+  }
+
+  onSelectorClosed() {
+    this.showSeatSelector.set(false);
+    if (!this.item().selectedSeat) {
       this.cartService.updateCartItem(this.item().flight.id, {
-        seatSelection: target.checked,
+        seatSelection: false,
       });
     }
   }
