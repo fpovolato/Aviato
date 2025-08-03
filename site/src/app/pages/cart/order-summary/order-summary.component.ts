@@ -105,9 +105,13 @@ import { PrimaryButtonComponent } from '../../../components/primary-button/prima
 
         <!-- Actions -->
         <div class="space-y-3">
-          <app-primary-button label="Proceed to checkout" class="w-full" />
           <button
-            class="w-full py-3 px-4 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors"
+            class="w-full py-3 px-4 border border-gray-300 rounded-lg text-white bg-blue-500 hover:bg-blue-300 transition-colors"
+          >
+            Proceed to checkout
+          </button>
+          <button
+            class="w-full py-3 px-4 border border-gray-300 rounded-lg text-white bg-red-500 hover:bg-red-300 transition-colors"
             (click)="cartService.clearCart()"
           >
             Clear cart

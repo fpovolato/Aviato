@@ -147,16 +147,49 @@ import { CartService } from '../../../services/cart.service';
               </svg>
               <span class="font-medium text-gray-700">Passengers</span>
             </div>
-            <select
-              (change)="onPassengerChange($event)"
-              class="border border-gray-300 rounded-lg px-3 py-2 bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-            >
-              @for (n of [1,2,3,4,5]; track n) {
-              <option [value]="n" [selected]="n === item().passengers">
-                {{ n }}
-              </option>
-              }
-            </select>
+            <div class="flex items-center space-x-2">
+              <button
+                (click)="decreasePassengers()"
+                [disabled]="item().passengers === 1"
+                class="w-8 h-8 rounded-full bg-gray-200 hover:bg-gray-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
+              >
+                <svg
+                  class="w-4 h-4"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M20 12H4"
+                  ></path>
+                </svg>
+              </button>
+              <span class="w-8 text-center font-medium">{{
+                item().passengers
+              }}</span>
+              <button
+                (click)="increasePassengers()"
+                [disabled]="item().passengers >= 5"
+                class="w-8 h-8 rounded-full bg-gray-200 hover:bg-gray-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
+              >
+                <svg
+                  class="w-4 h-4"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M12 4v16m8-8H4"
+                  ></path>
+                </svg>
+              </button>
+            </div>
           </div>
 
           <!-- Luggage -->
@@ -180,7 +213,7 @@ import { CartService } from '../../../services/cart.service';
               <div>
                 <span class="font-medium text-gray-700">Checked Luggage</span>
                 <p class="text-sm text-gray-500">
-                  +{{ getLuggagePrice() }}€ per piece per passenger
+                  +{{ getLuggagePrice() }}€ per piece
                 </p>
               </div>
             </div>
@@ -280,8 +313,8 @@ import { CartService } from '../../../services/cart.service';
             @if (item().luggageQuantity > 0) {
             <div class="flex justify-between text-blue-600">
               <span
-                >Luggage ({{ item().passengers }} ×
-                {{ item().luggageQuantity }} × {{ getLuggagePrice() }}€)</span
+                >Luggage ({{ item().luggageQuantity }} ×
+                {{ getLuggagePrice() }}€)</span
               >
               <span>+{{ getLuggagePrice() * item().luggageQuantity }}€</span>
             </div>
@@ -331,11 +364,18 @@ export class CartItemComponent {
     });
   }
 
-  onPassengerChange(event: Event) {
-    const target = event.target as HTMLSelectElement | null;
-    if (target) {
+  increasePassengers() {
+    if (this.item().passengers < 5) {
       this.cartService.updateCartItem(this.item().flight.id, {
-        passengers: +target.value,
+        passengers: this.item().passengers + 1,
+      });
+    }
+  }
+
+  decreasePassengers() {
+    if (this.item().passengers > 1) {
+      this.cartService.updateCartItem(this.item().flight.id, {
+        passengers: this.item().passengers - 1,
       });
     }
   }

@@ -79,5 +79,23 @@ export const routes: Routes = [
         (m) => m.AirlinesPageComponent
       ),
   },
+  {
+    path: 'planes',
+    loadComponent: () =>
+      import('./components/planes-page/planes-page.component').then(
+        (m) => m.PlanesPageComponent
+      ),
+    canActivate: [AuthGuard],
+    data: { roles: ['admin'] },
+  },
+  {
+    path: 'planes/:id/seats',
+    loadComponent: () =>
+      import('./components/planes-page/plane-seats.component').then(
+        (m) => m.PlaneSeatsComponent
+      ),
+    canActivate: [AuthGuard],
+    data: { roles: ['admin'] },
+  },
   { path: '**', redirectTo: '' },
 ];
