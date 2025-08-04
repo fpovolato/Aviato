@@ -6,6 +6,12 @@ export interface CartItem {
   passengers: number;
   luggageQuantity: number;
   seatSelection: boolean;
+  selectedSeat?: {
+    row: string;
+    number: number;
+    seatClass: 'first' | 'economy';
+  };
+  ticketClass: 'first' | 'economy';
 }
 
 @Injectable({
@@ -21,6 +27,8 @@ export class CartService {
       passengers: 1,
       luggageQuantity: 0,
       seatSelection: false,
+      selectedSeat: undefined,
+      ticketClass: 'economy',
     };
     this.cart.set([...this.cart(), cartItem]);
   }
@@ -43,12 +51,18 @@ export class CartService {
 
   getCartTotal(): number {
     return this.cart().reduce((total, item) => {
-      let itemTotal = item.flight.price * item.passengers;
+      let itemTotal;
+
+      if (item.ticketClass === 'first') {
+        itemTotal = item.flight.firstClassPrice * item.passengers;
+      } else {
+        itemTotal = item.flight.price * item.passengers;
+      }
 
       // Add luggage cost if selected (using flight's additionalLuggagePrice or default 30€)
       if (item.luggageQuantity > 0) {
         const luggagePrice = item.flight.additionalLuggagePrice || 30;
-        itemTotal += luggagePrice * item.luggageQuantity * item.passengers;
+        itemTotal += luggagePrice * item.luggageQuantity;
       }
 
       // Add seat selection cost if selected (assuming 15€ per passenger)

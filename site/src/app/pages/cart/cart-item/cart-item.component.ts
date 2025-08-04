@@ -1,4 +1,6 @@
 import { Component, input, signal, computed, inject } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { Router } from '@angular/router';
 import { CartItem } from '../../../services/cart.service';
 import { ButtonComponent } from '../../../components/button/button.component';
 import { CartService } from '../../../services/cart.service';
@@ -6,7 +8,7 @@ import { CartService } from '../../../services/cart.service';
 @Component({
   selector: 'app-cart-item',
   standalone: true,
-  imports: [ButtonComponent],
+  imports: [CommonModule, ButtonComponent],
   template: `
     <div
       class="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden hover:shadow-xl transition-shadow"
@@ -98,6 +100,48 @@ import { CartService } from '../../../services/cart.service';
             </div>
           </div>
         </div>
+
+        <!-- Selected Seat Information -->
+        @if (item().flight.selectedSeat) {
+        <div class="mb-6">
+          <div class="bg-green-50 border border-green-200 rounded-lg p-4">
+            <div class="flex items-center justify-between">
+              <div class="flex items-center space-x-3">
+                <svg
+                  class="w-5 h-5 text-green-600"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M5 13l4 4L19 7"
+                  ></path>
+                </svg>
+                <div>
+                  <span class="font-medium text-green-800"
+                    >Posto Selezionato</span
+                  >
+                  <p class="text-sm text-green-600">
+                    Posto {{ item().flight.selectedSeat?.row
+                    }}{{ item().flight.selectedSeat?.number }} ({{
+                      item().flight.selectedSeat?.class | titlecase
+                    }}
+                    Class)
+                  </p>
+                </div>
+              </div>
+              <div class="text-right">
+                <div class="text-sm text-green-600">
+                  {{ item().flight.selectedSeat?.price | currency : 'EUR' }}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        }
 
         <!-- Seats Availability -->
         <div class="mb-6">
@@ -192,6 +236,61 @@ import { CartService } from '../../../services/cart.service';
             </div>
           </div>
 
+          <!-- Class Selection -->
+          <div
+            class="flex items-center justify-between p-4 bg-purple-50 rounded-lg"
+          >
+            <div class="flex items-center space-x-3">
+              <svg
+                class="w-5 h-5 text-gray-600"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"
+                ></path>
+              </svg>
+              <div>
+                <span class="font-medium text-gray-700">Travel Class</span>
+                <p class="text-sm text-gray-500">
+                  @if (item().ticketClass === 'first') { +{{
+                    getFirstClassUpcharge()
+                  }}€ per passenger } @else { Economy:
+                  {{ item().flight.price }}€, First:
+                  {{ item().flight.firstClassPrice }}€ }
+                </p>
+              </div>
+            </div>
+            <div class="flex items-center space-x-2">
+              <button
+                (click)="selectClass('economy')"
+                [class]="
+                  item().ticketClass === 'economy'
+                    ? 'bg-blue-600 text-white'
+                    : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                "
+                class="px-4 py-2 rounded-lg font-medium transition-colors"
+              >
+                Economy
+              </button>
+              <button
+                (click)="selectClass('first')"
+                [class]="
+                  item().ticketClass === 'first'
+                    ? 'bg-blue-600 text-white'
+                    : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                "
+                class="px-4 py-2 rounded-lg font-medium transition-colors"
+              >
+                First Class
+              </button>
+            </div>
+          </div>
+
           <!-- Luggage -->
           <div
             class="flex items-center justify-between p-4 bg-gray-50 rounded-lg"
@@ -263,6 +362,7 @@ import { CartService } from '../../../services/cart.service';
           </div>
 
           <!-- Seat Selection -->
+          @if (!item().flight.selectedSeat) {
           <div
             class="flex items-center justify-between p-4 bg-gray-50 rounded-lg"
           >
@@ -281,22 +381,20 @@ import { CartService } from '../../../services/cart.service';
                 ></path>
               </svg>
               <div>
-                <span class="font-medium text-gray-700">Seat Selection</span>
-                <p class="text-sm text-gray-500">+15€ per passenger</p>
+                <span class="font-medium text-gray-700">Selezione Posto</span>
+                <p class="text-sm text-gray-500">
+                  Scegli il tuo posto preferito
+                </p>
               </div>
             </div>
-            <label class="relative inline-flex items-center cursor-pointer">
-              <input
-                type="checkbox"
-                [checked]="item().seatSelection"
-                (change)="onSeatChange($event)"
-                class="sr-only peer"
-              />
-              <div
-                class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"
-              ></div>
-            </label>
+            <button
+              class="px-4 py-2 rounded-lg text-white bg-blue-600 hover:bg-blue-700"
+              (click)="navigateToSeatSelection()"
+            >
+              Seleziona Posto
+            </button>
           </div>
+          }
         </div>
 
         <!-- Price Breakdown -->
@@ -305,23 +403,37 @@ import { CartService } from '../../../services/cart.service';
           <div class="space-y-2 text-sm">
             <div class="flex justify-between">
               <span
-                >Base fare ({{ item().passengers }} ×
-                {{ item().flight.price }}€)</span
+                >@if (item().ticketClass === 'first') { First Class fare ({{
+                  item().passengers
+                }}
+                × {{ item().flight.firstClassPrice }}€) } @else { Economy fare
+                ({{ item().passengers }} × {{ item().flight.price }}€) }</span
               >
-              <span>{{ item().flight.price * item().passengers }}€</span>
+              <span
+                >@if (item().ticketClass === 'first') {
+                {{ item().flight.firstClassPrice * item().passengers }}€ } @else
+                { {{ item().flight.price * item().passengers }}€ }</span
+              >
             </div>
-            @if (item().luggageQuantity > 0) {
+            @if (item().flight.selectedSeat) {
+            <div class="flex justify-between text-green-600">
+              <span
+                >Posto selezionato ({{ item().passengers }} ×
+                {{ item().flight.selectedSeat?.price }}€)</span
+              >
+              <span
+                >+{{
+                  (item().flight.selectedSeat?.price || 0) * item().passengers
+                }}€</span
+              >
+            </div>
+            } @if (item().luggageQuantity > 0) {
             <div class="flex justify-between text-blue-600">
               <span
                 >Luggage ({{ item().luggageQuantity }} ×
                 {{ getLuggagePrice() }}€)</span
               >
               <span>+{{ getLuggagePrice() * item().luggageQuantity }}€</span>
-            </div>
-            } @if (item().seatSelection) {
-            <div class="flex justify-between text-blue-600">
-              <span>Seat selection ({{ item().passengers }} × 15€)</span>
-              <span>+{{ 15 * item().passengers }}€</span>
             </div>
             }
             <div class="border-t pt-2 flex justify-between font-bold text-lg">
@@ -347,6 +459,7 @@ import { CartService } from '../../../services/cart.service';
 export class CartItemComponent {
   item = input.required<CartItem>();
   cartService = inject(CartService);
+  private router = inject(Router);
 
   formatDate(dateStr: string): string {
     if (!dateStr) return '';
@@ -396,29 +509,44 @@ export class CartItemComponent {
     }
   }
 
-  onSeatChange(event: Event) {
-    const target = event.target as HTMLInputElement | null;
-    if (target) {
-      this.cartService.updateCartItem(this.item().flight.id, {
-        seatSelection: target.checked,
-      });
-    }
+  navigateToSeatSelection() {
+    const flightId =
+      this.item().flight.mongoId || this.item().flight.id.toString();
+    this.router.navigate(['/seat-selection', flightId]);
   }
 
   getLuggagePrice(): number {
     return this.item().flight.additionalLuggagePrice || 30;
   }
 
+  getFirstClassUpcharge(): number {
+    return this.item().flight.firstClassPrice - this.item().flight.price;
+  }
+
+  selectClass(ticketClass: 'first' | 'economy') {
+    this.cartService.updateCartItem(this.item().flight.id, {
+      ticketClass: ticketClass,
+    });
+  }
+
   totalPrice = computed(() => {
-    let total = this.item().flight.price * this.item().passengers;
+    let total;
+
+    if (this.item().ticketClass === 'first') {
+      total = this.item().flight.firstClassPrice * this.item().passengers;
+    } else {
+      total = this.item().flight.price * this.item().passengers;
+    }
+
+    // Add selected seat price if available
+    if (this.item().flight.selectedSeat) {
+      total +=
+        (this.item().flight.selectedSeat?.price || 0) * this.item().passengers;
+    }
 
     if (this.item().luggageQuantity > 0) {
       const luggagePrice = this.item().flight.additionalLuggagePrice || 30;
       total += luggagePrice * this.item().luggageQuantity;
-    }
-
-    if (this.item().seatSelection) {
-      total += 15 * this.item().passengers;
     }
 
     return total;

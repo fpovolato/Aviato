@@ -1,10 +1,9 @@
 import { Component, computed, inject } from '@angular/core';
 import { CartService } from '../../../services/cart.service';
-import { PrimaryButtonComponent } from '../../../components/primary-button/primary-button.component';
 
 @Component({
   selector: 'app-order-summary',
-  imports: [PrimaryButtonComponent],
+  imports: [],
   template: `
     <div
       class="bg-white rounded-xl shadow-lg border border-gray-200 sticky top-8"
@@ -53,10 +52,14 @@ import { PrimaryButtonComponent } from '../../../components/primary-button/prima
               </div>
               <div class="text-sm text-gray-600">
                 {{ item.flight.airline }} • {{ item.passengers }} passenger(s)
+                @if (item.ticketClass === 'first') { • First Class }
               </div>
-              @if (item.luggageQuantity > 0 || item.seatSelection) {
+              @if (item.luggageQuantity > 0 || item.seatSelection ||
+              item.ticketClass === 'first') {
               <div class="text-xs text-blue-600 mt-1">
-                @if (item.luggageQuantity > 0) {
+                @if (item.ticketClass === 'first') { First Class } @if
+                (item.ticketClass === 'first' && (item.luggageQuantity > 0 ||
+                item.seatSelection)) { + } @if (item.luggageQuantity > 0) {
                 {{ item.luggageQuantity }} luggage } @if (item.luggageQuantity >
                 0 && item.seatSelection) { + } @if (item.seatSelection) { Seat
                 selection }
@@ -76,10 +79,15 @@ import { PrimaryButtonComponent } from '../../../components/primary-button/prima
         <div class="border-t pt-4 mb-6">
           <div class="space-y-2 text-sm">
             <div class="flex justify-between">
-              <span class="text-gray-600">Base fare</span>
-              <span>{{ getBaseFareTotal() }}€</span>
+              <span class="text-gray-600">Economy fare</span>
+              <span>{{ getEconomyFareTotal() }}€</span>
             </div>
-            @if (getLuggageTotal() > 0) {
+            @if (getFirstClassTotal() > 0) {
+            <div class="flex justify-between text-purple-600">
+              <span>First class upgrade</span>
+              <span>+{{ getFirstClassTotal() }}€</span>
+            </div>
+            } @if (getLuggageTotal() > 0) {
             <div class="flex justify-between text-blue-600">
               <span>Luggage fees</span>
               <span>+{{ getLuggageTotal() }}€</span>
@@ -129,26 +137,44 @@ export class OrderSummaryComponent {
   total = computed(() => this.cartService.getCartTotal());
 
   getItemTotal(item: any): number {
-    let total = item.flight.price * item.passengers;
+    let total;
+
+    if (item.ticketClass === 'first') {
+      total = item.flight.firstClassPrice * item.passengers;
+    } else {
+      total = item.flight.price * item.passengers;
+    }
+
     if (item.luggageQuantity > 0) {
       const luggagePrice = item.flight.additionalLuggagePrice || 30;
-      total += luggagePrice * item.luggageQuantity * item.passengers;
+      total += luggagePrice * item.luggageQuantity;
     }
     if (item.seatSelection) total += 15 * item.passengers;
     return total;
   }
 
-  getBaseFareTotal(): number {
-    return this.cartService
-      .cart()
-      .reduce((total, item) => total + item.flight.price * item.passengers, 0);
+  getEconomyFareTotal(): number {
+    return this.cartService.cart().reduce((total, item) => {
+      return total + item.flight.price * item.passengers;
+    }, 0);
   }
 
   getLuggageTotal(): number {
     return this.cartService.cart().reduce((total, item) => {
       if (item.luggageQuantity > 0) {
         const luggagePrice = item.flight.additionalLuggagePrice || 30;
-        return total + luggagePrice * item.luggageQuantity * item.passengers;
+        return total + luggagePrice * item.luggageQuantity;
+      }
+      return total;
+    }, 0);
+  }
+
+  getFirstClassTotal(): number {
+    return this.cartService.cart().reduce((total, item) => {
+      if (item.ticketClass === 'first') {
+        const firstClassUpcharge =
+          item.flight.firstClassPrice - item.flight.price;
+        return total + firstClassUpcharge * item.passengers;
       }
       return total;
     }, 0);

@@ -152,7 +152,8 @@ const planeConfigurations = [
 const seedPlanes = async () => {
 	try {
 		// Connetti al database
-		const mongoUri = process.env.MONGO_URI || "mongodb://mongo:27017/backenddb";
+		const mongoUri =
+			process.env.MONGO_URI || "mongodb://localhost:27017/backenddb";
 		await mongoose.connect(mongoUri);
 		console.log("Connesso al database");
 

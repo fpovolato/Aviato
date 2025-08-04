@@ -461,6 +461,7 @@ export class HomeComponent {
         arrival: flight.arrivalDate,
         arrivalDate: flight.arrivalDate,
         price: flight.price || 0,
+        firstClassPrice: flight.firstClassPrice || flight.price * 1.5,
         seats: flight.seatsAvailable || 0,
         additionalLuggagePrice: flight.additionalLuggagePrice || 30,
       };

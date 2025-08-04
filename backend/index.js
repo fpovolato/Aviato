@@ -12,5 +12,5 @@ const key = fs.readFileSync(keyPath);
 const cert = fs.readFileSync(certPath);
 
 https.createServer({ key, cert }, app).listen(SSL_PORT, () => {
-  console.log(`🚀 HTTPS Server listening on https://localhost:${SSL_PORT}`);
+	console.log(`🚀 HTTPS Server listening on https://localhost:${SSL_PORT}`);
 });

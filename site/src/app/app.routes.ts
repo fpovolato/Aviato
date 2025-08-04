@@ -3,6 +3,7 @@ import { CartComponent } from './pages/cart/cart.component';
 import { HomeComponent } from './pages/home/home.component';
 import { LoginComponent } from './pages/login.component';
 import { UserPageComponent } from './pages/user-page.component';
+import { SeatSelectionComponent } from './pages/seat-selection/seat-selection.component';
 
 export const routes: Routes = [
   {
@@ -21,5 +22,9 @@ export const routes: Routes = [
   {
     path: 'cart',
     component: CartComponent,
+  },
+  {
+    path: 'seat-selection/:flightId',
+    component: SeatSelectionComponent,
   },
 ];
