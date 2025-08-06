@@ -20,8 +20,16 @@ const app = express();
 
 app.use(
 	cors({
-		origin: "https://localhost:4443",
+		origin: [
+			"http://localhost:4200",
+			"https://localhost:4443",
+			"https://localhost:4543",
+			"http://localhost:3000",
+			"https://localhost:3443",
+		],
 		credentials: true,
+		methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+		allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With"],
 	})
 );
 app.use(cookieParser());

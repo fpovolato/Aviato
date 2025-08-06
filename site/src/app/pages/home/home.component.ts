@@ -446,6 +446,7 @@ export class HomeComponent {
       // Convert the flight data to match the Flight interface
       const cartFlight: Flight = {
         id: flight._id || Math.random(), // Use _id if available, otherwise generate random id
+        mongoId: flight._id, // Store the MongoDB ID for backend operations
         number: flight.flightNumber,
         airline: flight.airline?.name || 'Unknown Airline',
         from:

@@ -1,5 +1,10 @@
 import { Component, computed, inject } from '@angular/core';
 import { CartService } from '../../../services/cart.service';
+import { OrderService } from '../../../services/order.service';
+import { SeatReservationService } from '../../../services/seat-reservation.service';
+import { AuthService } from '../../../services/auth.service';
+import { NotificationService } from '../../../services/notification.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-order-summary',
@@ -114,9 +119,35 @@ import { CartService } from '../../../services/cart.service';
         <!-- Actions -->
         <div class="space-y-3">
           <button
-            class="w-full py-3 px-4 border border-gray-300 rounded-lg text-white bg-blue-500 hover:bg-blue-300 transition-colors"
+            (click)="proceedToCheckout()"
+            [disabled]="isProcessing"
+            class="w-full py-3 px-4 border border-gray-300 rounded-lg text-white bg-blue-500 hover:bg-blue-300 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            Proceed to checkout
+            @if (isProcessing) {
+            <span class="flex items-center justify-center">
+              <svg
+                class="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+              >
+                <circle
+                  class="opacity-25"
+                  cx="12"
+                  cy="12"
+                  r="10"
+                  stroke="currentColor"
+                  stroke-width="4"
+                ></circle>
+                <path
+                  class="opacity-75"
+                  fill="currentColor"
+                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                ></path>
+              </svg>
+              Processing...
+            </span>
+            } @else { Proceed to checkout }
           </button>
           <button
             class="w-full py-3 px-4 border border-gray-300 rounded-lg text-white bg-red-500 hover:bg-red-300 transition-colors"
@@ -133,8 +164,14 @@ import { CartService } from '../../../services/cart.service';
 })
 export class OrderSummaryComponent {
   cartService = inject(CartService);
+  orderService = inject(OrderService);
+  seatReservationService = inject(SeatReservationService);
+  authService = inject(AuthService);
+  notificationService = inject(NotificationService);
+  router = inject(Router);
 
   total = computed(() => this.cartService.getCartTotal());
+  isProcessing = false;
 
   getItemTotal(item: any): number {
     let total;
@@ -188,5 +225,88 @@ export class OrderSummaryComponent {
           total + (item.seatSelection ? 15 * item.passengers : 0),
         0
       );
+  }
+
+  async proceedToCheckout() {
+    if (this.isProcessing) return;
+
+    this.isProcessing = true;
+
+    try {
+      // Verifica che l'utente sia autenticato
+      const currentUser = this.authService.currentUser;
+      if (!currentUser) {
+        this.notificationService.error(
+          'Autenticazione Richiesta',
+          "Devi essere autenticato per procedere con l'ordine"
+        );
+        this.router.navigate(['/login']);
+        return;
+      }
+
+      // Prepara i dati dell'ordine
+      const orderItems = this.cartService.cart().map((item) => ({
+        flight: item.flight.mongoId as string,
+        quantity: item.passengers,
+        priceAtPurchase:
+          item.ticketClass === 'first'
+            ? item.flight.firstClassPrice
+            : item.flight.price,
+        additionalLuggage: item.luggageQuantity,
+        seatClass: item.ticketClass,
+        passengers: item.passengers,
+        selectedSeat: item.selectedSeat,
+      }));
+
+      // Prepara le prenotazioni dei posti
+      const seatReservations = this.cartService
+        .cart()
+        .filter((item) => item.selectedSeat)
+        .map((item) => ({
+          flight: item.flight.mongoId as string,
+          plane: 'default-plane-id', // Assumiamo un ID di default
+          seatRow: item.selectedSeat!.row,
+          seatNumber: item.selectedSeat!.number,
+          seatClass: item.selectedSeat!.seatClass,
+          price:
+            item.ticketClass === 'first'
+              ? item.flight.firstClassPrice
+              : item.flight.price,
+          isAisle: false,
+          isWindow: false,
+          isEmergencyExit: false,
+          isBulkhead: false,
+        }));
+
+      const orderData = {
+        items: orderItems,
+        total: this.total(),
+        paymentMethod: 'Credit Card' as const,
+        paymentDetails: {
+          method: 'Credit Card',
+          status: 'paid',
+        },
+        seatReservations,
+      };
+
+      // Crea l'ordine
+      const order = await this.orderService.createOrder(orderData).toPromise();
+
+      if (order) {
+        // Svuota il carrello
+        this.cartService.clearCart();
+
+        // Reindirizza alla pagina di conferma con l'ID dell'ordine
+        this.router.navigate(['/order-confirmation', order._id]);
+      }
+    } catch (error: any) {
+      console.error('Errore durante il checkout:', error);
+      this.notificationService.error(
+        'Errore durante il Checkout',
+        'Si è verificato un errore durante il processo di checkout. Riprova.'
+      );
+    } finally {
+      this.isProcessing = false;
+    }
   }
 }
