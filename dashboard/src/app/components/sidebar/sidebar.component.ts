@@ -42,7 +42,7 @@ import { AuthService } from '../../auth/auth.service';
         <a
           (click)="onUsersClick($event)"
           class="block px-3 py-2 rounded hover:bg-gray-700 cursor-pointer"
-          >Users</a
+          >Roles</a
         >
       </nav>
       <button
