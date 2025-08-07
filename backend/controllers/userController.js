@@ -1,6 +1,10 @@
 const User = require("../models/User");
 const generateToken = require("../utils/generateToken");
-const { generateRefreshToken } = require("../utils/tokenUtils");
+const {
+	generateRefreshToken,
+	verifyRefreshToken,
+	generateAccessToken,
+} = require("../utils/tokenUtils");
 
 // @desc    Register a new user
 // @route   POST /api/users/register

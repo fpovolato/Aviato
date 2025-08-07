@@ -6,13 +6,13 @@ import {
   Validators,
   FormGroup,
 } from '@angular/forms';
+import { Router, RouterModule } from '@angular/router';
 import { AuthService } from './auth.service';
-import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule, RouterModule],
   template: `
     <div class="flex min-h-full flex-col justify-center px-6 py-12 lg:px-8">
       <div class="sm:mx-auto sm:w-full sm:max-w-sm">
@@ -101,6 +101,17 @@ import { Router } from '@angular/router';
             </button>
           </div>
         </form>
+        <div class="mt-6 text-center">
+          <p class="text-sm text-gray-600">
+            Don't have an account?
+            <a
+              routerLink="/signup"
+              class="font-medium text-indigo-600 hover:text-indigo-500"
+            >
+              Sign up
+            </a>
+          </p>
+        </div>
       </div>
     </div>
   `,

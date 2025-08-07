@@ -12,8 +12,38 @@ export class AuthService {
   constructor(private http: HttpClient, private router: Router) {
     this.http
       .get<User>('/api/users/profile', { withCredentials: true })
-      .pipe(catchError(() => of(null)))
+      .pipe(
+        catchError((error) => {
+          // Silently handle 401 errors (user not logged in)
+          if (error.status === 401) {
+            return of(null);
+          }
+          console.error('Error fetching user profile:', error);
+          return of(null);
+        })
+      )
       .subscribe((user) => this.user.set(user));
+  }
+
+  register(userData: {
+    name: string;
+    surname: string;
+    birthDate: string;
+    email: string;
+    password: string;
+  }) {
+    return this.http
+      .post<{ roles: string[] }>('/api/users/register', userData, {
+        withCredentials: true,
+      })
+      .pipe(
+        switchMap(() =>
+          this.http.get<User>('/api/users/profile', { withCredentials: true })
+        ),
+        tap((user) => {
+          this.user.set(user);
+        })
+      );
   }
 
   login(email: string, password: string) {
