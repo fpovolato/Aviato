@@ -8,7 +8,7 @@ import {
   computed,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { SeatService } from '../../services/seat.service';
+import { SeatReservationService } from '../../services/seat-reservation.service';
 
 @Component({
   selector: 'app-seat-selector',
@@ -213,7 +213,7 @@ export class SeatSelectorComponent {
   }>();
   @Output() closed = new EventEmitter<void>();
 
-  seatService = inject(SeatService);
+  seatService = inject(SeatReservationService);
   seats = signal<Record<string, any[]>>({});
   seatRows = computed(() => Object.keys(this.seats()));
   selectedClass = signal<'first' | 'economy'>('economy');

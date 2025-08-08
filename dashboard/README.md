@@ -1,59 +1,101 @@
-# Dashboard
+# Aviato — Dashboard (Back‑office)
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 19.2.11.
+Interfaccia amministrativa per la gestione della piattaforma Aviato: autenticazione e profilo, gestione utenti/ruoli, compagnie aeree, aerei, rotte, voli, selezione posti (visualizzazione) e analytics. L’app è una SPA Angular servita in produzione da Nginx con proxy HTTPS verso il backend.
 
-## Development server
 
-To start a local development server, run:
+## Stack tecnologico
+- Framework UI: Angular 19 (standalone components)
+- Styling: Tailwind CSS v4
+- State/HTTP: RxJS, HttpClient (withCredentials)
+- Servizio web: Nginx (reverse proxy → backend)
+- Build chain: Node.js (builder) + Docker multistage
 
-```bash
-ng serve
+
+## Architettura e struttura
+```
+dashboard/
+  src/app/
+    app.routes.ts        # Routing di alto livello e protezione per ruoli
+    app.config.ts        # Router/HttpClient providers
+    auth/
+      auth.service.ts    # Login/logout/registrazione, profilo, stato utente
+      auth.guard.ts      # Protezione route: login, ruoli, first‑login
+      login.component.ts, signup.component.ts, first-login.component.ts
+    components/
+      dashboard/         # Home analytics (admin vs employee/manager)
+      users-page/        # CRUD utenti (scope ruoli)
+      airlines-page/     # Gestione compagnie (admin)
+      planes-page/       # Lista aerei + mappa/metriche posti
+      flights-page/      # Lista/creazione voli
+      routes-page/       # Lista/creazione rotte
+      sidebar/           # Navigazione
+    models/              # Tipi client (User, Plane, Flights, Route...)
+    services/
+      analytics.service.ts  # Chiamate /api/analytics/*
+      plane.service.ts      # Aerei e posti (+ endpoint seats)
+  environments/environment.ts  # Base API (dev)
+  Dockerfile
+  nginx.conf               # HTTPS + proxy /api → backend
 ```
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
+- Autenticazione: cookie HTTP‑only impostati dal backend. Le chiamate HTTP includono `withCredentials: true` quando necessario.
+- Ruoli: `admin | manager | employee`. Il guard applica i vincoli di accesso per pagina e reindirizza al `first-login` se richiesto.
+- Proxy API: in Docker, Nginx inoltra `/api/*` al backend HTTPS sulla porta 3443 (servizio `backend`).
 
-## Code scaffolding
 
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
+## Routing (principale)
+- `/` Dashboard (protetto: admin/employee/manager)
+- `/login`, `/signup`, `/first-login`
+- `/user` Profilo utente (protetto)
+- `/flights`, `/flights/create` (protetto)
+- `/routes`, `/routes/create` (protetto)
+- `/users`, `/users/create`, `/users/create-employee`, `/users/create-manager` (vincoli per ruolo)
+- `/airlines` (admin)
 
+
+## Configurazione
+- Ambiente dev (`src/environments/environment.ts`):
+  - `apiUrl: 'https://localhost:3443/api'`
+- Nginx (produzione in container):
+  - HTTPS con certificati in `/etc/nginx/certs/localhost.pem` e `localhost-key.pem`
+  - Proxy `/api/*` → `https://backend:3443` (SSL verify off in dev)
+
+
+## Avvio locale (sviluppo)
+Prerequisiti: Node 20+, Angular CLI, backend attivo su `https://localhost:3443`.
+
+1) Installazione
 ```bash
-ng generate component component-name
+cd dashboard
+npm install
 ```
-
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
-
+2) Avvio UI
 ```bash
-ng generate --help
+npm start   # ng serve su http://localhost:4200
 ```
+Note:
+- Per far funzionare le chiamate `/api/*` in `ng serve`, usare un proxy dev Angular o modificare temporaneamente i service per puntare a `environment.apiUrl`. In Docker questa configurazione è già gestita da Nginx.
 
-## Building
 
-To build the project run:
-
+## Esecuzione con Docker
+Costruzione ed esecuzione (consigliato via `docker-compose.yml` alla radice repo):
 ```bash
-ng build
+docker compose up --build
 ```
+- Porta HTTPS dashboard: `4443` (vedi compose). I certificati vanno montati in `/etc/nginx/certs`.
 
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
 
-## Running unit tests
+## Sicurezza e best practice
+- Le richieste verso il backend usano `withCredentials` e cookie HTTP‑only.
+- In environment non di produzione, i certificati self‑signed sono accettati via Nginx (`proxy_ssl_verify off`).
 
-To execute unit tests with the [Karma](https://karma-runner.github.io) test runner, use the following command:
 
-```bash
-ng test
-```
+## Script npm
+- `npm start`: dev server
+- `npm run build`: build produzione (`dist/dashboard/browser`)
 
-## Running end-to-end tests
 
-For end-to-end (e2e) testing, run:
-
-```bash
-ng e2e
-```
-
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
-
-## Additional Resources
-
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+## Funzionalità chiave
+- Dashboard analytics (employee/manager): passeggeri, ricavi, rotte popolari, revenue mensile, voli in programma.
+- Gestione risorse: utenti, compagnie, aerei (con mappa e statistiche posti), rotte, voli.
+- Flussi ruolo‑sensibili (crea manager/employee, first‑login con cambio password).

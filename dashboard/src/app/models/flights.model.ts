@@ -1,4 +1,4 @@
-import { Route } from "./route.models";
+import { Route } from './route.model';
 
 export interface Flight {
   _id: string;
@@ -14,4 +14,4 @@ export interface Flight {
   status: string;
   delayedManually?: boolean;
   cancelledManually?: boolean;
-} 
+}

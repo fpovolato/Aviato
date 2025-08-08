@@ -1,22 +1,19 @@
-import {Component, input, output} from '@angular/core';
+import { Component, input, output } from '@angular/core';
+import { BaseButtonComponent, ButtonVariant } from '../base-button/base-button.component';
 
 @Component({
   selector: 'app-button',
-  imports: [],
+  imports: [BaseButtonComponent],
   template: `
-    <!--
-        <button class="bg-blue-500 text-white w-full border px-5 py-2 rounded-xl shadow-md hover:opacity-90" (click)="btnClicked.emit()">
-    -->
-    <button
-      class="mt-2 bg-gradient-to-r from-red-600 to-red-400 text-white font-semibold py-2 px-4 rounded hover:opacity-90"
-      (click)="btnClicked.emit()">
-      {{ label() }}
-    </button>
+    <app-base-button
+      [label]="label()"
+      [variant]="'danger'"
+      (btnClicked)="btnClicked.emit()"
+    />
   `,
   styles: ``
 })
 export class ButtonComponent {
   label = input('');
-
   btnClicked = output();
 }

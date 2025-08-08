@@ -1,7 +1,6 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { environment } from '../../environments/environment';
+import { BaseApiService } from './base-api.service';
 
 export interface SeatReservation {
   _id?: string;
@@ -25,46 +24,34 @@ export interface SeatReservation {
 @Injectable({
   providedIn: 'root',
 })
-export class SeatReservationService {
-  private apiUrl = `${environment.apiUrl}/seat-reservations`;
-
-  constructor(private http: HttpClient) {}
+export class SeatReservationService extends BaseApiService {
+  private seatApiUrl = '/seat-reservations';
 
   createReservation(
     reservationData: Partial<SeatReservation>
   ): Observable<SeatReservation> {
-    return this.http.post<SeatReservation>(this.apiUrl, reservationData, {
-      withCredentials: true,
-    });
+    return this.post<SeatReservation>(this.seatApiUrl, reservationData);
   }
 
   confirmReservation(id: string): Observable<SeatReservation> {
-    return this.http.patch<SeatReservation>(
-      `${this.apiUrl}/${id}/confirm`,
-      {},
-      { withCredentials: true }
-    );
+    return this.patch<SeatReservation>(`${this.seatApiUrl}/${id}/confirm`, {});
   }
 
   cancelReservation(id: string): Observable<SeatReservation> {
-    return this.http.patch<SeatReservation>(
-      `${this.apiUrl}/${id}/cancel`,
-      {},
-      { withCredentials: true }
-    );
+    return this.patch<SeatReservation>(`${this.seatApiUrl}/${id}/cancel`, {});
   }
 
   getFlightReservations(flightId: string): Observable<SeatReservation[]> {
-    return this.http.get<SeatReservation[]>(
-      `${this.apiUrl}/flight/${flightId}`,
-      { withCredentials: true }
-    );
+    return this.get<SeatReservation[]>(`${this.seatApiUrl}/flight/${flightId}`);
+  }
+
+  // Alias for compatibility with SeatService
+  getFlightSeats(flightId: string): Observable<any> {
+    return this.get<any>(`/seats/flights/${flightId}/seats`);
   }
 
   getUserReservations(): Observable<SeatReservation[]> {
-    return this.http.get<SeatReservation[]>(`${this.apiUrl}/user`, {
-      withCredentials: true,
-    });
+    return this.get<SeatReservation[]>(`${this.seatApiUrl}/user`);
   }
 
   isSeatAvailable(
@@ -72,9 +59,8 @@ export class SeatReservationService {
     seatRow: string,
     seatNumber: number
   ): Observable<boolean> {
-    return this.http.get<boolean>(
-      `${this.apiUrl}/availability/${flightId}/${seatRow}/${seatNumber}`,
-      { withCredentials: true }
+    return this.get<boolean>(
+      `${this.seatApiUrl}/availability/${flightId}/${seatRow}/${seatNumber}`
     );
   }
 }

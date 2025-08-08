@@ -1,25 +1,21 @@
 import { Component, input, output } from '@angular/core';
+import { BaseButtonComponent } from '../base-button/base-button.component';
 
 @Component({
   selector: 'app-primary-button',
-  imports: [],
+  imports: [BaseButtonComponent],
   template: `
-    <!--
-        <button class="bg-blue-500 text-white w-full border px-5 py-2 rounded-xl shadow-md hover:opacity-90" (click)="btnClicked.emit()">
-    -->
-    <button
-      class="mt-2 bg-gradient-to-r from-blue-600 to-blue-400 text-white font-semibold py-2 px-4 rounded hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed"
+    <app-base-button
+      [label]="label()"
       [disabled]="disabled()"
-      (click)="btnClicked.emit()"
-    >
-      {{ label() }}
-    </button>
+      [variant]="'primary'"
+      (btnClicked)="btnClicked.emit()"
+    />
   `,
   styles: ``,
 })
 export class PrimaryButtonComponent {
   label = input('');
   disabled = input(false);
-
   btnClicked = output();
 }

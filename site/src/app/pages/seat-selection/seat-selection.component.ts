@@ -1,7 +1,7 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
-import { SeatService } from '../../services/seat.service';
+import { SeatReservationService } from '../../services/seat-reservation.service';
 import { CartService } from '../../services/cart.service';
 
 @Component({
@@ -204,7 +204,7 @@ import { CartService } from '../../services/cart.service';
 export class SeatSelectionComponent implements OnInit {
   private route = inject(ActivatedRoute);
   private router = inject(Router);
-  private seatService = inject(SeatService);
+  private seatService = inject(SeatReservationService);
   private cartService = inject(CartService);
 
   flightId = '';

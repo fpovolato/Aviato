@@ -1,59 +1,102 @@
-# Site
+# Aviato — Site (Front‑office)
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 19.2.10.
+SPA customer‑facing per ricerca voli, autenticazione cliente, carrello, selezione posti e checkout ordini. Servita in produzione da Nginx con proxy HTTPS verso il backend.
 
-## Development server
 
-To start a local development server, run:
+## Stack tecnologico
+- Framework UI: Angular 19 (standalone components)
+- Styling: Tailwind CSS v4
+- Stato/HTTP: Signals + HttpClient (withCredentials)
+- Servizio web: Nginx (reverse proxy → backend)
+- Build chain: Node.js (builder) + Docker multistage
 
-```bash
-ng serve
+
+## Architettura e struttura
+```
+site/
+  src/app/
+    app.routes.ts        # Home, login/signup, cart, seat‑selection, order‑confirmation
+    app.config.ts        # Router/HttpClient providers (XSRF config)
+    components/
+      header/            # Header e UI riutilizzabili
+      seat-selector/     # Widget selezione posti (UI)
+      primary-button/    # Componenti UI
+    pages/
+      home/              # Lista/raccolta voli
+      cart/              # Carrello (riepilogo, item)
+      seat-selection/    # Selezione posti per volo
+      order-confirmation/# Conferma ordine
+      user-page.component.ts, login.component.ts, signup.component.ts
+    services/
+      auth.service.ts            # Stato utente, login/signup/logout
+      cart.service.ts            # Stato carrello + sync backend
+      order.service.ts           # Creazione/recupero ordini
+      seat.service.ts            # Mappa posti per volo
+      seat-reservation.service.ts# (non usata direttamente; API ausiliarie)
+    models/              # Tipi client (Flight, User, ...)
+  environments/environment.ts  # Base API (dev)
+  Dockerfile
+  nginx.conf                 # HTTPS + proxy /api → backend
 ```
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
+- Autenticazione: cookie HTTP‑only emessi dal backend. Le richieste includono `withCredentials: true` quando necessario.
+- Carrello: stato locale sincronizzato con backend (`/api/cart`). Il totale include classe biglietto, bagagli aggiuntivi e selezione posto.
+- Selezione posti: UI basata sui dati di `GET /api/seats/flights/:flightId/seats`; la scelta viene salvata nel carrello e può essere riflessa nell’ordine.
 
-## Code scaffolding
 
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
+## Routing (principale)
+- `/` Home (lista/ricerca voli)
+- `/login`, `/signup`
+- `/user` Profilo cliente
+- `/cart` Carrello
+- `/seat-selection/:flightId` Selezione posti per volo
+- `/order-confirmation/:orderId` Conferma ordine
 
+
+## Configurazione
+- Ambiente dev (`src/environments/environment.ts`):
+  - `apiUrl: 'https://localhost:3443/api'`
+- Nginx (produzione in container):
+  - HTTPS con certificati in `/etc/nginx/certs/localhost.pem` e `localhost-key.pem`
+  - Proxy `/api/*` → `https://backend:3443`
+
+
+## Avvio locale (sviluppo)
+Prerequisiti: Node 20+, Angular CLI, backend attivo su `https://localhost:3443`.
+
+1) Installazione
 ```bash
-ng generate component component-name
+cd site
+npm install
 ```
-
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
-
+2) Avvio UI
 ```bash
-ng generate --help
+npm start   # ng serve su http://localhost:4300 (in compose è 4300:80)
 ```
+Note:
+- Per far funzionare le chiamate API in `ng serve`, configurare un proxy dev Angular per `/api` o assicurarsi che i service utilizzino `environment.apiUrl`. In Docker il proxy è già configurato via Nginx.
 
-## Building
 
-To build the project run:
-
+## Esecuzione con Docker
+Eseguire dal root repo con compose (consigliato):
 ```bash
-ng build
+docker compose up --build
 ```
+- Porta HTTPS site: `4543` (vedi compose). I certificati vanno montati in `/etc/nginx/certs`.
 
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
 
-## Running unit tests
+## Sicurezza e best practice
+- Cookie HTTP‑only + `withCredentials` per le operazioni autenticate.
+- XSRF: configurazione header/cookie predisposta in `app.config.ts`.
+- Certificati self‑signed accettati solo in dev tramite Nginx.
 
-To execute unit tests with the [Karma](https://karma-runner.github.io) test runner, use the following command:
 
-```bash
-ng test
-```
+## Script npm
+- `npm start`: dev server
+- `npm run build`: build produzione (`dist/site/browser`)
 
-## Running end-to-end tests
 
-For end-to-end (e2e) testing, run:
-
-```bash
-ng e2e
-```
-
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
-
-## Additional Resources
-
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+## Flussi principali
+- Autenticazione cliente: registrazione/login; il servizio utente verifica lo stato su `/api/users/profile` all’avvio.
+- Ricerca/prenotazione: aggiunta voli al carrello (sincronizzata col backend), selezione di classe/bagagli/posti.
+- Checkout: creazione ordine tramite `OrderService` (inclusi eventuali `seatReservations`).

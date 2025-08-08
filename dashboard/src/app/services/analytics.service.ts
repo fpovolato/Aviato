@@ -1,7 +1,6 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { environment } from '../../environments/environment';
+import { BaseApiService } from './base-api.service';
 
 export interface DashboardAnalytics {
   isAdmin?: boolean;
@@ -54,22 +53,12 @@ export interface AirlineAnalytics {
 @Injectable({
   providedIn: 'root',
 })
-export class AnalyticsService {
-  private apiUrl = environment.apiUrl;
-
-  constructor(private http: HttpClient) {}
-
+export class AnalyticsService extends BaseApiService {
   getDashboardAnalytics(): Observable<DashboardAnalytics> {
-    return this.http.get<DashboardAnalytics>(
-      `${this.apiUrl}/analytics/dashboard`,
-      { withCredentials: true }
-    );
+    return this.get<DashboardAnalytics>('/analytics/dashboard');
   }
 
   getAirlineAnalytics(airlineId: string): Observable<AirlineAnalytics> {
-    return this.http.get<AirlineAnalytics>(
-      `${this.apiUrl}/analytics/airline/${airlineId}`,
-      { withCredentials: true }
-    );
+    return this.get<AirlineAnalytics>(`/analytics/airline/${airlineId}`);
   }
 }
