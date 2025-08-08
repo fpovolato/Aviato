@@ -54,9 +54,13 @@ const createFlight = async (req, res) => {
 		const requester = req.user;
 		const isAdmin = requester.roles.includes("admin");
 		if (!isAdmin) {
-			const allowedAirlineIds = (requester.airlines || []).map((a) => a.toString());
+			const allowedAirlineIds = (requester.airlines || []).map((a) =>
+				a.toString()
+			);
 			if (!allowedAirlineIds.includes(String(airline))) {
-				return res.status(403).json({ message: "Access denied for this airline" });
+				return res
+					.status(403)
+					.json({ message: "Access denied for this airline" });
 			}
 		}
 
@@ -239,17 +243,19 @@ const getFlightById = async (req, res) => {
  *     schema: { type: string }
  */
 const getFlightsByAirline = async (req, res) => {
-    try {
-        const requestedAirlineId = req.params.id;
+	try {
+		const requestedAirlineId = req.params.id;
 
-        const requester = req.user;
-        const isAdmin = requester.roles.includes("admin");
-        const belongsToAirline = (requester.airlines || []).map((a) => a.toString()).includes(requestedAirlineId);
-        if (!isAdmin && !belongsToAirline) {
-            return res.status(403).json({ message: "Access denied" });
-        }
+		const requester = req.user;
+		const isAdmin = requester.roles.includes("admin");
+		const belongsToAirline = (requester.airlines || [])
+			.map((a) => a.toString())
+			.includes(requestedAirlineId);
+		if (!isAdmin && !belongsToAirline) {
+			return res.status(403).json({ message: "Access denied" });
+		}
 
-        const flights = await Flight.find({ airline: requestedAirlineId })
+		const flights = await Flight.find({ airline: requestedAirlineId })
 			.populate({
 				path: "route",
 				populate: [
@@ -265,7 +271,7 @@ const getFlightsByAirline = async (req, res) => {
 			})
 			.populate({ path: "airline", select: "name code" })
 			.populate({ path: "plane", select: "code manifacturer model seats" });
-        if (!flights) {
+		if (!flights) {
 			return res.status(404).json({ message: "Flights not found" });
 		}
 		const flightWithDuration = flights.map((flight) => {
@@ -321,9 +327,13 @@ const updateFlight = async (req, res) => {
 		const requester = req.user;
 		const isAdmin = requester.roles.includes("admin");
 		if (!isAdmin) {
-			const allowedAirlineIds = (requester.airlines || []).map((a) => a.toString());
+			const allowedAirlineIds = (requester.airlines || []).map((a) =>
+				a.toString()
+			);
 			if (!allowedAirlineIds.includes(String(flight.airline))) {
-				return res.status(403).json({ message: "Access denied for this airline" });
+				return res
+					.status(403)
+					.json({ message: "Access denied for this airline" });
 			}
 		}
 
@@ -469,6 +479,12 @@ const updateFlightStatus = async (req, res) => {
  *   - in: query
  *     name: returnDateEnd
  *     schema: { type: string, format: date-time }
+ *   - in: query
+ *     name: sortBy
+ *     schema: { type: string, enum: [price, departureDate, duration, airline] }
+ *   - in: query
+ *     name: sortOrder
+ *     schema: { type: string, enum: [asc, desc] }
  * responses:
  *   200: { description: OK }
  *   400: { description: Missing parameters }
@@ -482,6 +498,8 @@ const searchFlights = async (req, res) => {
 			departureDateEnd,
 			returnDate,
 			returnDateEnd,
+			sortBy,
+			sortOrder,
 		} = req.query;
 		if (!from || !to) {
 			return res.status(400).json({ message: "from and to are required" });
@@ -650,7 +668,69 @@ const searchFlights = async (req, res) => {
 			segments: [flight],
 		}));
 
-		return res.status(200).json([...directResults, ...oneStopResults]);
+		// Combina tutti i risultati
+		let allResults = [...directResults, ...oneStopResults];
+
+		// Applica il sorting se specificato
+		if (sortBy) {
+			const order = sortOrder === "desc" ? -1 : 1;
+
+			allResults.sort((a, b) => {
+				let aValue, bValue;
+
+				switch (sortBy) {
+					case "price":
+						// Per i voli diretti, usa il prezzo del volo
+						// Per i voli con scalo, somma i prezzi dei segmenti
+						aValue =
+							a.type === "direct"
+								? a.segments[0].price
+								: a.segments.reduce((sum, segment) => sum + segment.price, 0);
+						bValue =
+							b.type === "direct"
+								? b.segments[0].price
+								: b.segments.reduce((sum, segment) => sum + segment.price, 0);
+						break;
+
+					case "departureDate":
+						// Usa la data di partenza del primo segmento
+						aValue = new Date(a.segments[0].departureDate);
+						bValue = new Date(b.segments[0].departureDate);
+						break;
+
+					case "duration":
+						// Calcola la durata totale del viaggio
+						aValue =
+							a.type === "direct"
+								? new Date(a.segments[0].arrivalDate) -
+								  new Date(a.segments[0].departureDate)
+								: new Date(a.segments[a.segments.length - 1].arrivalDate) -
+								  new Date(a.segments[0].departureDate);
+						bValue =
+							b.type === "direct"
+								? new Date(b.segments[0].arrivalDate) -
+								  new Date(b.segments[0].departureDate)
+								: new Date(b.segments[b.segments.length - 1].arrivalDate) -
+								  new Date(b.segments[0].departureDate);
+						break;
+
+					case "airline":
+						// Usa il nome della compagnia aerea del primo segmento
+						aValue = a.segments[0].airline?.name || "";
+						bValue = b.segments[0].airline?.name || "";
+						break;
+
+					default:
+						return 0;
+				}
+
+				if (aValue < bValue) return -1 * order;
+				if (aValue > bValue) return 1 * order;
+				return 0;
+			});
+		}
+
+		return res.status(200).json(allResults);
 	} catch (error) {
 		console.error("❌ Error in searchFlights:", error);
 		return res

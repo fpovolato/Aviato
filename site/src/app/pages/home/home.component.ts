@@ -173,9 +173,36 @@ import { Flight } from '../../models/flights.model';
             </div>
           </form>
           <div class="w-full max-w-4xl mt-10" *ngIf="flights.length > 0">
-            <h2 class="text-2xl font-bold mb-6 text-blue-800">
-              Available flights
-            </h2>
+            <div
+              class="flex flex-col md:flex-row justify-between items-center mb-6"
+            >
+              <h2 class="text-2xl font-bold text-blue-800">
+                Available flights
+              </h2>
+              <div class="flex items-center gap-4">
+                <label class="text-sm font-semibold text-gray-700"
+                  >Sort by:</label
+                >
+                <select
+                  [(ngModel)]="sortBy"
+                  name="sortBy"
+                  (change)="onSortChange()"
+                  class="px-3 py-1 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
+                >
+                  <option value="departureDate">Departure Time</option>
+                  <option value="price">Price</option>
+                  <option value="duration">Duration</option>
+                  <option value="airline">Airline</option>
+                </select>
+                <button
+                  (click)="toggleSortOrder()"
+                  class="px-3 py-1 bg-blue-100 hover:bg-blue-200 text-blue-700 rounded-lg text-sm font-medium transition-colors"
+                  [title]="sortOrder === 'asc' ? 'Ascending' : 'Descending'"
+                >
+                  {{ sortOrder === 'asc' ? '↑' : '↓' }}
+                </button>
+              </div>
+            </div>
             <div class="flex flex-col gap-8">
               <ng-container *ngFor="let result of flights">
                 <app-flight-card
@@ -268,6 +295,10 @@ export class HomeComponent {
 
   selectedFromAirport: any = null;
   selectedToAirport: any = null;
+
+  // Sorting properties
+  sortBy = 'departureDate';
+  sortOrder = 'asc';
 
   private justSelectedFrom = false;
   private justSelectedTo = false;
@@ -399,6 +430,11 @@ export class HomeComponent {
         params.returnDateEnd = this.addOneDay(this.returnDate) + 'T00:00';
       }
     }
+    // Add sorting parameters
+    if (this.sortBy) {
+      params.sortBy = this.sortBy;
+      params.sortOrder = this.sortOrder;
+    }
     this.http.get<any[]>('/api/flights/search', { params }).subscribe({
       next: (flights) => {
         this.flights = flights.map((result) => {
@@ -425,6 +461,21 @@ export class HomeComponent {
         this.searching = false;
       },
     });
+  }
+
+  toggleSortOrder() {
+    this.sortOrder = this.sortOrder === 'asc' ? 'desc' : 'asc';
+    // Re-trigger search with new sort order
+    if (this.flights.length > 0) {
+      this.onSearchFlights(new Event('change'));
+    }
+  }
+
+  onSortChange() {
+    // Re-trigger search with new sort criteria
+    if (this.flights.length > 0) {
+      this.onSearchFlights(new Event('change'));
+    }
   }
 
   addOneDay(dateStr: string): string {
