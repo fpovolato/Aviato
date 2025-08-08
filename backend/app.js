@@ -19,6 +19,34 @@ connectDB();
 
 const app = express();
 
+/**
+ * @openapi
+ * info:
+ *   title: Aviato API
+ *   version: 1.0.0
+ *   description: REST API for Aviato flight booking platform.
+ * servers:
+ *   - url: https://localhost:3443
+ *     description: Local HTTPS
+ * components:
+ *   securitySchemes:
+ *     cookieAuth:
+ *       type: apiKey
+ *       in: cookie
+ *       name: accessToken
+ * tags:
+ *   - name: Users
+ *   - name: Airlines
+ *   - name: Airports
+ *   - name: Routes
+ *   - name: Planes
+ *   - name: Flights
+ *   - name: Orders
+ *   - name: Cart
+ *   - name: Seats
+ *   - name: Analytics
+ */
+
 app.use(
 	cors({
 		origin: [
