@@ -18,13 +18,40 @@ const Route = require("../models/Route");
  *           code: { type: string }
  */
 exports.createRoute = async (req, res) => {
-  try {
-    const { departureAirport, arrivalAirport, code } = req.body;
-    const route = await Route.create({ departureAirport, arrivalAirport, code });
-    res.status(201).json(route);
-  } catch (err) {
-    res.status(400).json({ message: err.message });
-  }
+	try {
+		const { departureAirport, arrivalAirport, code } = req.body;
+
+		// Check if route code already exists
+		const existingRoute = await Route.findOne({ code });
+		if (existingRoute) {
+			return res.status(400).json({ message: "Route code already exists" });
+		}
+
+		// Validate that airports exist
+		const Airport = require("../models/Airport");
+		const [depAirport, arrAirport] = await Promise.all([
+			Airport.findById(departureAirport),
+			Airport.findById(arrivalAirport),
+		]);
+
+		if (!depAirport || !arrAirport) {
+			return res
+				.status(404)
+				.json({ message: "One or both airports not found" });
+		}
+
+		const route = await Route.create({
+			departureAirport,
+			arrivalAirport,
+			code,
+		});
+		const populatedRoute = await Route.findById(route._id).populate(
+			"departureAirport arrivalAirport"
+		);
+		res.status(201).json(populatedRoute);
+	} catch (err) {
+		res.status(400).json({ message: err.message });
+	}
 };
 
 /**
@@ -33,8 +60,8 @@ exports.createRoute = async (req, res) => {
  * summary: List routes
  */
 exports.getRoutes = async (req, res) => {
-  const routes = await Route.find().populate("departureAirport arrivalAirport");
-  res.json(routes);
+	const routes = await Route.find().populate("departureAirport arrivalAirport");
+	res.json(routes);
 };
 
 /**
@@ -48,9 +75,11 @@ exports.getRoutes = async (req, res) => {
  *     schema: { type: string }
  */
 exports.getRouteById = async (req, res) => {
-  const route = await Route.findById(req.params.id).populate("departureAirport arrivalAirport");
-  if (!route) return res.status(404).json({ message: "Route not found" });
-  res.json(route);
+	const route = await Route.findById(req.params.id).populate(
+		"departureAirport arrivalAirport"
+	);
+	if (!route) return res.status(404).json({ message: "Route not found" });
+	res.json(route);
 };
 
 /**
@@ -65,6 +94,6 @@ exports.getRouteById = async (req, res) => {
  *     schema: { type: string }
  */
 exports.deleteRoute = async (req, res) => {
-  await Route.findByIdAndDelete(req.params.id);
-  res.json({ message: "Route deleted" });
+	await Route.findByIdAndDelete(req.params.id);
+	res.json({ message: "Route deleted" });
 };

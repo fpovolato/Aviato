@@ -50,6 +50,16 @@ const createFlight = async (req, res) => {
 			return res.status(400).json({ message: "Flight already exists" });
 		}
 
+		// Scope: employee/manager can only create for their airline
+		const requester = req.user;
+		const isAdmin = requester.roles.includes("admin");
+		if (!isAdmin) {
+			const allowedAirlineIds = (requester.airlines || []).map((a) => a.toString());
+			if (!allowedAirlineIds.includes(String(airline))) {
+				return res.status(403).json({ message: "Access denied for this airline" });
+			}
+		}
+
 		const ids = [route, airline];
 		if (plane) ids.push(plane);
 		if (!ids.every((id) => mongoose.Types.ObjectId.isValid(id))) {
@@ -229,8 +239,17 @@ const getFlightById = async (req, res) => {
  *     schema: { type: string }
  */
 const getFlightsByAirline = async (req, res) => {
-	try {
-		const flights = await Flight.find({ airline: req.params.id })
+    try {
+        const requestedAirlineId = req.params.id;
+
+        const requester = req.user;
+        const isAdmin = requester.roles.includes("admin");
+        const belongsToAirline = (requester.airlines || []).map((a) => a.toString()).includes(requestedAirlineId);
+        if (!isAdmin && !belongsToAirline) {
+            return res.status(403).json({ message: "Access denied" });
+        }
+
+        const flights = await Flight.find({ airline: requestedAirlineId })
 			.populate({
 				path: "route",
 				populate: [
@@ -246,7 +265,7 @@ const getFlightsByAirline = async (req, res) => {
 			})
 			.populate({ path: "airline", select: "name code" })
 			.populate({ path: "plane", select: "code manifacturer model seats" });
-		if (!flights) {
+        if (!flights) {
 			return res.status(404).json({ message: "Flights not found" });
 		}
 		const flightWithDuration = flights.map((flight) => {
@@ -296,6 +315,16 @@ const updateFlight = async (req, res) => {
 		const flight = await Flight.findById(req.params.id);
 		if (!flight) {
 			return res.status(404).json({ message: "Flight not found" });
+		}
+
+		// Admin only via route guard, but keep defense-in-depth for managers/employees if route changes
+		const requester = req.user;
+		const isAdmin = requester.roles.includes("admin");
+		if (!isAdmin) {
+			const allowedAirlineIds = (requester.airlines || []).map((a) => a.toString());
+			if (!allowedAirlineIds.includes(String(flight.airline))) {
+				return res.status(403).json({ message: "Access denied for this airline" });
+			}
 		}
 
 		const ids = [route, airline];
@@ -570,7 +599,7 @@ const searchFlights = async (req, res) => {
 				// Per ogni volo del primo segmento, cerca voli del secondo segmento compatibili
 				for (const firstFlight of firstFlights) {
 					const minConnectionTime = new Date(firstFlight.arrivalDate);
-					minConnectionTime.setMinutes(minConnectionTime.getMinutes() + 30); // almeno 30 min di scalo
+					minConnectionTime.setMinutes(minConnectionTime.getMinutes() + 120); // almeno 120 min di scalo
 
 					let secondFlightQuery = {
 						route: secondLeg._id,

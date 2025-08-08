@@ -163,7 +163,7 @@ import { Router } from '@angular/router';
                 </div>
               </div>
 
-              <div>
+              <div *ngIf="!isManager">
                 <label class="block text-sm font-medium text-gray-700 mb-1"
                   >Airline</label
                 >
@@ -436,6 +436,7 @@ export class PlanesPageComponent implements OnInit {
   airlines: any[] = [];
   loading = true;
   showCreateForm = false;
+  isManager = false;
 
   newPlane = {
     code: '',
@@ -460,11 +461,23 @@ export class PlanesPageComponent implements OnInit {
 
   ngOnInit(): void {
     this.auth.user$.subscribe((user) => {
-      if (!user || !user.roles.map((r) => r.toLowerCase()).includes('admin')) {
+      if (
+        !user ||
+        (!user.roles.map((r) => r.toLowerCase()).includes('admin') &&
+          !user.roles.map((r) => r.toLowerCase()).includes('manager'))
+      ) {
         this.router.navigate(['/']);
       } else {
+        this.isManager = user.roles
+          .map((r) => r.toLowerCase())
+          .includes('manager');
         this.fetchPlanes();
         this.fetchAirlines();
+
+        // If user is a manager, set their airline automatically
+        if (this.isManager && user.airlines && user.airlines.length > 0) {
+          this.newPlane.airlineId = user.airlines[0]._id;
+        }
       }
     });
   }
@@ -532,6 +545,17 @@ export class PlanesPageComponent implements OnInit {
   }
 
   resetForm() {
+    const currentUser = this.auth.currentUser;
+    const managerAirlineId =
+      currentUser &&
+      currentUser.roles
+        .map((r: string) => r.toLowerCase())
+        .includes('manager') &&
+      currentUser.airlines &&
+      currentUser.airlines.length > 0
+        ? currentUser.airlines[0]._id
+        : '';
+
     this.newPlane = {
       code: '',
       manifacturer: '',
@@ -539,7 +563,7 @@ export class PlanesPageComponent implements OnInit {
       seats: 0,
       totalRows: 0,
       maxSeatsPerRow: 0,
-      airlineId: '',
+      airlineId: managerAirlineId,
       hasWiFi: false,
       hasEntertainment: false,
       hasPowerOutlets: false,

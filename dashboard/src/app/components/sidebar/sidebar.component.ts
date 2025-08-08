@@ -57,12 +57,14 @@ import { AuthService } from '../../auth/auth.service';
 })
 export class SidebarComponent {
   isAdmin = false;
+  isManager = false;
   constructor(private auth: AuthService, private router: Router) {
     this.auth.user$.subscribe((user) => {
       const roles = Array.isArray(user?.roles)
         ? user.roles.map((r) => (r + '').toLowerCase())
         : [];
       this.isAdmin = roles.includes('admin');
+      this.isManager = roles.includes('manager');
     });
   }
 
@@ -72,9 +74,9 @@ export class SidebarComponent {
   }
 
   onUsersClick(event: Event) {
-    if (!this.isAdmin) {
+    if (!this.isAdmin && !this.isManager) {
       event.preventDefault();
-      alert('Accesso consentito solo agli admin.');
+      alert('Accesso consentito solo agli admin e manager.');
     } else {
       this.router.navigate(['/users']);
     }
@@ -90,9 +92,9 @@ export class SidebarComponent {
   }
 
   onPlanesClick(event: Event) {
-    if (!this.isAdmin) {
+    if (!this.isAdmin && !this.isManager) {
       event.preventDefault();
-      alert('Accesso consentito solo agli admin.');
+      alert('Accesso consentito solo agli admin e manager.');
     } else {
       this.router.navigate(['/planes']);
     }

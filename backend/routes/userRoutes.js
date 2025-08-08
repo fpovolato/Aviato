@@ -1,17 +1,20 @@
 const express = require("express");
 const router = express.Router();
 const {
-  registerUser,
-  loginUser,
-  getProfile,
-  refreshToken,
-  logoutUser,
-  getAllUsers,
-  deleteUser,
-  updateUserRole,
-  updateUserAirlineAndRole,
+	registerUser,
+	loginUser,
+	getProfile,
+	refreshToken,
+	logoutUser,
+	getAllUsers,
+	deleteUser,
+	updateUserRole,
+	updateUserAirlineAndRole,
+	createManagerWithAirline,
+	createEmployeeForManager,
+	completeFirstLogin,
 } = require("../controllers/userController");
-const { protect, adminOnly } = require("../middleware/auth");
+const { protect, adminOnly, adminOrManager } = require("../middleware/auth");
 
 /**
  * @openapi
@@ -117,13 +120,13 @@ router.post("/logout", protect, logoutUser);
  */
 router.get("/profile", protect, getProfile);
 
-// Admin-only user management
+// Admin and manager user management
 /**
  * @openapi
  * /api/users:
  *   get:
  *     tags: [Users]
- *     summary: List users
+ *     summary: List users (admin sees all, manager sees only their airline's employees)
  *     security:
  *       - cookieAuth: []
  *     parameters:
@@ -138,7 +141,7 @@ router.get("/profile", protect, getProfile);
  *       401: { description: Unauthorized }
  *       403: { description: Forbidden }
  */
-router.get("/", protect, adminOnly, getAllUsers);
+router.get("/", protect, getAllUsers);
 
 /**
  * @openapi
@@ -159,7 +162,7 @@ router.get("/", protect, adminOnly, getAllUsers);
  *       403: { description: Forbidden }
  *       404: { description: User not found }
  */
-router.delete("/:id", protect, adminOnly, deleteUser);
+router.delete("/:id", protect, adminOrManager, deleteUser);
 
 /**
  * @openapi
@@ -190,7 +193,7 @@ router.delete("/:id", protect, adminOnly, deleteUser);
  *       403: { description: Forbidden }
  *       404: { description: User not found }
  */
-router.patch("/:id/role", protect, adminOnly, updateUserRole);
+router.patch("/:id/role", protect, adminOrManager, updateUserRole);
 
 /**
  * @openapi
@@ -221,5 +224,41 @@ router.patch("/:id/role", protect, adminOnly, updateUserRole);
  *       404: { description: User not found }
  */
 router.patch("/:id/airline-role", protect, adminOnly, updateUserAirlineAndRole);
+
+/**
+ * @openapi
+ * /api/users/managers:
+ *   post:
+ *     tags: [Users]
+ *     summary: Create manager and airline (admin)
+ *     security: [{ cookieAuth: [] }]
+ *     responses:
+ *       201: { description: Created }
+ */
+router.post("/managers", protect, adminOnly, createManagerWithAirline);
+
+/**
+ * @openapi
+ * /api/users/employees:
+ *   post:
+ *     tags: [Users]
+ *     summary: Create employee for manager's airline
+ *     security: [{ cookieAuth: [] }]
+ *     responses:
+ *       201: { description: Created }
+ */
+router.post("/employees", protect, adminOrManager, createEmployeeForManager);
+
+/**
+ * @openapi
+ * /api/users/first-login:
+ *   post:
+ *     tags: [Users]
+ *     summary: Complete first login (set new password)
+ *     security: [{ cookieAuth: [] }]
+ *     responses:
+ *       200: { description: Updated }
+ */
+router.post("/first-login", protect, completeFirstLogin);
 
 module.exports = router;

@@ -27,6 +27,20 @@ const createPlane = async (req, res) => {
 			return res.status(400).json({ message: "Plane already exists" });
 		}
 
+		// Scope: employee/manager can only create planes for their airline
+		const requester = req.user;
+		const isAdmin = requester.roles.includes("admin");
+		if (!isAdmin) {
+			const allowedAirlineIds = (requester.airlines || []).map((a) =>
+				a.toString()
+			);
+			if (!allowedAirlineIds.includes(String(airlineId))) {
+				return res
+					.status(403)
+					.json({ message: "Access denied for this airline" });
+			}
+		}
+
 		const plane = await Plane.create({
 			code,
 			manifacturer,

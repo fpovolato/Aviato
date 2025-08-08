@@ -136,7 +136,7 @@ export class LoginComponent {
     const { email, password } = this.form.value;
     this.auth.login(email!, password!).subscribe({
       next: (user) => {
-        if (this.auth.hasRole('admin', 'employee')) {
+        if (this.auth.hasRole('admin', 'employee', 'manager')) {
           this.router.navigate(['/dashboard']);
         } else {
           this.error = 'Access denied';

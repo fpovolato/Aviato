@@ -6,4 +6,5 @@ export interface User {
   birthDate: string;
   roles: string[];
   airlines: { _id: string; name: string; code: string }[];
+  passwordMustChange?: boolean;
 }

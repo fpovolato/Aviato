@@ -23,10 +23,30 @@ export class AuthGuard implements CanActivate {
           return this.router.parseUrl('/login');
         }
 
+        // Check if user needs to complete first login (except for the first-login route itself)
+        if (
+          user.passwordMustChange &&
+          route.routeConfig?.path !== 'first-login'
+        ) {
+          return this.router.parseUrl('/first-login');
+        }
+
         const allowed = route.data['roles'] as string[] | undefined;
         if (allowed && !this.auth.hasRole(...allowed)) {
-          return this.router.parseUrl('/login');
+          console.log(
+            '❌ Access denied - User roles:',
+            user.roles,
+            'Required roles:',
+            allowed
+          );
+          return this.router.parseUrl('/');
         }
+        console.log(
+          '✅ Access granted - User roles:',
+          user.roles,
+          'Required roles:',
+          allowed
+        );
         return true;
       })
     );

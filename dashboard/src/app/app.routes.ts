@@ -20,7 +20,7 @@ export const routes: Routes = [
         (m) => m.DashboardComponent
       ),
     canActivate: [AuthGuard],
-    data: { roles: ['admin', 'employee'] },
+    data: { roles: ['admin', 'employee', 'manager'] },
   },
   {
     path: 'user',
@@ -29,7 +29,7 @@ export const routes: Routes = [
         (m) => m.UserPageComponent
       ),
     canActivate: [AuthGuard],
-    data: { roles: ['admin', 'employee'] },
+    data: { roles: ['admin', 'employee', 'manager'] },
   },
   {
     path: 'flights',
@@ -38,7 +38,7 @@ export const routes: Routes = [
         (m) => m.FlightsPageComponent
       ),
     canActivate: [AuthGuard],
-    data: { roles: ['admin', 'employee'] },
+    data: { roles: ['admin', 'employee', 'manager'] },
   },
   {
     path: 'flights/create',
@@ -47,7 +47,7 @@ export const routes: Routes = [
         (m) => m.FlightsCreateComponent
       ),
     canActivate: [AuthGuard],
-    data: { roles: ['admin', 'employee'] },
+    data: { roles: ['admin', 'employee', 'manager'] },
   },
   {
     path: 'routes',
@@ -55,6 +55,8 @@ export const routes: Routes = [
       import('./components/routes-page/routes-page.component').then(
         (m) => m.RoutesPageComponent
       ),
+    canActivate: [AuthGuard],
+    data: { roles: ['admin', 'employee', 'manager'] },
   },
   {
     path: 'routes/create',
@@ -62,6 +64,8 @@ export const routes: Routes = [
       import('./components/routes-page/routes-create.component').then(
         (m) => m.RoutesCreateComponent
       ),
+    canActivate: [AuthGuard],
+    data: { roles: ['admin', 'employee', 'manager'] },
   },
   {
     path: 'users',
@@ -69,6 +73,8 @@ export const routes: Routes = [
       import('./components/users-page/users-page.component').then(
         (m) => m.UsersPageComponent
       ),
+    canActivate: [AuthGuard],
+    data: { roles: ['admin', 'manager'] },
   },
   {
     path: 'users/create',
@@ -76,6 +82,30 @@ export const routes: Routes = [
       import('./components/users-page/users-create.component').then(
         (m) => m.UsersCreateComponent
       ),
+    canActivate: [AuthGuard],
+    data: { roles: ['admin'] },
+  },
+  {
+    path: 'users/create-employee',
+    loadComponent: () =>
+      import('./components/users-page/employee-create.component').then(
+        (m) => m.EmployeeCreateComponent
+      ),
+    canActivate: [AuthGuard],
+    data: { roles: ['admin', 'manager'] },
+  },
+  {
+    path: 'users/create-manager',
+    loadComponent: () =>
+      import('./components/users-page/manager-create.component').then(
+        (m) => m.ManagerCreateComponent
+      ),
+  },
+  {
+    path: 'first-login',
+    loadComponent: () =>
+      import('./auth/first-login.component').then((m) => m.FirstLoginComponent),
+    canActivate: [AuthGuard],
   },
   {
     path: 'airlines',
@@ -83,6 +113,8 @@ export const routes: Routes = [
       import('./components/airlines-page/airlines-page.component').then(
         (m) => m.AirlinesPageComponent
       ),
+    canActivate: [AuthGuard],
+    data: { roles: ['admin'] },
   },
   {
     path: 'planes',
@@ -91,7 +123,7 @@ export const routes: Routes = [
         (m) => m.PlanesPageComponent
       ),
     canActivate: [AuthGuard],
-    data: { roles: ['admin'] },
+    data: { roles: ['admin', 'manager'] },
   },
   {
     path: 'planes/:id/seats',
@@ -100,7 +132,7 @@ export const routes: Routes = [
         (m) => m.PlaneSeatsComponent
       ),
     canActivate: [AuthGuard],
-    data: { roles: ['admin'] },
+    data: { roles: ['admin', 'manager'] },
   },
   { path: '**', redirectTo: '' },
 ];

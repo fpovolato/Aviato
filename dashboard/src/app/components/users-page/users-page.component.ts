@@ -30,12 +30,29 @@ interface Airline {
             class="flex flex-col md:flex-row md:items-center md:justify-between mb-6 gap-4"
           >
             <h2 class="text-2xl font-bold text-indigo-800">Users</h2>
-            <button
-              (click)="goToCreateUser()"
-              class="bg-indigo-600 hover:bg-indigo-500 text-white px-5 py-2 rounded-lg font-semibold shadow"
-            >
-              Create User
-            </button>
+            <div class="flex gap-3">
+              <button
+                (click)="goToCreateUser()"
+                class="bg-indigo-600 hover:bg-indigo-500 text-white px-5 py-2 rounded-lg font-semibold shadow"
+                [disabled]="!isAdmin"
+              >
+                Create User
+              </button>
+              <button
+                (click)="goToCreateEmployee()"
+                class="bg-blue-600 hover:bg-blue-500 text-white px-5 py-2 rounded-lg font-semibold shadow"
+                [disabled]="!isAdmin && !isManager"
+              >
+                Create Employee
+              </button>
+              <button
+                (click)="goToCreateManager()"
+                class="bg-green-600 hover:bg-green-500 text-white px-5 py-2 rounded-lg font-semibold shadow"
+                [disabled]="!isAdmin"
+              >
+                Create Manager
+              </button>
+            </div>
           </div>
           <div class="mb-6 flex flex-col md:flex-row gap-4 items-center">
             <input
@@ -50,6 +67,7 @@ interface Airline {
             >
               <option value="">All roles</option>
               <option value="admin">Admin</option>
+              <option value="manager">Manager</option>
               <option value="employee">Employee</option>
               <option value="customer">Customer</option>
             </select>
@@ -107,9 +125,12 @@ interface Airline {
                     [ngModel]="user.roles[0]"
                     (ngModelChange)="onRoleChange(user, $event)"
                     class="px-2 py-1 rounded border"
-                    [disabled]="updatingUser === user._id"
+                    [disabled]="
+                      updatingUser === user._id || (!isAdmin && !isManager)
+                    "
                   >
-                    <option value="admin">admin</option>
+                    <option value="admin" *ngIf="isAdmin">admin</option>
+                    <option value="manager" *ngIf="isAdmin">manager</option>
                     <option value="employee">employee</option>
                     <option value="customer">customer</option>
                   </select>
@@ -118,6 +139,12 @@ interface Airline {
                     class="text-xs text-indigo-600 mt-1"
                   >
                     Updating...
+                  </div>
+                  <div
+                    *ngIf="!isAdmin && !isManager"
+                    class="text-xs text-gray-500 mt-1"
+                  >
+                    Only admins and managers can change roles
                   </div>
                 </td>
                 <td class="p-2">
@@ -134,10 +161,18 @@ interface Airline {
                   <button
                     (click)="deleteUser(user._id)"
                     class="bg-red-500 hover:bg-red-400 text-white px-3 py-1 rounded shadow"
-                    [disabled]="updatingUser === user._id"
+                    [disabled]="
+                      updatingUser === user._id || (!isAdmin && !isManager)
+                    "
                   >
                     Delete
                   </button>
+                  <div
+                    *ngIf="!isAdmin && !isManager"
+                    class="text-xs text-gray-500 mt-1"
+                  >
+                    Only admins and managers can delete users
+                  </div>
                 </td>
               </tr>
             </tbody>
@@ -283,6 +318,8 @@ export class UsersPageComponent implements OnInit {
   selectedNewRole = '';
   updatingUser: string | null = null;
   confirmingAirline = false;
+  isAdmin = false;
+  isManager = false;
 
   constructor(
     private http: HttpClient,
@@ -292,9 +329,14 @@ export class UsersPageComponent implements OnInit {
 
   ngOnInit(): void {
     this.auth.user$.subscribe((user) => {
-      if (!user || !user.roles.includes('admin')) {
+      if (
+        !user ||
+        (!user.roles.includes('admin') && !user.roles.includes('manager'))
+      ) {
         this.router.navigate(['/']);
       } else {
+        this.isAdmin = user.roles.includes('admin');
+        this.isManager = user.roles.includes('manager');
         this.fetchUsers();
         this.fetchAirlines();
       }
@@ -357,6 +399,12 @@ export class UsersPageComponent implements OnInit {
     // Se il ruolo non è cambiato, non fare nulla
     if (currentRole === newRole) return;
 
+    // Only admins and managers can change roles
+    if (!this.isAdmin && !this.isManager) {
+      console.log('Only admins and managers can change user roles');
+      return;
+    }
+
     this.selectedUser = user;
     this.selectedNewRole = newRole;
     this.updatingUser = user._id;
@@ -402,6 +450,7 @@ export class UsersPageComponent implements OnInit {
         },
         error: (error) => {
           console.error('Error updating user role:', error);
+          alert(error.error?.message || 'Error updating user role');
           this.updatingUser = null;
           // Revert the select to the original value
           this.fetchUsers();
@@ -499,14 +548,44 @@ export class UsersPageComponent implements OnInit {
   }
 
   deleteUser(id: string) {
+    if (!this.isAdmin && !this.isManager) {
+      console.log('Only admins and managers can delete users');
+      return;
+    }
     if (!confirm('Are you sure you want to delete this user?')) return;
-    this.http.delete(`/api/users/${id}`).subscribe(() => {
-      this.users = this.users.filter((u) => u._id !== id);
-      this.applyFilter();
+    this.http.delete(`/api/users/${id}`).subscribe({
+      next: () => {
+        this.users = this.users.filter((u) => u._id !== id);
+        this.applyFilter();
+      },
+      error: (error) => {
+        console.error('Error deleting user:', error);
+        alert(error.error?.message || 'Error deleting user');
+      },
     });
   }
 
   goToCreateUser() {
+    if (!this.isAdmin) {
+      console.log('Only admins can create users');
+      return;
+    }
     this.router.navigate(['/users/create']);
+  }
+
+  goToCreateEmployee() {
+    if (!this.isAdmin && !this.isManager) {
+      console.log('Only admins and managers can create employees');
+      return;
+    }
+    this.router.navigate(['/users/create-employee']);
+  }
+
+  goToCreateManager() {
+    if (!this.isAdmin) {
+      console.log('Only admins can create managers');
+      return;
+    }
+    this.router.navigate(['/users/create-manager']);
   }
 }

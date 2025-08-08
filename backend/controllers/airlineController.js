@@ -21,7 +21,7 @@ const Airline = require("../models/Airline");
  *   400: { description: Already exists }
  */
 const createAirline = async (req, res) => {
-  const { name, code } = req.body;
+  const { name, code, managerId } = req.body;
 
   try {
     const airlineExists = await Airline.findOne({ code });
@@ -30,11 +30,32 @@ const createAirline = async (req, res) => {
       return res.status(400).json({ message: "Airline already exists" });
     }
 
-    const airline = await Airline.create({
-      name,
-      code,
-      admins: [req.user._id],
-    });
+    let airline;
+    if (managerId) {
+      const manager = await User.findById(managerId);
+      if (!manager) {
+        return res.status(404).json({ message: "Manager user not found" });
+      }
+
+      // Ensure the user has manager role
+      if (!manager.roles.includes("manager")) {
+        manager.roles = Array.from(new Set([...(manager.roles || []), "manager"]));
+      }
+
+      airline = await Airline.create({
+        name,
+        code,
+        manager: manager._id,
+      });
+
+      // Link airline to manager
+      manager.airlines = Array.from(
+        new Set([...(manager.airlines?.map((a) => a.toString()) || []), airline._id.toString()])
+      );
+      await manager.save();
+    } else {
+      airline = await Airline.create({ name, code });
+    }
 
     res.status(201).json(airline);
   } catch (error) {
@@ -124,8 +145,11 @@ const inviteEmployee = async (req, res) => {
     const isEmployeeOfAirline =
       inviter.roles.includes("employee") &&
       inviter.airlines.includes(airlineId);
+    const isManagerOfAirline =
+      inviter.roles.includes("manager") &&
+      inviter.airlines.includes(airlineId);
 
-    if (!isAdmin && !isEmployeeOfAirline) {
+    if (!isAdmin && !isEmployeeOfAirline && !isManagerOfAirline) {
       return res.status(404).json({ message: "Not authorized" });
     }
 
@@ -218,8 +242,11 @@ const getEmployeesByAirline = async (req, res) => {
     const isEmployeeOfAirline =
       requester.roles.includes("employee") &&
       requester.airlines.includes(airlineId);
+    const isManagerOfAirline =
+      requester.roles.includes("manager") &&
+      requester.airlines.includes(airlineId);
 
-    if (!isAdmin && !isEmployeeOfAirline) {
+    if (!isAdmin && !isEmployeeOfAirline && !isManagerOfAirline) {
       return res.status(403).json({ message: "Access denied" });
     }
 

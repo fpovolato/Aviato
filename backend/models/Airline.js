@@ -14,6 +14,12 @@ const airlineSchema = new mongoose.Schema(
       uppercase: true,
       trim: true,
     },
+    manager: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: false,
+      index: true,
+    },
   },
   {
     timestamps: true,
@@ -25,7 +31,7 @@ const airlineSchema = new mongoose.Schema(
 airlineSchema.virtual("employees", {
   ref: "User",
   localField: "_id",
-  foreignField: "airline",
+  foreignField: "airlines",
   match: { roles: "employee" },
 });
 

@@ -10,17 +10,17 @@ const {
 	updatePlaneConfiguration,
 	getPlaneStats,
 } = require("../controllers/planeController");
-const { protect, adminOnly } = require("../middleware/auth");
+const { protect, adminOnly, employeeOrAdmin } = require("../middleware/auth");
 
 /**
  * @openapi
  * /api/planes:
  *   post:
  *     tags: [Planes]
- *     summary: Create plane
+ *     summary: Create plane (admin, employee, manager)
  *     security: [{ cookieAuth: [] }]
  */
-router.post("/", protect, adminOnly, createPlane);
+router.post("/", protect, employeeOrAdmin, createPlane);
 /**
  * @openapi
  * /api/planes:

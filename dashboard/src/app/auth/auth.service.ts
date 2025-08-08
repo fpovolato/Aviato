@@ -104,4 +104,21 @@ export class AuthService {
     const roles = this.userSub.value?.roles || [];
     return allowed.some((r) => roles.includes(r));
   }
+
+  refreshUser() {
+    this.http
+      .get<User>('/api/users/profile', { withCredentials: true })
+      .subscribe({
+        next: (user) => {
+          this.userSub.next(user);
+        },
+        error: (error) => {
+          console.error('Error refreshing user:', error);
+          if (error.status === 401) {
+            this.userSub.next(null);
+            this.router.navigate(['/login']);
+          }
+        },
+      });
+  }
 }

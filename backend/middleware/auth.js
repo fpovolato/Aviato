@@ -30,12 +30,27 @@ const adminOnly = (req, res, next) => {
 const employeeOrAdmin = (req, res, next) => {
 	if (
 		req.user &&
-		(req.user.roles.includes("admin") || req.user.roles.includes("employee"))
+		(req.user.roles.includes("admin") ||
+			req.user.roles.includes("employee") ||
+			req.user.roles.includes("manager"))
 	) {
 		next();
 	} else {
-		res.status(403).json({ message: "Admin or employee access required" });
+		res
+			.status(403)
+			.json({ message: "Admin, employee, or manager access required" });
 	}
 };
 
-module.exports = { protect, adminOnly, employeeOrAdmin };
+const adminOrManager = (req, res, next) => {
+	if (
+		req.user &&
+		(req.user.roles.includes("admin") || req.user.roles.includes("manager"))
+	) {
+		next();
+	} else {
+		res.status(403).json({ message: "Admin or manager access required" });
+	}
+};
+
+module.exports = { protect, adminOnly, employeeOrAdmin, adminOrManager };
