@@ -1,9 +1,9 @@
 const User = require("../models/User");
-const generateToken = require("../utils/generateToken");
 const {
+	generateAccessToken,
 	generateRefreshToken,
 	verifyRefreshToken,
-	generateAccessToken,
+	generateTokenPair,
 } = require("../utils/tokenUtils");
 
 /**
@@ -69,7 +69,6 @@ const registerUser = async (req, res) => {
 			surname: user.surname,
 			email: user.email,
 			roles: user.roles,
-			token: generateToken(user._id),
 		});
 	} catch (error) {
 		console.error("❌ Error in registerUser:", error);
@@ -104,8 +103,7 @@ const loginUser = async (req, res) => {
 		const user = await User.findOne({ email });
 
 		if (user && (await user.matchPassword(password))) {
-			const accessToken = generateToken(user._id);
-			const refreshToken = generateRefreshToken(user._id);
+			const { accessToken, refreshToken } = generateTokenPair(user._id);
 
 			res
 				.cookie("accessToken", accessToken, {
@@ -171,10 +169,16 @@ const getProfile = async (req, res) => {
  */
 const refreshToken = async (req, res) => {
 	try {
-		const refreshToken = req.cookies;
+		const refreshToken = req.cookies.refreshToken;
+
+		if (!refreshToken) {
+			return res.status(401).json({ message: "No refresh token provided" });
+		}
+
 		const { id } = verifyRefreshToken(refreshToken);
 		const newAccess = generateAccessToken(id);
 		const newRefresh = generateRefreshToken(id);
+
 		res
 			.cookie("accessToken", newAccess, {
 				httpOnly: true,
@@ -188,8 +192,8 @@ const refreshToken = async (req, res) => {
 			})
 			.sendStatus(200);
 	} catch (error) {
-		console.error(error);
-		res.status(500).json({ message: "Server error", error: error.message });
+		console.error("Refresh token error:", error);
+		res.status(401).json({ message: "Invalid refresh token" });
 	}
 };
 

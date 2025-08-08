@@ -1,5 +1,6 @@
 const jwt = require("jsonwebtoken");
 const User = require("../models/User");
+const { verifyAccessToken } = require("../utils/tokenUtils");
 
 const protect = async (req, res, next) => {
 	const token = req.cookies.accessToken;
@@ -9,7 +10,7 @@ const protect = async (req, res, next) => {
 	}
 
 	try {
-		const decoded = jwt.verify(token, process.env.JWT_SECRET);
+		const decoded = verifyAccessToken(token);
 		req.user = await User.findById(decoded.id).select(
 			"name email roles airlines"
 		);

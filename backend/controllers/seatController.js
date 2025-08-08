@@ -1,7 +1,6 @@
 const Plane = require("../models/Plane");
 const Flight = require("../models/Flight");
 const SeatReservation = require("../models/SeatReservation");
-const User = require("../models/User");
 
 /**
  * @openapi
