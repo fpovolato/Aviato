@@ -3,9 +3,34 @@ const fs = require("fs");
 const path = require("path");
 const csv = require("csv-parser");
 
-// @desc    Create a new airport
-// @route   POST /api/airports
-// @access  Private
+/**
+ * @openapi
+ * tags: [Airports]
+ * summary: Create a new airport
+ * security: [{ cookieAuth: [] }]
+ * requestBody:
+ *   required: true
+ *   content:
+ *     application/json:
+ *       schema:
+ *         type: object
+ *         required: [airportId, name, city, country]
+ *         properties:
+ *           airportId: { type: integer }
+ *           name: { type: string }
+ *           city: { type: string }
+ *           country: { type: string }
+ *           iata: { type: string }
+ *           icao: { type: string }
+ *           latitude: { type: number }
+ *           longitude: { type: number }
+ *           altitude: { type: integer }
+ *           timezone: { type: number }
+ *           dst: { type: string }
+ *           tzDatabaseTimezone: { type: string }
+ *           type: { type: string }
+ *           source: { type: string }
+ */
 const createAirport = async (req, res) => {
 	const {
 		airportId,
@@ -55,9 +80,12 @@ const createAirport = async (req, res) => {
 	}
 };
 
-// @desc    Bulk create airports
-// @route   POST /api/airports/bulk
-// @access  Private
+/**
+ * @openapi
+ * tags: [Airports]
+ * summary: Bulk create airports
+ * security: [{ cookieAuth: [] }]
+ */
 const bulkCreateAirports = async (req, res) => {
 	const airports = req.body;
 
@@ -70,9 +98,11 @@ const bulkCreateAirports = async (req, res) => {
 	}
 };
 
-// @desc    Get all airports
-// @route   GET /api/airports
-// @access  Private
+/**
+ * @openapi
+ * tags: [Airports]
+ * summary: Get all airports
+ */
 const getAirports = async (req, res) => {
 	try {
 		const airports = await Airport.find();
@@ -83,9 +113,16 @@ const getAirports = async (req, res) => {
 	}
 };
 
-// @desc    Get airport by ID
-// @route   GET /api/airports/:id
-// @access  Private
+/**
+ * @openapi
+ * tags: [Airports]
+ * summary: Get airport by ID
+ * parameters:
+ *   - in: path
+ *     name: id
+ *     required: true
+ *     schema: { type: string }
+ */
 const getAirportById = async (req, res) => {
 	try {
 		const airport = await Airport.findById(req.params.id);
@@ -101,9 +138,11 @@ const getAirportById = async (req, res) => {
 	}
 };
 
-// @desc    Get airports by IATA code
-// @route   GET /api/airports/iata/:iata
-// @access  Private
+/**
+ * @openapi
+ * tags: [Airports]
+ * summary: Get airports by IATA code
+ */
 const getAirportsByIata = async (req, res) => {
 	const { iata } = req.params;
 
@@ -176,9 +215,15 @@ const getAirportsByCountry = async (req, res) => {
 	}
 };
 
-// @desc    Autocomplete airports
-// @route   GET /api/airports/search?q=...
-// @access  Public
+/**
+ * @openapi
+ * tags: [Airports]
+ * summary: Autocomplete airports
+ * parameters:
+ *   - in: query
+ *     name: q
+ *     schema: { type: string }
+ */
 const searchAirports = async (req, res) => {
 	const { q } = req.query;
 	if (!q || q.lenght < 2) {
@@ -239,10 +284,11 @@ const deleteAirport = async (req, res) => {
 };
 
 /**
- * Importa in bulk gli aeroporti da un file CSV uploadato
- * (formato OpenFlights con colonne:
- *   airportId,name,city,country,iata,icao,latitude,longitude,altitude,timezone,dst,tzDatabaseTimezone,type,source
- * )
+ * @openapi
+ * tags: [Airports]
+ * summary: Import airports in bulk from uploaded CSV file
+ * description: CSV must follow OpenFlights format with headers: airportId,name,city,country,iata,icao,latitude,longitude,altitude,timezone,dst,tzDatabaseTimezone,type,source
+ * security: [{ cookieAuth: [] }]
  */
 const importAirportsFromCSV = async (req, res) => {
 	if (!req.file) {

@@ -4,7 +4,12 @@ const Route = require("../models/Route");
 const Airport = require("../models/Airport");
 const Airline = require("../models/Airline");
 
-// Get analytics for employee dashboard
+/**
+ * @openapi
+ * tags: [Analytics]
+ * summary: Get analytics for employee dashboard
+ * security: [{ cookieAuth: [] }]
+ */
 const getDashboardAnalytics = async (req, res) => {
 	try {
 		const user = req.user;
@@ -260,7 +265,17 @@ const getDashboardAnalytics = async (req, res) => {
 	}
 };
 
-// Get analytics for a specific airline (if needed for airline employees)
+/**
+ * @openapi
+ * tags: [Analytics]
+ * summary: Get analytics for a specific airline
+ * security: [{ cookieAuth: [] }]
+ * parameters:
+ *   - in: path
+ *     name: airlineId
+ *     required: true
+ *     schema: { type: string }
+ */
 const getAirlineAnalytics = async (req, res) => {
 	try {
 		const { airlineId } = req.params;

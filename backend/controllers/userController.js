@@ -6,9 +6,35 @@ const {
 	generateAccessToken,
 } = require("../utils/tokenUtils");
 
-// @desc    Register a new user
-// @route   POST /api/users/register
-// @access  Public
+/**
+ * @openapi
+ * tags: [Users]
+ * summary: Register a new user
+ * description: Creates a new user and returns basic profile info with a JWT in response body. Cookies are set only on login.
+ * requestBody:
+ *   required: true
+ *   content:
+ *     application/json:
+ *       schema:
+ *         type: object
+ *         required: [name, surname, birthDate, email, password]
+ *         properties:
+ *           name: { type: string }
+ *           surname: { type: string }
+ *           birthDate: { type: string, format: date }
+ *           email: { type: string, format: email }
+ *           password: { type: string, minLength: 8 }
+ *           roles:
+ *             type: array
+ *             items: { type: string, enum: [customer, employee, admin] }
+ *           airlines:
+ *             type: array
+ *             items: { type: string }
+ * responses:
+ *   201: { description: User created }
+ *   400: { description: User already exists }
+ *   500: { description: Server error }
+ */
 const registerUser = async (req, res) => {
 	const { name, surname, birthDate, email, password, roles, airlines } =
 		req.body;
@@ -43,9 +69,26 @@ const registerUser = async (req, res) => {
 	}
 };
 
-// @desc    Authenticate user & get token
-// @route   POST /api/users/login
-// @access  Public
+/**
+ * @openapi
+ * tags: [Users]
+ * summary: Authenticate user & set auth cookies
+ * description: Validates credentials and sets HTTP-only `accessToken` and `refreshToken` cookies; returns user profile.
+ * requestBody:
+ *   required: true
+ *   content:
+ *     application/json:
+ *       schema:
+ *         type: object
+ *         required: [email, password]
+ *         properties:
+ *           email: { type: string, format: email }
+ *           password: { type: string }
+ * responses:
+ *   200: { description: Authenticated }
+ *   401: { description: Invalid credentials }
+ *   500: { description: Server error }
+ */
 const loginUser = async (req, res) => {
 	const { email, password } = req.body;
 
@@ -82,9 +125,15 @@ const loginUser = async (req, res) => {
 	}
 };
 
-// @desc    Get user profile
-// @route   GET /api/users/profile
-// @access  Private
+/**
+ * @openapi
+ * tags: [Users]
+ * summary: Get current user profile
+ * security: [{ cookieAuth: [] }]
+ * responses:
+ *   200: { description: OK }
+ *   404: { description: User not found }
+ */
 const getProfile = async (req, res) => {
 	try {
 		const user = await User.findById(req.user.id)
@@ -102,9 +151,15 @@ const getProfile = async (req, res) => {
 	}
 };
 
-// @desc    refresh access token
-// @route   POST /api/users/refresh
-// @access  Public
+/**
+ * @openapi
+ * tags: [Users]
+ * summary: Refresh access token
+ * description: Issues new access and refresh tokens using current refresh token cookie.
+ * responses:
+ *   200: { description: Tokens refreshed }
+ *   401: { description: Invalid refresh token }
+ */
 const refreshToken = async (req, res) => {
 	try {
 		const refreshToken = req.cookies;
@@ -129,9 +184,15 @@ const refreshToken = async (req, res) => {
 	}
 };
 
-// @desc    Logout user
-// @route   POST /api/users/logout
-// @access  Public
+/**
+ * @openapi
+ * tags: [Users]
+ * summary: Logout user
+ * description: Clears auth cookies and returns success message.
+ * security: [{ cookieAuth: [] }]
+ * responses:
+ *   200: { description: Logged out }
+ */
 const logoutUser = async (req, res) => {
 	res
 		.clearCookie("accessToken")
@@ -140,9 +201,22 @@ const logoutUser = async (req, res) => {
 		.json({ message: "Logged out successfully" });
 };
 
-// @desc    Get all users (admin only, with optional filters)
-// @route   GET /api/users
-// @access  Admin
+/**
+ * @openapi
+ * tags: [Users]
+ * summary: List users (admin only)
+ * security: [{ cookieAuth: [] }]
+ * parameters:
+ *   - in: query
+ *     name: role
+ *     schema: { type: string, enum: [customer, employee, admin] }
+ *   - in: query
+ *     name: airline
+ *     schema: { type: string }
+ * responses:
+ *   200: { description: OK }
+ *   403: { description: Forbidden }
+ */
 const getAllUsers = async (req, res) => {
 	try {
 		const { role, airline } = req.query;
@@ -158,9 +232,20 @@ const getAllUsers = async (req, res) => {
 	}
 };
 
-// @desc    Delete a user (admin only)
-// @route   DELETE /api/users/:id
-// @access  Admin
+/**
+ * @openapi
+ * tags: [Users]
+ * summary: Delete a user (admin only)
+ * security: [{ cookieAuth: [] }]
+ * parameters:
+ *   - in: path
+ *     name: id
+ *     required: true
+ *     schema: { type: string }
+ * responses:
+ *   200: { description: Deleted }
+ *   404: { description: Not found }
+ */
 const deleteUser = async (req, res) => {
 	try {
 		const user = await User.findByIdAndDelete(req.params.id);
@@ -171,9 +256,28 @@ const deleteUser = async (req, res) => {
 	}
 };
 
-// @desc    Update user role (admin only)
-// @route   PATCH /api/users/:id/role
-// @access  Admin
+/**
+ * @openapi
+ * tags: [Users]
+ * summary: Update user role (admin only)
+ * security: [{ cookieAuth: [] }]
+ * parameters:
+ *   - in: path
+ *     name: id
+ *     required: true
+ *     schema: { type: string }
+ * requestBody:
+ *   required: true
+ *   content:
+ *     application/json:
+ *       schema:
+ *         type: object
+ *         properties:
+ *           role: { type: string, enum: [customer, employee, admin] }
+ * responses:
+ *   200: { description: Updated }
+ *   400: { description: Invalid role }
+ */
 const updateUserRole = async (req, res) => {
 	try {
 		const { role } = req.body;
@@ -193,9 +297,28 @@ const updateUserRole = async (req, res) => {
 	}
 };
 
-// @desc    Update user airline and role (admin only)
-// @route   PATCH /api/users/:id/airline-role
-// @access  Admin
+/**
+ * @openapi
+ * tags: [Users]
+ * summary: Update user airline and role (admin only)
+ * security: [{ cookieAuth: [] }]
+ * parameters:
+ *   - in: path
+ *     name: id
+ *     required: true
+ *     schema: { type: string }
+ * requestBody:
+ *   required: true
+ *   content:
+ *     application/json:
+ *       schema:
+ *         type: object
+ *         properties:
+ *           airlineId: { type: string }
+ *           role: { type: string, enum: [customer, employee, admin] }
+ * responses:
+ *   200: { description: Updated }
+ */
 const updateUserAirlineAndRole = async (req, res) => {
 	try {
 		const { airlineId, role } = req.body;

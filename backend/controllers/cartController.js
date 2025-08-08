@@ -1,6 +1,12 @@
 const Cart = require("../models/Cart");
 const Flight = require("../models/Flight");
 
+/**
+ * @openapi
+ * tags: [Cart]
+ * summary: Get current user's cart
+ * security: [{ cookieAuth: [] }]
+ */
 const getCart = async (req, res) => {
   const userId = req.user._id;
   let cart = await Cart.findOne({ user: userId }).populate({
@@ -14,6 +20,22 @@ const getCart = async (req, res) => {
   res.json(obj);
 };
 
+/**
+ * @openapi
+ * tags: [Cart]
+ * summary: Add flight to cart
+ * security: [{ cookieAuth: [] }]
+ * requestBody:
+ *   required: true
+ *   content:
+ *     application/json:
+ *       schema:
+ *         type: object
+ *         required: [flightId]
+ *         properties:
+ *           flightId: { type: string }
+ *           quantity: { type: integer, minimum: 1 }
+ */
 const addToCart = async (req, res) => {
   const userId = req.user._id;
   const { flightId, quantity = 1 } = req.body;
@@ -45,6 +67,12 @@ const addToCart = async (req, res) => {
   );
 };
 
+/**
+ * @openapi
+ * tags: [Cart]
+ * summary: Update cart item quantity
+ * security: [{ cookieAuth: [] }]
+ */
 const updateCartItem = async (req, res) => {
   const userId = req.user._id;
   const { itemId } = req.params;
@@ -65,6 +93,12 @@ const updateCartItem = async (req, res) => {
   res.json(cart);
 };
 
+/**
+ * @openapi
+ * tags: [Cart]
+ * summary: Remove item from cart
+ * security: [{ cookieAuth: [] }]
+ */
 const removeCartItem = async (req, res) => {
   const userId = req.user._id;
   const { itemId } = req.params;
@@ -79,6 +113,12 @@ const removeCartItem = async (req, res) => {
   res.json(cart);
 };
 
+/**
+ * @openapi
+ * tags: [Cart]
+ * summary: Clear cart
+ * security: [{ cookieAuth: [] }]
+ */
 const clearCart = async (req, res) => {
   const userId = req.user._id;
   await Cart.findOneAndUpdate({ user: userId }, { items: [] });

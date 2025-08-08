@@ -4,6 +4,33 @@ const Airline = require("../models/Airline");
 const Plane = require("../models/Plane");
 const Route = require("../models/Route");
 
+/**
+ * @openapi
+ * tags: [Flights]
+ * summary: Create a flight
+ * security: [{ cookieAuth: [] }]
+ * requestBody:
+ *   required: true
+ *   content:
+ *     application/json:
+ *       schema:
+ *         type: object
+ *         required: [flightNumber, route, departureDate, arrivalDate, airline]
+ *         properties:
+ *           flightNumber: { type: string }
+ *           route: { type: string }
+ *           departureDate: { type: string, format: date-time }
+ *           arrivalDate: { type: string, format: date-time }
+ *           airline: { type: string }
+ *           plane: { type: string }
+ *           status: { type: string, enum: [scheduled, delayed, cancelled, departed, landed] }
+ *           price: { type: number }
+ *           firstClassPrice: { type: number }
+ *           additionalLuggagePrice: { type: number }
+ * responses:
+ *   201: { description: Created }
+ *   400: { description: Validation error }
+ */
 const createFlight = async (req, res) => {
 	const {
 		flightNumber,
@@ -97,6 +124,13 @@ const createFlight = async (req, res) => {
 	}
 };
 
+/**
+ * @openapi
+ * tags: [Flights]
+ * summary: List flights
+ * responses:
+ *   200: { description: OK }
+ */
 const getFlights = async (req, res) => {
 	try {
 		const flights = await Flight.find()
@@ -135,6 +169,19 @@ const getFlights = async (req, res) => {
 	}
 };
 
+/**
+ * @openapi
+ * tags: [Flights]
+ * summary: Get flight by id
+ * parameters:
+ *   - in: path
+ *     name: id
+ *     required: true
+ *     schema: { type: string }
+ * responses:
+ *   200: { description: OK }
+ *   404: { description: Not found }
+ */
 const getFlightById = async (req, res) => {
 	try {
 		const flight = await Flight.findById(req.params.id)
@@ -171,6 +218,16 @@ const getFlightById = async (req, res) => {
 	}
 };
 
+/**
+ * @openapi
+ * tags: [Flights]
+ * summary: List flights by airline
+ * parameters:
+ *   - in: path
+ *     name: id
+ *     required: true
+ *     schema: { type: string }
+ */
 const getFlightsByAirline = async (req, res) => {
 	try {
 		const flights = await Flight.find({ airline: req.params.id })
@@ -210,6 +267,17 @@ const getFlightsByAirline = async (req, res) => {
 	}
 };
 
+/**
+ * @openapi
+ * tags: [Flights]
+ * summary: Update flight
+ * security: [{ cookieAuth: [] }]
+ * parameters:
+ *   - in: path
+ *     name: id
+ *     required: true
+ *     schema: { type: string }
+ */
 const updateFlight = async (req, res) => {
 	const {
 		flightNumber,
@@ -286,6 +354,17 @@ const updateFlight = async (req, res) => {
 	}
 };
 
+/**
+ * @openapi
+ * tags: [Flights]
+ * summary: Delete flight
+ * security: [{ cookieAuth: [] }]
+ * parameters:
+ *   - in: path
+ *     name: id
+ *     required: true
+ *     schema: { type: string }
+ */
 const deleteFlight = async (req, res) => {
 	try {
 		const flight = await Flight.findByIdAndDelete(req.params.id);
@@ -301,7 +380,17 @@ const deleteFlight = async (req, res) => {
 	}
 };
 
-// Aggiorna solo lo status di un volo
+/**
+ * @openapi
+ * tags: [Flights]
+ * summary: Update flight status
+ * security: [{ cookieAuth: [] }]
+ * parameters:
+ *   - in: path
+ *     name: id
+ *     required: true
+ *     schema: { type: string }
+ */
 const updateFlightStatus = async (req, res) => {
 	try {
 		const flight = await Flight.findById(req.params.id);
@@ -328,9 +417,33 @@ const updateFlightStatus = async (req, res) => {
 	}
 };
 
-// @desc    Search flights (direct and one-stop)
-// @route   GET /api/flights/search
-// @access  Public
+/**
+ * @openapi
+ * tags: [Flights]
+ * summary: Search flights (direct and one-stop)
+ * parameters:
+ *   - in: query
+ *     name: from
+ *     schema: { type: string }
+ *   - in: query
+ *     name: to
+ *     schema: { type: string }
+ *   - in: query
+ *     name: departureDate
+ *     schema: { type: string, format: date-time }
+ *   - in: query
+ *     name: departureDateEnd
+ *     schema: { type: string, format: date-time }
+ *   - in: query
+ *     name: returnDate
+ *     schema: { type: string, format: date-time }
+ *   - in: query
+ *     name: returnDateEnd
+ *     schema: { type: string, format: date-time }
+ * responses:
+ *   200: { description: OK }
+ *   400: { description: Missing parameters }
+ */
 const searchFlights = async (req, res) => {
 	try {
 		const {

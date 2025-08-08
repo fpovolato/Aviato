@@ -3,7 +3,11 @@ const Flight = require("../models/Flight");
 const SeatReservation = require("../models/SeatReservation");
 const User = require("../models/User");
 
-// Ottieni la configurazione dei posti per un volo
+/**
+ * @openapi
+ * tags: [Seats]
+ * summary: Get seat map and pricing for a flight
+ */
 const getFlightSeats = async (req, res) => {
 	try {
 		const { flightId } = req.params;
@@ -93,7 +97,12 @@ const getFlightSeats = async (req, res) => {
 	}
 };
 
-// Prenota un posto
+/**
+ * @openapi
+ * tags: [Seats]
+ * summary: Reserve a seat for current user
+ * security: [{ cookieAuth: [] }]
+ */
 const reserveSeat = async (req, res) => {
 	try {
 		const { flightId } = req.params;
@@ -176,7 +185,12 @@ const reserveSeat = async (req, res) => {
 	}
 };
 
-// Conferma una prenotazione
+/**
+ * @openapi
+ * tags: [Seats]
+ * summary: Confirm a seat reservation
+ * security: [{ cookieAuth: [] }]
+ */
 const confirmReservation = async (req, res) => {
 	try {
 		const { reservationId } = req.params;
@@ -215,7 +229,12 @@ const confirmReservation = async (req, res) => {
 	}
 };
 
-// Cancella una prenotazione
+/**
+ * @openapi
+ * tags: [Seats]
+ * summary: Cancel a reservation
+ * security: [{ cookieAuth: [] }]
+ */
 const cancelReservation = async (req, res) => {
 	try {
 		const { reservationId } = req.params;
@@ -249,7 +268,12 @@ const cancelReservation = async (req, res) => {
 	}
 };
 
-// Estendi una prenotazione
+/**
+ * @openapi
+ * tags: [Seats]
+ * summary: Extend reservation hold time
+ * security: [{ cookieAuth: [] }]
+ */
 const extendReservation = async (req, res) => {
 	try {
 		const { reservationId } = req.params;
@@ -282,7 +306,12 @@ const extendReservation = async (req, res) => {
 	}
 };
 
-// Ottieni le prenotazioni di un utente
+/**
+ * @openapi
+ * tags: [Seats]
+ * summary: Get current user's reservations
+ * security: [{ cookieAuth: [] }]
+ */
 const getUserReservations = async (req, res) => {
 	try {
 		const userId = req.user.id;
@@ -315,7 +344,12 @@ const getUserReservations = async (req, res) => {
 	}
 };
 
-// Pulisci le prenotazioni scadute (endpoint admin)
+/**
+ * @openapi
+ * tags: [Seats]
+ * summary: Remove expired reservations (admin)
+ * security: [{ cookieAuth: [] }]
+ */
 const cleanExpiredReservations = async (req, res) => {
 	try {
 		const deletedCount = await SeatReservation.cleanExpiredReservations();

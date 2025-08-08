@@ -2,6 +2,46 @@ const Order = require("../models/Order");
 const Cart = require("../models/Cart");
 const SeatReservation = require("../models/SeatReservation");
 
+/**
+ * @openapi
+ * tags: [Orders]
+ * summary: Create order from body or backend cart
+ * security: [{ cookieAuth: [] }]
+ * requestBody:
+ *   required: false
+ *   content:
+ *     application/json:
+ *       schema:
+ *         type: object
+ *         properties:
+ *           items:
+ *             type: array
+ *             items:
+ *               type: object
+ *               properties:
+ *                 flight: { type: string }
+ *                 quantity: { type: integer }
+ *                 additionalLuggage: { type: integer }
+ *                 seatClass: { type: string }
+ *                 passengers: { type: integer }
+ *           total: { type: number }
+ *           paymentMethod: { type: string }
+ *           paymentDetails: { type: object }
+ *           seatReservations:
+ *             type: array
+ *             items:
+ *               type: object
+ *               properties:
+ *                 flight: { type: string }
+ *                 plane: { type: string }
+ *                 seatRow: { type: integer }
+ *                 seatNumber: { type: integer }
+ *                 seatClass: { type: string }
+ *                 price: { type: number }
+ * responses:
+ *   201: { description: Created }
+ *   400: { description: Cart empty or validation error }
+ */
 const createOrder = async (req, res) => {
 	const userId = req.user._id || req.user.id;
 	try {
@@ -94,6 +134,12 @@ const createOrder = async (req, res) => {
 	}
 };
 
+/**
+ * @openapi
+ * tags: [Orders]
+ * summary: List all orders (admin)
+ * security: [{ cookieAuth: [] }]
+ */
 const getOrders = async (req, res) => {
 	try {
 		const orders = await Order.find()
@@ -106,6 +152,17 @@ const getOrders = async (req, res) => {
 	}
 };
 
+/**
+ * @openapi
+ * tags: [Orders]
+ * summary: Get order by id
+ * security: [{ cookieAuth: [] }]
+ * parameters:
+ *   - in: path
+ *     name: id
+ *     required: true
+ *     schema: { type: string }
+ */
 const getOrderById = async (req, res) => {
 	try {
 		const order = await Order.findById(req.params.id)
@@ -124,6 +181,12 @@ const getOrderById = async (req, res) => {
 	}
 };
 
+/**
+ * @openapi
+ * tags: [Orders]
+ * summary: Get current user's orders
+ * security: [{ cookieAuth: [] }]
+ */
 const getUserOrders = async (req, res) => {
 	try {
 		const userId = req.user._id;
@@ -154,6 +217,17 @@ const getUserOrders = async (req, res) => {
 	}
 };
 
+/**
+ * @openapi
+ * tags: [Orders]
+ * summary: Update order status (admin)
+ * security: [{ cookieAuth: [] }]
+ * parameters:
+ *   - in: path
+ *     name: id
+ *     required: true
+ *     schema: { type: string }
+ */
 const updateOrderStatus = async (req, res) => {
 	try {
 		const order = await Order.findById(req.params.id);

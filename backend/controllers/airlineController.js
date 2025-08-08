@@ -1,9 +1,25 @@
 const User = require("../models/User");
 const Airline = require("../models/Airline");
 
-// @desc    Create a new airline
-// @route   POST /api/airlines
-// @access  Private
+/**
+ * @openapi
+ * tags: [Airlines]
+ * summary: Create a new airline
+ * security: [{ cookieAuth: [] }]
+ * requestBody:
+ *   required: true
+ *   content:
+ *     application/json:
+ *       schema:
+ *         type: object
+ *         required: [name, code]
+ *         properties:
+ *           name: { type: string }
+ *           code: { type: string }
+ * responses:
+ *   201: { description: Created }
+ *   400: { description: Already exists }
+ */
 const createAirline = async (req, res) => {
   const { name, code } = req.body;
 
@@ -26,9 +42,13 @@ const createAirline = async (req, res) => {
   }
 };
 
-// @desc    Get all airlines
-// @route   GET /api/airlines
-// @access  Public
+/**
+ * @openapi
+ * tags: [Airlines]
+ * summary: Get all airlines
+ * responses:
+ *   200: { description: OK }
+ */
 const getAirlines = async (req, res) => {
   try {
     const airlines = await Airline.find();
@@ -39,9 +59,19 @@ const getAirlines = async (req, res) => {
   }
 };
 
-// @desc    Get airline by ID
-// @route   GET /api/airlines/:id
-// @access  Public
+/**
+ * @openapi
+ * tags: [Airlines]
+ * summary: Get airline by ID
+ * parameters:
+ *   - in: path
+ *     name: id
+ *     required: true
+ *     schema: { type: string }
+ * responses:
+ *   200: { description: OK }
+ *   404: { description: Not found }
+ */
 const getAirlineById = async (req, res) => {
   try {
     const airline = await Airline.findById(req.params.id).populate(
@@ -59,9 +89,25 @@ const getAirlineById = async (req, res) => {
   }
 };
 
-// @desc    Invite an employee to an airline
-// @route   POST /api/airlines/invite
-// @access  Private
+/**
+ * @openapi
+ * tags: [Airlines]
+ * summary: Invite an employee to an airline
+ * security: [{ cookieAuth: [] }]
+ * requestBody:
+ *   required: true
+ *   content:
+ *     application/json:
+ *       schema:
+ *         type: object
+ *         required: [userId, airlineId]
+ *         properties:
+ *           userId: { type: string }
+ *           airlineId: { type: string }
+ * responses:
+ *   200: { description: Invitation successful }
+ *   403: { description: Not authorized }
+ */
 const inviteEmployee = async (req, res) => {
   const { userId, airlineId } = req.body;
 
@@ -99,9 +145,12 @@ const inviteEmployee = async (req, res) => {
   }
 };
 
-// @desc    Get all employees of all airlines
-// @route   GET /api/airlines/employees
-// @access  Private
+/**
+ * @openapi
+ * tags: [Airlines]
+ * summary: Get all employees of all airlines (admin)
+ * security: [{ cookieAuth: [] }]
+ */
 const getAllEmployees = async (req, res) => {
   try {
     const requester = req.user;
@@ -148,9 +197,17 @@ const getAllEmployees = async (req, res) => {
   }
 };
 
-// @desc    Get employees of a specific airline
-// @route   GET /api/airlines/:airlineId/employees
-// @access  Private
+/**
+ * @openapi
+ * tags: [Airlines]
+ * summary: Get employees of a specific airline
+ * security: [{ cookieAuth: [] }]
+ * parameters:
+ *   - in: path
+ *     name: airlineId
+ *     required: true
+ *     schema: { type: string }
+ */
 const getEmployeesByAirline = async (req, res) => {
   const { airlineId } = req.params;
 

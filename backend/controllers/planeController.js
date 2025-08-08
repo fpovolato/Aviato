@@ -1,5 +1,11 @@
 const Plane = require("../models/Plane");
 
+/**
+ * @openapi
+ * tags: [Planes]
+ * summary: Create plane and auto-generate seats configuration
+ * security: [{ cookieAuth: [] }]
+ */
 const createPlane = async (req, res) => {
 	const {
 		code,
@@ -46,6 +52,11 @@ const createPlane = async (req, res) => {
 	}
 };
 
+/**
+ * @openapi
+ * tags: [Planes]
+ * summary: List planes
+ */
 const getPlanes = async (req, res) => {
 	try {
 		const planes = await Plane.find().populate("airline", "name code");
@@ -56,6 +67,11 @@ const getPlanes = async (req, res) => {
 	}
 };
 
+/**
+ * @openapi
+ * tags: [Planes]
+ * summary: Get plane by id
+ */
 const getPlaneById = async (req, res) => {
 	try {
 		const plane = await Plane.findById(req.params.id).populate(
@@ -74,6 +90,11 @@ const getPlaneById = async (req, res) => {
 	}
 };
 
+/**
+ * @openapi
+ * tags: [Planes]
+ * summary: Get plane by code
+ */
 const getPlaneByCode = async (req, res) => {
 	const { code } = req.params;
 
@@ -93,6 +114,11 @@ const getPlaneByCode = async (req, res) => {
 	}
 };
 
+/**
+ * @openapi
+ * tags: [Planes]
+ * summary: List planes by airline
+ */
 const getPlanesByAirline = async (req, res) => {
 	const { airlineId } = req.params;
 
@@ -108,7 +134,11 @@ const getPlanesByAirline = async (req, res) => {
 	}
 };
 
-// Nuovo metodo per ottenere la configurazione dei posti di un piano
+/**
+ * @openapi
+ * tags: [Planes]
+ * summary: Get seat configuration for a plane
+ */
 const getPlaneSeats = async (req, res) => {
 	try {
 		const plane = await Plane.findById(req.params.id);
@@ -139,7 +169,12 @@ const getPlaneSeats = async (req, res) => {
 	}
 };
 
-// Nuovo metodo per aggiornare la configurazione di un piano
+/**
+ * @openapi
+ * tags: [Planes]
+ * summary: Update plane configuration and regenerate seats
+ * security: [{ cookieAuth: [] }]
+ */
 const updatePlaneConfiguration = async (req, res) => {
 	try {
 		const {
@@ -183,7 +218,11 @@ const updatePlaneConfiguration = async (req, res) => {
 	}
 };
 
-// Nuovo metodo per ottenere le statistiche di un piano
+/**
+ * @openapi
+ * tags: [Planes]
+ * summary: Get seating stats for a plane
+ */
 const getPlaneStats = async (req, res) => {
 	try {
 		const plane = await Plane.findById(req.params.id);
