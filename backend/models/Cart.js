@@ -3,7 +3,7 @@ const mongoose = require("mongoose");
 const cartItemSchema = new mongoose.Schema({
   flight: {
     type: mongoose.Schema.Types.ObjectId,
-    red: "Flight",
+    ref: "Flight",
     required: true,
   },
   quantity: {
