@@ -19,6 +19,43 @@ connectDB();
 
 const app = express();
 
+// Swagger setup
+const swaggerUi = require("swagger-ui-express");
+const swaggerJsDoc = require("swagger-jsdoc");
+const swaggerJSDoc = require("swagger-jsdoc");
+
+const swaggerSpec = swaggerJSDoc({
+	definition: {
+		openapi: '3.0.3',
+		info: {
+			title: 'Aviato API',
+			version: '1.0.0',
+			description: 'REST API for Aviato'
+		},
+		servers: [{ url: 'https://localhost:3443', description: 'Local HTTPS' }],
+		components: {
+			securitySchemes: {
+				cookieAuth: { type: 'apiKey', in: 'cookie', name: 'accessToken' }
+			}
+		},
+		security: [{ cookieAuth: [] }]
+	},
+	apis: ['./routes/*.js', './controllers/*.js', './app.js']
+});
+
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec, {
+	explorer: true,
+	swaggerOptions: {
+		persistAuthorization: true,
+		requestInterceptor: function (req) { req.credentials = 'include'; return req; }
+	}
+}));
+
+app.get('/openapi.json', (req, res) => {
+	res.setHeader('Content-Type', 'application/json');
+	res.send(swaggerSpec);
+})
+
 /**
  * @openapi
  * info:

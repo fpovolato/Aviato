@@ -1,0 +1,164 @@
+<mxfile host="Electron" agent="Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) draw.io/28.0.6 Chrome/138.0.7204.100 Electron/37.2.3 Safari/537.36" version="28.0.6">
+  <diagram name="Page-1" id="0Xcv8Q_8t_BiH4TlR13Z">
+    <mxGraphModel dx="1228" dy="508" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="TisJMG-w9jmrgsPWcTtX-7" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="TisJMG-w9jmrgsPWcTtX-1" target="TisJMG-w9jmrgsPWcTtX-2">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="TisJMG-w9jmrgsPWcTtX-1" value="Start" style="rounded=1;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="360" width="120" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="TisJMG-w9jmrgsPWcTtX-8" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="TisJMG-w9jmrgsPWcTtX-2" target="TisJMG-w9jmrgsPWcTtX-3">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="TisJMG-w9jmrgsPWcTtX-2" value="Accesso a route protetta" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="360" y="70" width="120" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="TisJMG-w9jmrgsPWcTtX-9" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="TisJMG-w9jmrgsPWcTtX-3" target="TisJMG-w9jmrgsPWcTtX-4">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="520" y="190" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="TisJMG-w9jmrgsPWcTtX-12" value="Sì" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="TisJMG-w9jmrgsPWcTtX-9">
+          <mxGeometry x="-0.6517" relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="TisJMG-w9jmrgsPWcTtX-25" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="TisJMG-w9jmrgsPWcTtX-3" target="TisJMG-w9jmrgsPWcTtX-24">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="TisJMG-w9jmrgsPWcTtX-26" value="No" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="TisJMG-w9jmrgsPWcTtX-25">
+          <mxGeometry x="-0.8926" relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="TisJMG-w9jmrgsPWcTtX-3" value="AuthGuard:&lt;div&gt;Utente autenticato?&lt;/div&gt;" style="rhombus;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="370" y="140" width="100" height="100" as="geometry" />
+        </mxCell>
+        <mxCell id="TisJMG-w9jmrgsPWcTtX-10" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="TisJMG-w9jmrgsPWcTtX-4" target="TisJMG-w9jmrgsPWcTtX-5">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="620" y="290" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="TisJMG-w9jmrgsPWcTtX-14" value="Sì" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="TisJMG-w9jmrgsPWcTtX-10">
+          <mxGeometry x="-0.6433" relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="TisJMG-w9jmrgsPWcTtX-18" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.25;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="TisJMG-w9jmrgsPWcTtX-4" target="TisJMG-w9jmrgsPWcTtX-16">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="380" y="290" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="TisJMG-w9jmrgsPWcTtX-19" value="No" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="TisJMG-w9jmrgsPWcTtX-18">
+          <mxGeometry x="-0.8644" y="-1" relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="TisJMG-w9jmrgsPWcTtX-4" value="RoleGuard:&lt;div&gt;Ruolo Autorizzato?&lt;/div&gt;" style="rhombus;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="470" y="240" width="100" height="100" as="geometry" />
+        </mxCell>
+        <mxCell id="TisJMG-w9jmrgsPWcTtX-11" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="TisJMG-w9jmrgsPWcTtX-5" target="TisJMG-w9jmrgsPWcTtX-6">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="520" y="390" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="TisJMG-w9jmrgsPWcTtX-15" value="Sì" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="TisJMG-w9jmrgsPWcTtX-11">
+          <mxGeometry x="-0.565" relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="TisJMG-w9jmrgsPWcTtX-22" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=1;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="TisJMG-w9jmrgsPWcTtX-5" target="TisJMG-w9jmrgsPWcTtX-20">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="710" y="390" />
+              <mxPoint x="710" y="590" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="TisJMG-w9jmrgsPWcTtX-23" value="No" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="TisJMG-w9jmrgsPWcTtX-22">
+          <mxGeometry x="-0.8756" relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="TisJMG-w9jmrgsPWcTtX-5" value="Richiede scope airline?" style="rhombus;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="570" y="340" width="100" height="100" as="geometry" />
+        </mxCell>
+        <mxCell id="TisJMG-w9jmrgsPWcTtX-17" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.75;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="TisJMG-w9jmrgsPWcTtX-6" target="TisJMG-w9jmrgsPWcTtX-16">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="440" y="490" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="TisJMG-w9jmrgsPWcTtX-21" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.25;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="TisJMG-w9jmrgsPWcTtX-6" target="TisJMG-w9jmrgsPWcTtX-20">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="600" y="490" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="TisJMG-w9jmrgsPWcTtX-6" value="Utente associato alla airline?" style="rhombus;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="470" y="440" width="100" height="100" as="geometry" />
+        </mxCell>
+        <mxCell id="TisJMG-w9jmrgsPWcTtX-31" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="TisJMG-w9jmrgsPWcTtX-16" target="TisJMG-w9jmrgsPWcTtX-28">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="TisJMG-w9jmrgsPWcTtX-16" value="403 Forbidden&lt;div&gt;Accesso Negato&lt;/div&gt;" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="350" y="570" width="120" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="TisJMG-w9jmrgsPWcTtX-32" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="TisJMG-w9jmrgsPWcTtX-20" target="TisJMG-w9jmrgsPWcTtX-29">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="TisJMG-w9jmrgsPWcTtX-20" value="Accesso alla risorsa concesso" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="570" y="570" width="120" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="TisJMG-w9jmrgsPWcTtX-30" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="TisJMG-w9jmrgsPWcTtX-24" target="TisJMG-w9jmrgsPWcTtX-27">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="TisJMG-w9jmrgsPWcTtX-24" value="Redirect a /login" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="130" y="570" width="120" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="TisJMG-w9jmrgsPWcTtX-34" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="TisJMG-w9jmrgsPWcTtX-27" target="TisJMG-w9jmrgsPWcTtX-33">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="190" y="740" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="TisJMG-w9jmrgsPWcTtX-27" value="Pagina di login" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="130" y="640" width="120" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="TisJMG-w9jmrgsPWcTtX-35" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="TisJMG-w9jmrgsPWcTtX-28" target="TisJMG-w9jmrgsPWcTtX-33">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="TisJMG-w9jmrgsPWcTtX-28" value="Pagina precedente" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="350" y="640" width="120" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="TisJMG-w9jmrgsPWcTtX-36" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=1;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="TisJMG-w9jmrgsPWcTtX-29" target="TisJMG-w9jmrgsPWcTtX-33">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="630" y="740" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="TisJMG-w9jmrgsPWcTtX-29" value="Carica contenuto della pagina" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="570" y="640" width="120" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="TisJMG-w9jmrgsPWcTtX-33" value="Fine" style="rounded=1;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="350" y="720" width="120" height="40" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

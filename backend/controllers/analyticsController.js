@@ -14,7 +14,7 @@ const getDashboardAnalytics = async (req, res) => {
 	try {
 		const user = req.user;
 
-		// Check if user is admin - admins see only welcome message
+		// Check if user is admin
 		if (user.roles.includes("admin")) {
 			return res.status(200).json({
 				isAdmin: true,
