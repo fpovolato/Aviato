@@ -12,13 +12,14 @@ export interface Flight {
   price: number;
   firstClassPrice: number;
   seats: number;
-  additionalLuggagePrice?: number;
-  selectedSeat?: {
-    row: string;
-    number: number;
-    class: 'first' | 'economy';
+  additionalLuggagePrice: number;
+  selectedSeats?: {
+    passengerNumber: number;
+    seatRow: string;
+    seatNumber: number;
+    seatClass: 'first' | 'economy';
     price: number;
-  };
+  }[];
   /*
   planeType: Object;
 */

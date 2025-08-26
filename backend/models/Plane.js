@@ -27,22 +27,6 @@ const seatSchema = new mongoose.Schema(
 			type: Boolean,
 			default: false,
 		},
-		isAisle: {
-			type: Boolean,
-			default: false,
-		},
-		isWindow: {
-			type: Boolean,
-			default: false,
-		},
-		isEmergencyExit: {
-			type: Boolean,
-			default: false,
-		},
-		isBulkhead: {
-			type: Boolean,
-			default: false,
-		},
 	},
 	{ _id: false }
 );
@@ -188,10 +172,6 @@ planeSchema.methods.generateSeatsConfiguration = function () {
 					seatClass: config.seatClass,
 					isAvailable: true,
 					isReserved: false,
-					isAisle: this.isAisleSeat(seat, config.seatLayout),
-					isWindow: this.isWindowSeat(seat, config.seatsPerRow),
-					isEmergencyExit: this.isEmergencyExitRow(row),
-					isBulkhead: this.isBulkheadRow(row, config),
 				};
 				seats.push(seatData);
 			}
@@ -200,37 +180,6 @@ planeSchema.methods.generateSeatsConfiguration = function () {
 
 	this.seatsConfiguration = seats;
 	return seats;
-};
-
-// Verifica se un posto è di corridoio
-planeSchema.methods.isAisleSeat = function (seatNumber, layout) {
-	const layoutArray = layout.split("-").map(Number);
-	let currentSeat = 0;
-
-	for (let i = 0; i < layoutArray.length; i++) {
-		currentSeat += layoutArray[i];
-		if (seatNumber === currentSeat || seatNumber === currentSeat + 1) {
-			return true;
-		}
-	}
-	return false;
-};
-
-// Verifica se un posto è finestrino
-planeSchema.methods.isWindowSeat = function (seatNumber, seatsPerRow) {
-	return seatNumber === 1 || seatNumber === seatsPerRow;
-};
-
-// Verifica se è una fila di uscita di emergenza
-planeSchema.methods.isEmergencyExitRow = function (row) {
-	// Logica per identificare le file di uscita di emergenza
-	// Questo può variare per aereo
-	return false;
-};
-
-// Verifica se è una fila bulkhead (prima fila di una sezione)
-planeSchema.methods.isBulkheadRow = function (row, config) {
-	return row === parseInt(config.startRow);
 };
 
 // Metodo per ottenere i posti disponibili
@@ -296,10 +245,6 @@ planeSchema.methods.getSeatsStats = function () {
 		reserved: 0,
 		economy: 0,
 		first: 0,
-		aisle: 0,
-		window: 0,
-		emergencyExit: 0,
-		bulkhead: 0,
 	};
 
 	this.seatsConfiguration.forEach((seat) => {
@@ -307,10 +252,6 @@ planeSchema.methods.getSeatsStats = function () {
 		if (seat.isReserved) stats.reserved++;
 		if (seat.seatClass === "economy") stats.economy++;
 		if (seat.seatClass === "first") stats.first++;
-		if (seat.isAisle) stats.aisle++;
-		if (seat.isWindow) stats.window++;
-		if (seat.isEmergencyExit) stats.emergencyExit++;
-		if (seat.isBulkhead) stats.bulkhead++;
 	});
 
 	return stats;

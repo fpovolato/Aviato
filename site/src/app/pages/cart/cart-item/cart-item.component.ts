@@ -102,10 +102,11 @@ import { CartService } from '../../../services/cart.service';
         </div>
 
         <!-- Selected Seat Information -->
-        @if (item().flight.selectedSeat) {
+        @if (item().flight.selectedSeats && item().flight.selectedSeats!.length
+        > 0) {
         <div class="mb-6">
           <div class="bg-green-50 border border-green-200 rounded-lg p-4">
-            <div class="flex items-center justify-between">
+            <div class="flex items-center justify-between mb-3">
               <div class="flex items-center space-x-3">
                 <svg
                   class="w-5 h-5 text-green-600"
@@ -120,24 +121,39 @@ import { CartService } from '../../../services/cart.service';
                     d="M5 13l4 4L19 7"
                   ></path>
                 </svg>
-                <div>
-                  <span class="font-medium text-green-800"
-                    >Posto Selezionato</span
-                  >
-                  <p class="text-sm text-green-600">
-                    Posto {{ item().flight.selectedSeat?.row
-                    }}{{ item().flight.selectedSeat?.number }} ({{
-                      item().flight.selectedSeat?.class | titlecase
-                    }}
-                    Class)
-                  </p>
+                <span class="font-medium text-green-800"
+                  >Posti Selezionati</span
+                >
+              </div>
+              <div class="text-sm text-green-600">
+                {{
+                  (item().flight.selectedSeats &&
+                    item().flight.selectedSeats?.length) ||
+                    0
+                }}/{{ item().passengers }}
+              </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+              @for (seat of (item().flight.selectedSeats || []); track
+              seat.passengerNumber) {
+              <div class="bg-white rounded-lg p-3 border border-green-200">
+                <div class="text-sm">
+                  <div class="font-medium text-green-800">
+                    Passeggero {{ seat.passengerNumber }}
+                  </div>
+                  <div class="text-green-600">
+                    Posto {{ seat.seatRow }}{{ seat.seatNumber }}
+                  </div>
+                  <div class="text-green-600">
+                    {{ seat.seatClass | titlecase }} Class
+                  </div>
+                  <div class="text-green-600 font-medium">
+                    {{ seat.price | currency : 'EUR' }}
+                  </div>
                 </div>
               </div>
-              <div class="text-right">
-                <div class="text-sm text-green-600">
-                  {{ item().flight.selectedSeat?.price | currency : 'EUR' }}
-                </div>
-              </div>
+              }
             </div>
           </div>
         </div>
@@ -312,14 +328,19 @@ import { CartService } from '../../../services/cart.service';
               <div>
                 <span class="font-medium text-gray-700">Checked Luggage</span>
                 <p class="text-sm text-gray-500">
-                  +{{ getLuggagePrice() }}€ per piece
+                  @if (cartService.isLuggageAvailable(item().flight)) { +{{
+                    getLuggagePrice()
+                  }}€ per piece } @else { Servizio non disponibile }
                 </p>
               </div>
             </div>
             <div class="flex items-center space-x-2">
               <button
                 (click)="decreaseLuggage()"
-                [disabled]="item().luggageQuantity === 0"
+                [disabled]="
+                  item().luggageQuantity === 0 ||
+                  !cartService.isLuggageAvailable(item().flight)
+                "
                 class="w-8 h-8 rounded-full bg-gray-200 hover:bg-gray-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
               >
                 <svg
@@ -341,7 +362,10 @@ import { CartService } from '../../../services/cart.service';
               }}</span>
               <button
                 (click)="increaseLuggage()"
-                [disabled]="item().luggageQuantity >= 5"
+                [disabled]="
+                  item().luggageQuantity >= 5 ||
+                  !cartService.isLuggageAvailable(item().flight)
+                "
                 class="w-8 h-8 rounded-full bg-gray-200 hover:bg-gray-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
               >
                 <svg
@@ -362,7 +386,8 @@ import { CartService } from '../../../services/cart.service';
           </div>
 
           <!-- Seat Selection -->
-          @if (!item().flight.selectedSeat) {
+          @if (!item().flight.selectedSeats ||
+          item().flight.selectedSeats?.length === 0) {
           <div
             class="flex items-center justify-between p-4 bg-gray-50 rounded-lg"
           >
@@ -381,9 +406,9 @@ import { CartService } from '../../../services/cart.service';
                 ></path>
               </svg>
               <div>
-                <span class="font-medium text-gray-700">Selezione Posto</span>
+                <span class="font-medium text-gray-700">Selezione Posti</span>
                 <p class="text-sm text-gray-500">
-                  Scegli il tuo posto preferito
+                  Scegli i tuoi posti preferiti
                 </p>
               </div>
             </div>
@@ -391,7 +416,7 @@ import { CartService } from '../../../services/cart.service';
               class="px-4 py-2 rounded-lg text-white bg-blue-600 hover:bg-blue-700"
               (click)="navigateToSeatSelection()"
             >
-              Seleziona Posto
+              Seleziona Posti
             </button>
           </div>
           }
@@ -415,19 +440,21 @@ import { CartService } from '../../../services/cart.service';
                 { {{ item().flight.price * item().passengers }}€ }</span
               >
             </div>
-            @if (item().flight.selectedSeat) {
+            @if (item().flight.selectedSeats &&
+            item().flight.selectedSeats!.length > 0) {
             <div class="flex justify-between text-green-600">
               <span
-                >Posto selezionato ({{ item().passengers }} ×
-                {{ item().flight.selectedSeat?.price }}€)</span
+                >Posti selezionati ({{
+                  (item().flight.selectedSeats &&
+                    item().flight.selectedSeats?.length) ||
+                    0
+                }}
+                × {{ getAverageSeatPrice() | currency : 'EUR' }}€)</span
               >
-              <span
-                >+{{
-                  (item().flight.selectedSeat?.price || 0) * item().passengers
-                }}€</span
-              >
+              <span>+{{ getTotalSeatPrice() }}€</span>
             </div>
-            } @if (item().luggageQuantity > 0) {
+            } @if (item().luggageQuantity > 0 &&
+            cartService.isLuggageAvailable(item().flight)) {
             <div class="flex justify-between text-blue-600">
               <span
                 >Luggage ({{ item().luggageQuantity }} ×
@@ -494,7 +521,10 @@ export class CartItemComponent {
   }
 
   increaseLuggage() {
-    if (this.item().luggageQuantity < 5) {
+    if (
+      this.item().luggageQuantity < 5 &&
+      this.cartService.isLuggageAvailable(this.item().flight)
+    ) {
       this.cartService.updateCartItem(this.item().flight.id, {
         luggageQuantity: this.item().luggageQuantity + 1,
       });
@@ -516,7 +546,7 @@ export class CartItemComponent {
   }
 
   getLuggagePrice(): number {
-    return this.item().flight.additionalLuggagePrice || 30;
+    return this.item().flight.additionalLuggagePrice || 0;
   }
 
   getFirstClassUpcharge(): number {
@@ -538,17 +568,47 @@ export class CartItemComponent {
       total = this.item().flight.price * this.item().passengers;
     }
 
-    // Add selected seat price if available
-    if (this.item().flight.selectedSeat) {
-      total +=
-        (this.item().flight.selectedSeat?.price || 0) * this.item().passengers;
+    // Add selected seats price if available
+    if (
+      this.item().flight.selectedSeats &&
+      this.item().flight.selectedSeats!.length > 0
+    ) {
+      total += this.getTotalSeatPrice();
     }
 
-    if (this.item().luggageQuantity > 0) {
-      const luggagePrice = this.item().flight.additionalLuggagePrice || 30;
+    if (
+      this.item().luggageQuantity > 0 &&
+      this.cartService.isLuggageAvailable(this.item().flight)
+    ) {
+      const luggagePrice = this.getLuggagePrice();
       total += luggagePrice * this.item().luggageQuantity;
     }
 
     return total;
   });
+
+  getTotalSeatPrice(): number {
+    if (
+      !this.item().flight.selectedSeats ||
+      this.item().flight.selectedSeats!.length === 0
+    )
+      return 0;
+
+    return this.item().flight.selectedSeats!.reduce((sum, seat) => {
+      return sum + seat.price;
+    }, 0);
+  }
+
+  getAverageSeatPrice(): number {
+    if (
+      !this.item().flight.selectedSeats ||
+      this.item().flight.selectedSeats!.length === 0
+    )
+      return 0;
+
+    const total = this.getTotalSeatPrice();
+    if (total === 0) return 0;
+
+    return total / this.item().flight.selectedSeats!.length;
+  }
 }

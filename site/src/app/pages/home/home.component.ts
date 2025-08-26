@@ -515,7 +515,7 @@ export class HomeComponent {
         price: flight.price || 0,
         firstClassPrice: flight.firstClassPrice || flight.price * 1.5,
         seats: flight.seatsAvailable || 0,
-        additionalLuggagePrice: flight.additionalLuggagePrice || 30,
+        additionalLuggagePrice: flight.additionalLuggagePrice || 0,
       };
 
       // Check if flight is already in cart

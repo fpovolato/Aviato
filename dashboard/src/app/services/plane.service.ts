@@ -9,66 +9,66 @@ import { BaseApiService } from './base-api.service';
 export class PlaneService extends BaseApiService {
   // Get all planes
   getPlanes(): Observable<Plane[]> {
-    return this.get<Plane[]>('/api/planes');
+    return this.get<Plane[]>('/planes');
   }
 
   // Get plane by ID
   getPlane(id: string): Observable<Plane> {
-    return this.get<Plane>(`/api/planes/${id}`);
+    return this.get<Plane>(`/planes/${id}`);
   }
 
   // Create new plane
   createPlane(planeData: any): Observable<Plane> {
-    return this.post<Plane>('/api/planes', planeData);
+    return this.post<Plane>('/planes', planeData);
   }
 
   // Update plane configuration
   updatePlaneConfiguration(id: string, configuration: any): Observable<any> {
-    return this.put(`/api/planes/${id}/configuration`, configuration);
+    return this.put(`/planes/${id}/configuration`, configuration);
   }
 
   // Delete plane
   deletePlane(id: string): Observable<any> {
-    return this.delete(`/api/planes/${id}`);
+    return this.delete(`/planes/${id}`);
   }
 
   // Get plane seats
   getPlaneSeats(id: string): Observable<PlaneSeatsResponse> {
-    return this.get<PlaneSeatsResponse>(`/api/planes/${id}/seats`);
+    return this.get<PlaneSeatsResponse>(`/planes/${id}/seats`);
   }
 
   // Get plane stats
   getPlaneStats(id: string): Observable<PlaneStats> {
-    return this.get<PlaneStats>(`/api/planes/${id}/stats`);
+    return this.get<PlaneStats>(`/planes/${id}/stats`);
   }
 
   // Seat management methods
   getFlightSeats(flightId: string): Observable<any> {
-    return this.get(`/api/seats/flights/${flightId}/seats`);
+    return this.get(`/seats/flights/${flightId}/seats`);
   }
 
   reserveSeat(flightId: string, seatData: any): Observable<any> {
-    return this.post(`/api/seats/flights/${flightId}/seats/reserve`, seatData);
+    return this.post(`/seats/flights/${flightId}/seats/reserve`, seatData);
   }
 
   confirmReservation(reservationId: string): Observable<any> {
-    return this.put(`/api/seats/reservations/${reservationId}/confirm`, {});
+    return this.put(`/seats/reservations/${reservationId}/confirm`, {});
   }
 
   cancelReservation(reservationId: string): Observable<any> {
-    return this.delete(`/api/seats/reservations/${reservationId}`);
+    return this.delete(`/seats/reservations/${reservationId}`);
   }
 
   extendReservation(
     reservationId: string,
     minutes: number = 15
   ): Observable<any> {
-    return this.put(`/api/seats/reservations/${reservationId}/extend`, {
+    return this.put(`/seats/reservations/${reservationId}/extend`, {
       minutes,
     });
   }
 
   getUserReservations(): Observable<any> {
-    return this.get('/api/seats/user/reservations');
+    return this.get('/seats/user/reservations');
   }
 }

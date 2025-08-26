@@ -287,7 +287,7 @@ const deleteAirport = async (req, res) => {
  * @openapi
  * tags: [Airports]
  * summary: Import airports in bulk from uploaded CSV file
- * description: CSV must follow OpenFlights format with headers: airportId,name,city,country,iata,icao,latitude,longitude,altitude,timezone,dst,tzDatabaseTimezone,type,source
+ * description: "CSV must follow OpenFlights format with headers: airportId,name,city,country,iata,icao,latitude,longitude,altitude,timezone,dst,tzDatabaseTimezone,type,source"
  * security: [{ cookieAuth: [] }]
  */
 const importAirportsFromCSV = async (req, res) => {

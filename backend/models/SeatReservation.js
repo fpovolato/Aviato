@@ -47,23 +47,6 @@ const seatReservationSchema = new mongoose.Schema(
 			required: true,
 			min: 0,
 		},
-		// Informazioni aggiuntive del posto
-		isAisle: {
-			type: Boolean,
-			default: false,
-		},
-		isWindow: {
-			type: Boolean,
-			default: false,
-		},
-		isEmergencyExit: {
-			type: Boolean,
-			default: false,
-		},
-		isBulkhead: {
-			type: Boolean,
-			default: false,
-		},
 		// Note speciali (es. richieste speciali, disabilità, etc.)
 		specialRequests: {
 			type: String,
@@ -72,7 +55,9 @@ const seatReservationSchema = new mongoose.Schema(
 		// Timestamp per la scadenza della prenotazione (se non confermata)
 		expiresAt: {
 			type: Date,
-			required: true,
+			required: function() {
+				return this.status === "reserved";
+			},
 		},
 	},
 	{

@@ -12,10 +12,6 @@ export interface SeatReservation {
   seatClass: 'economy' | 'first';
   status: 'reserved' | 'confirmed' | 'cancelled';
   price: number;
-  isAisle?: boolean;
-  isWindow?: boolean;
-  isEmergencyExit?: boolean;
-  isBulkhead?: boolean;
   specialRequests?: string;
   reservationDate?: Date;
   expiresAt?: Date;

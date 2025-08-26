@@ -1,6 +1,8 @@
 const Order = require("../models/Order");
 const Cart = require("../models/Cart");
 const SeatReservation = require("../models/SeatReservation");
+const Flight = require("../models/Flight");
+const Plane = require("../models/Plane");
 
 /**
  * @openapi
@@ -24,20 +26,10 @@ const SeatReservation = require("../models/SeatReservation");
  *                 additionalLuggage: { type: integer }
  *                 seatClass: { type: string }
  *                 passengers: { type: integer }
+ *                 selectedSeats: { type: array }
  *           total: { type: number }
  *           paymentMethod: { type: string }
  *           paymentDetails: { type: object }
- *           seatReservations:
- *             type: array
- *             items:
- *               type: object
- *               properties:
- *                 flight: { type: string }
- *                 plane: { type: string }
- *                 seatRow: { type: integer }
- *                 seatNumber: { type: integer }
- *                 seatClass: { type: string }
- *                 price: { type: number }
  * responses:
  *   201: { description: Created }
  *   400: { description: Cart empty or validation error }
@@ -54,8 +46,13 @@ const createOrder = async (req, res) => {
 			items = req.body.items.map((item) => ({
 				...item,
 				additionalLuggage: item.additionalLuggage || 0,
+				additionalLuggagePrice: item.additionalLuggagePrice || 0,
 				seatClass: item.seatClass || "economy",
 				passengers: item.passengers || item.quantity || 1,
+				// Salva le informazioni complete del volo se fornite
+				flightInfo: item.flightInfo || null,
+				// Gestisci i posti selezionati
+				selectedSeats: item.selectedSeats || [],
 			}));
 			total = req.body.total || 0;
 		} else {
@@ -85,10 +82,75 @@ const createOrder = async (req, res) => {
 				quantity: i.quantity,
 				priceAtPurchase: i.flight.price,
 				additionalLuggage: i.additionalLuggage || 0,
+				additionalLuggagePrice: i.flight.additionalLuggagePrice || 0,
 				seatClass: i.seatClass || "economy",
 				passengers: i.quantity,
+				selectedSeats: [],
 			}));
 			total = items.reduce((sum, i) => sum + i.quantity * i.priceAtPurchase, 0);
+		}
+
+		// Gestisci i posti per ogni item dell'ordine
+		for (const item of items) {
+			if (item.selectedSeats && item.selectedSeats.length > 0) {
+				// Verifica che il numero di posti selezionati corrisponda al numero di passeggeri
+				if (item.selectedSeats.length !== item.passengers) {
+					return res.status(400).json({
+						message: `Il numero di posti selezionati (${item.selectedSeats.length}) deve corrispondere al numero di passeggeri (${item.passengers}) per il volo ${item.flight}`,
+					});
+				}
+
+				// Verifica che tutti i posti selezionati siano disponibili
+				for (const seat of item.selectedSeats) {
+					const isAvailable = await SeatReservation.isSeatAvailable(
+						item.flight,
+						seat.seatRow,
+						seat.seatNumber
+					);
+					if (!isAvailable) {
+						return res.status(400).json({
+							message: `Il posto ${seat.seatRow}${seat.seatNumber} non è disponibile per il volo ${item.flight}`,
+						});
+					}
+				}
+			} else {
+				// Assegnazione automatica dei posti se non selezionati
+				const flight = await Flight.findById(item.flight).populate("plane");
+				if (!flight || !flight.plane) {
+					return res.status(400).json({
+						message: `Impossibile trovare l'aereo per il volo ${item.flight}`,
+					});
+				}
+
+				// Ottieni posti disponibili per la classe selezionata
+				const availableSeats = flight.plane.seatsConfiguration.filter(
+					(seat) =>
+						seat.seatClass === item.seatClass &&
+						!seat.isReserved &&
+						seat.isAvailable
+				);
+
+				if (availableSeats.length < item.passengers) {
+					return res.status(400).json({
+						message: `Non ci sono abbastanza posti disponibili per la classe ${item.seatClass} nel volo ${item.flight}`,
+					});
+				}
+
+				// Assegna posti casuali
+				const shuffledSeats = availableSeats.sort(() => 0.5 - Math.random());
+				item.selectedSeats = shuffledSeats
+					.slice(0, item.passengers)
+					.map((seat, index) => ({
+						passengerNumber: index + 1,
+						seatRow: seat.row,
+						seatNumber: seat.number,
+						seatClass: seat.seatClass,
+						price:
+							seat.seatClass === "first"
+								? flight.firstClassPrice
+								: flight.price,
+					}));
+			}
 		}
 
 		const order = await Order.create({
@@ -100,22 +162,29 @@ const createOrder = async (req, res) => {
 			paymentDetails: req.body.paymentDetails,
 		});
 
-		// Gestisci le prenotazioni dei posti se presenti
-		if (req.body.seatReservations && req.body.seatReservations.length > 0) {
-			for (const seatReservation of req.body.seatReservations) {
+		// Crea le prenotazioni dei posti per tutti gli item
+		for (const item of items) {
+			// Get the flight with its plane information
+			const flightWithPlane = await Flight.findById(item.flight).populate(
+				"plane"
+			);
+			if (!flightWithPlane || !flightWithPlane.plane) {
+				return res.status(400).json({
+					message: `Cannot find plane for flight ${item.flight}`,
+				});
+			}
+
+			for (const seat of item.selectedSeats) {
 				await SeatReservation.create({
-					flight: seatReservation.flight,
+					flight: item.flight,
 					user: userId,
-					plane: seatReservation.plane || "default-plane-id",
-					seatRow: seatReservation.seatRow,
-					seatNumber: seatReservation.seatNumber,
-					seatClass: seatReservation.seatClass,
-					price: seatReservation.price,
+					plane: flightWithPlane.plane._id,
+					seatRow: seat.seatRow,
+					seatNumber: seat.seatNumber,
+					seatClass: seat.seatClass,
+					price: seat.price,
 					status: "confirmed",
-					isAisle: seatReservation.isAisle || false,
-					isWindow: seatReservation.isWindow || false,
-					isEmergencyExit: seatReservation.isEmergencyExit || false,
-					isBulkhead: seatReservation.isBulkhead || false,
+					expiresAt: null, // For confirmed reservations, no expiration
 				});
 			}
 		}
@@ -127,7 +196,34 @@ const createOrder = async (req, res) => {
 			await cart.save();
 		}
 
-		res.status(201).json(order);
+		// Popola l'ordine per la risposta
+		const populatedOrder = await Order.findById(order._id)
+			.populate("user", "name email")
+			.populate({
+				path: "items.flight",
+				select:
+					"flightNumber departureDate arrivalDate price from to airline route",
+				populate: {
+					path: "route",
+					select: "departureAirport arrivalAirport",
+					populate: [
+						{
+							path: "departureAirport",
+							select: "name city iata",
+						},
+						{
+							path: "arrivalAirport",
+							select: "name city iata",
+						},
+					],
+				},
+			})
+			.populate({
+				path: "items.flight.airline",
+				select: "name code",
+			});
+
+		res.status(201).json(populatedOrder);
 	} catch (error) {
 		console.error("❌ Error creating order:", error);
 		res.status(500).json({ message: "Server error", error: error.message });
@@ -167,10 +263,29 @@ const getOrderById = async (req, res) => {
 	try {
 		const order = await Order.findById(req.params.id)
 			.populate("user", "name email")
-			.populate(
-				"items.flight",
-				"flightNumber departureDate arrivalDate price from to airline"
-			);
+			.populate({
+				path: "items.flight",
+				select:
+					"flightNumber departureDate arrivalDate price from to airline route",
+				populate: {
+					path: "route",
+					select: "departureAirport arrivalAirport",
+					populate: [
+						{
+							path: "departureAirport",
+							select: "name city iata",
+						},
+						{
+							path: "arrivalAirport",
+							select: "name city iata",
+						},
+					],
+				},
+			})
+			.populate({
+				path: "items.flight.airline",
+				select: "name code",
+			});
 		if (!order) {
 			return res.status(404).json({ message: "Order not found" });
 		}
@@ -208,6 +323,10 @@ const getUserOrders = async (req, res) => {
 						},
 					],
 				},
+			})
+			.populate({
+				path: "items.flight.airline",
+				select: "name code",
 			})
 			.sort({ purchasedAt: -1 });
 		res.status(200).json(orders);

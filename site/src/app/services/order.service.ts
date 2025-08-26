@@ -11,9 +11,11 @@ export interface FlightInfo {
   arrival: string;
   arrivalDate: string;
   price: number;
+  firstClassPrice?: number;
+  additionalLuggagePrice?: number;
   from: string;
   to: string;
-  airline: string;
+  airline: string | { name: string; code?: string; _id?: string };
   route?: {
     departureAirport?: {
       city: string;
@@ -30,14 +32,31 @@ export interface FlightInfo {
 
 export interface OrderItem {
   flight: string | FlightInfo;
+  flightInfo?: {
+    flightNumber: string;
+    from: string;
+    to: string;
+    departureDate: string;
+    arrivalDate: string;
+    airline: {
+      name: string;
+      code?: string;
+    };
+    price: number;
+    firstClassPrice: number;
+    additionalLuggagePrice?: number;
+  };
   quantity: number;
   priceAtPurchase: number;
-  selectedSeat?: {
-    row: string;
-    number: number;
+  selectedSeats?: {
+    passengerNumber: number;
+    seatRow: string;
+    seatNumber: number;
     seatClass: 'first' | 'economy';
-  };
+    price: number;
+  }[];
   additionalLuggage?: number;
+  additionalLuggagePrice?: number;
   passengers?: number;
   seatClass?: 'first' | 'economy';
 }
@@ -49,10 +68,6 @@ export interface SeatReservationData {
   seatNumber: number;
   seatClass: 'first' | 'economy';
   price: number;
-  isAisle?: boolean;
-  isWindow?: boolean;
-  isEmergencyExit?: boolean;
-  isBulkhead?: boolean;
 }
 
 export interface Order {

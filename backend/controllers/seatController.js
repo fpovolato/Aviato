@@ -56,9 +56,10 @@ const getFlightSeats = async (req, res) => {
 					seat.isReserved = false;
 					seat.reservationStatus = null;
 					seat.reservedBy = null;
-					// Calcola il prezzo basato sulla classe
-					seat.price =
+					// Il prezzo della selezione del posto è solo il 10% del biglietto base
+					const basePrice =
 						seat.seatClass === "first" ? flight.firstClassPrice : flight.price;
+					seat.price = Math.round(basePrice * 0.1 * 100) / 100; // Solo il 10%
 				}
 			});
 		});
@@ -135,9 +136,10 @@ const reserveSeat = async (req, res) => {
 			return res.status(400).json({ message: "Posto già occupato" });
 		}
 
-		// Calcola il prezzo
-		const price =
+		// Il prezzo della selezione del posto è solo il 10% del biglietto base
+		const basePrice =
 			seat.seatClass === "first" ? flight.firstClassPrice : flight.price;
+		const price = Math.round(basePrice * 0.1 * 100) / 100; // Solo il 10%
 
 		// Crea la prenotazione
 		const reservation = new SeatReservation({
@@ -148,10 +150,6 @@ const reserveSeat = async (req, res) => {
 			seatNumber,
 			seatClass: seat.seatClass,
 			price,
-			isAisle: seat.isAisle,
-			isWindow: seat.isWindow,
-			isEmergencyExit: seat.isEmergencyExit,
-			isBulkhead: seat.isBulkhead,
 			specialRequests,
 		});
 

@@ -59,15 +59,21 @@ import { Router } from '@angular/router';
                 {{ item.flight.airline }} • {{ item.passengers }} passenger(s)
                 @if (item.ticketClass === 'first') { • First Class }
               </div>
-              @if (item.luggageQuantity > 0 || item.seatSelection ||
-              item.ticketClass === 'first') {
+              @if ((item.luggageQuantity > 0 &&
+              item.flight.additionalLuggagePrice &&
+              item.flight.additionalLuggagePrice > 0) || (item.selectedSeats &&
+              item.selectedSeats.length > 0) || item.ticketClass === 'first') {
               <div class="text-xs text-blue-600 mt-1">
                 @if (item.ticketClass === 'first') { First Class } @if
                 (item.ticketClass === 'first' && (item.luggageQuantity > 0 ||
-                item.seatSelection)) { + } @if (item.luggageQuantity > 0) {
+                (item.selectedSeats && item.selectedSeats.length > 0))) { + }
+                @if (item.luggageQuantity > 0 &&
+                item.flight.additionalLuggagePrice &&
+                item.flight.additionalLuggagePrice > 0) {
                 {{ item.luggageQuantity }} luggage } @if (item.luggageQuantity >
-                0 && item.seatSelection) { + } @if (item.seatSelection) { Seat
-                selection }
+                0 && (item.selectedSeats && item.selectedSeats.length > 0)) { +
+                } @if (item.selectedSeats && item.selectedSeats.length > 0) {
+                Seat selection }
               </div>
               }
             </div>
@@ -182,11 +188,21 @@ export class OrderSummaryComponent {
       total = item.flight.price * item.passengers;
     }
 
-    if (item.luggageQuantity > 0) {
-      const luggagePrice = item.flight.additionalLuggagePrice || 30;
-      total += luggagePrice * item.luggageQuantity;
+    if (
+      item.luggageQuantity > 0 &&
+      item.flight.additionalLuggagePrice &&
+      item.flight.additionalLuggagePrice > 0
+    ) {
+      total += item.flight.additionalLuggagePrice * item.luggageQuantity;
     }
-    if (item.seatSelection) total += 15 * item.passengers;
+    // Add seat selection cost if seats are selected
+    if (item.selectedSeats && item.selectedSeats.length > 0) {
+      const seatTotal = item.selectedSeats.reduce(
+        (sum: number, seat: { price: number }) => sum + seat.price,
+        0
+      );
+      total += seatTotal;
+    }
     return total;
   }
 
@@ -198,9 +214,14 @@ export class OrderSummaryComponent {
 
   getLuggageTotal(): number {
     return this.cartService.cart().reduce((total, item) => {
-      if (item.luggageQuantity > 0) {
-        const luggagePrice = item.flight.additionalLuggagePrice || 30;
-        return total + luggagePrice * item.luggageQuantity;
+      if (
+        item.luggageQuantity > 0 &&
+        item.flight.additionalLuggagePrice &&
+        item.flight.additionalLuggagePrice > 0
+      ) {
+        return (
+          total + item.flight.additionalLuggagePrice * item.luggageQuantity
+        );
       }
       return total;
     }, 0);
@@ -218,13 +239,26 @@ export class OrderSummaryComponent {
   }
 
   getSeatSelectionTotal(): number {
-    return this.cartService
-      .cart()
-      .reduce(
-        (total, item) =>
-          total + (item.seatSelection ? 15 * item.passengers : 0),
-        0
-      );
+    return this.cartService.cart().reduce((total, item) => {
+      if (item.selectedSeats && item.selectedSeats.length > 0) {
+        const seatTotal = item.selectedSeats.reduce(
+          (sum: number, seat: { price: number }) => sum + seat.price,
+          0
+        );
+        return total + seatTotal;
+      }
+
+      // Fallback: check if seats are in flight.selectedSeats
+      if (item.flight?.selectedSeats && item.flight.selectedSeats.length > 0) {
+        const seatTotal = item.flight.selectedSeats.reduce(
+          (sum: number, seat: { price: number }) => sum + seat.price,
+          0
+        );
+        return total + seatTotal;
+      }
+
+      return total;
+    }, 0);
   }
 
   async proceedToCheckout() {
@@ -247,36 +281,56 @@ export class OrderSummaryComponent {
       // Prepara i dati dell'ordine
       const orderItems = this.cartService.cart().map((item) => ({
         flight: item.flight.mongoId as string,
+        // Salva le informazioni complete del volo per evitare problemi di visualizzazione
+        flightInfo: {
+          flightNumber: item.flight.number,
+          from: item.flight.from,
+          to: item.flight.to,
+          departureDate: item.flight.departureDate,
+          arrivalDate: item.flight.arrivalDate,
+          airline: {
+            name: item.flight.airline,
+            code: '', // Se disponibile
+          },
+          price: item.flight.price,
+          firstClassPrice: item.flight.firstClassPrice,
+          additionalLuggagePrice: item.flight.additionalLuggagePrice,
+        },
         quantity: item.passengers,
         priceAtPurchase:
           item.ticketClass === 'first'
             ? item.flight.firstClassPrice
             : item.flight.price,
         additionalLuggage: item.luggageQuantity,
+        additionalLuggagePrice:
+          item.luggageQuantity > 0
+            ? item.flight.additionalLuggagePrice
+            : undefined,
         seatClass: item.ticketClass,
         passengers: item.passengers,
-        selectedSeat: item.selectedSeat,
+        selectedSeats: item.selectedSeats?.map((seat) => ({
+          passengerNumber: seat.passengerNumber,
+          seatRow: seat.seatRow, // Usa i campi corretti
+          seatNumber: seat.seatNumber, // Usa i campi corretti
+          seatClass: seat.seatClass,
+          price: seat.price,
+        })),
       }));
 
       // Prepara le prenotazioni dei posti
       const seatReservations = this.cartService
         .cart()
-        .filter((item) => item.selectedSeat)
-        .map((item) => ({
-          flight: item.flight.mongoId as string,
-          plane: 'default-plane-id', // Assumiamo un ID di default
-          seatRow: item.selectedSeat!.row,
-          seatNumber: item.selectedSeat!.number,
-          seatClass: item.selectedSeat!.seatClass,
-          price:
-            item.ticketClass === 'first'
-              ? item.flight.firstClassPrice
-              : item.flight.price,
-          isAisle: false,
-          isWindow: false,
-          isEmergencyExit: false,
-          isBulkhead: false,
-        }));
+        .filter((item) => item.selectedSeats && item.selectedSeats.length > 0)
+        .flatMap((item) =>
+          item.selectedSeats!.map((seat) => ({
+            flight: item.flight.mongoId as string,
+            plane: 'default-plane-id', // Assumiamo un ID di default
+            seatRow: seat.seatRow,
+            seatNumber: seat.seatNumber,
+            seatClass: seat.seatClass,
+            price: seat.price,
+          }))
+        );
 
       const orderData = {
         items: orderItems,
@@ -286,7 +340,6 @@ export class OrderSummaryComponent {
           method: 'Credit Card',
           status: 'paid',
         },
-        seatReservations,
       };
 
       // Crea l'ordine

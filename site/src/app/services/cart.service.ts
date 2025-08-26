@@ -8,11 +8,13 @@ export interface CartItem {
   passengers: number;
   luggageQuantity: number;
   seatSelection: boolean;
-  selectedSeat?: {
-    row: string;
-    number: number;
+  selectedSeats?: {
+    passengerNumber: number;
+    seatRow: string; // Aggiornato per essere coerente con il backend
+    seatNumber: number; // Aggiornato per essere coerente con il backend
     seatClass: 'first' | 'economy';
-  };
+    price: number;
+  }[];
   ticketClass: 'first' | 'economy';
 }
 
@@ -30,19 +32,47 @@ export class CartService {
   private loadCartFromBackend() {
     this.http.get<any>(this.apiUrl, { withCredentials: true }).subscribe({
       next: (backendCart) => {
+        console.log('Backend cart response:', backendCart);
         if (backendCart.items && backendCart.items.length > 0) {
           // Convert backend cart items to local cart items
           const localCartItems: CartItem[] = backendCart.items.map(
             (item: any) => {
               const flightData = item.flight;
+              
+              // Handle populated route data for from/to fields
+              let from = 'Unknown';
+              let to = 'Unknown';
+              let airlineName = 'Unknown';
+              
+              if (flightData.route) {
+                if (flightData.route.departureAirport?.iata) {
+                  from = flightData.route.departureAirport.iata;
+                } else if (flightData.route.departureAirport?.city) {
+                  from = flightData.route.departureAirport.city;
+                }
+                
+                if (flightData.route.arrivalAirport?.iata) {
+                  to = flightData.route.arrivalAirport.iata;
+                } else if (flightData.route.arrivalAirport?.city) {
+                  to = flightData.route.arrivalAirport.city;
+                }
+              }
+              
+              // Handle populated airline data
+              if (flightData.airline?.name) {
+                airlineName = flightData.airline.name;
+              } else if (typeof flightData.airline === 'string') {
+                airlineName = flightData.airline;
+              }
+              
               return {
                 flight: {
                   id: parseInt(flightData._id || '0'),
                   mongoId: flightData._id,
                   number: flightData.flightNumber || 'Unknown',
-                  airline: flightData.airline || 'Unknown',
-                  from: flightData.from || 'Unknown',
-                  to: flightData.to || 'Unknown',
+                  airline: airlineName,
+                  from: from,
+                  to: to,
                   departure:
                     flightData.departure ||
                     flightData.departureDate ||
@@ -54,9 +84,9 @@ export class CartService {
                   price: flightData.price || 0,
                   firstClassPrice:
                     flightData.firstClassPrice || (flightData.price || 0) * 1.5,
-                  seats: flightData.seats || 100,
+                  seats: flightData.seatsAvailable || flightData.seats || 100,
                   additionalLuggagePrice:
-                    flightData.additionalLuggagePrice || 30,
+                    flightData.additionalLuggagePrice || 0,
                 } as Flight,
                 passengers: item.quantity,
                 luggageQuantity: 0,
@@ -70,6 +100,9 @@ export class CartService {
       },
       error: (error) => {
         console.error('Error loading cart from backend:', error);
+        console.error('Full error details:', error);
+        // Clear cart on error to prevent stale data
+        this.cart.set([]);
       },
     });
   }
@@ -81,7 +114,7 @@ export class CartService {
       passengers: 1,
       luggageQuantity: 0,
       seatSelection: false,
-      selectedSeat: undefined,
+      selectedSeats: undefined,
       ticketClass: 'economy',
     };
     this.cart.set([...this.cart(), cartItem]);
@@ -98,7 +131,7 @@ export class CartService {
       )
       .subscribe({
         next: () => {
-          console.log('Cart item added to backend successfully');
+          // Cart item added to backend successfully
         },
         error: (error) => {
           console.error('Error adding to cart backend:', error);
@@ -128,9 +161,12 @@ export class CartService {
 
   updateCartItem(id: number, updates: Partial<CartItem>) {
     this.cart.set(
-      this.cart().map((item) =>
-        item.flight.id === id ? { ...item, ...updates } : item
-      )
+      this.cart().map((item) => {
+        if (item.flight.id === id) {
+          return { ...item, ...updates };
+        }
+        return item;
+      })
     );
   }
 
@@ -141,7 +177,7 @@ export class CartService {
     // Clear from backend
     this.http.delete(this.apiUrl, { withCredentials: true }).subscribe({
       next: () => {
-        console.log('Cart cleared from backend successfully');
+        // Cart cleared from backend successfully
       },
       error: (error) => {
         console.error('Error clearing cart:', error);
@@ -159,15 +195,19 @@ export class CartService {
         itemTotal = item.flight.price * item.passengers;
       }
 
-      // Add luggage cost if selected (using flight's additionalLuggagePrice or default 30€)
-      if (item.luggageQuantity > 0) {
-        const luggagePrice = item.flight.additionalLuggagePrice || 30;
+      // Add luggage cost if selected (using flight's additionalLuggagePrice)
+      if (item.luggageQuantity > 0 && this.isLuggageAvailable(item.flight)) {
+        const luggagePrice = item.flight.additionalLuggagePrice || 0;
         itemTotal += luggagePrice * item.luggageQuantity;
       }
 
-      // Add seat selection cost if selected (assuming 15€ per passenger)
-      if (item.seatSelection) {
-        itemTotal += 15 * item.passengers;
+      // Add seat selection cost if selected
+      if (item.selectedSeats && item.selectedSeats.length > 0) {
+        const seatTotal = item.selectedSeats.reduce(
+          (sum, seat) => sum + seat.price,
+          0
+        );
+        itemTotal += seatTotal;
       }
 
       return total + itemTotal;
@@ -176,5 +216,9 @@ export class CartService {
 
   getCartCount(): number {
     return this.cart().length;
+  }
+
+  isLuggageAvailable(flight: Flight): boolean {
+    return (flight.additionalLuggagePrice || 0) > 0;
   }
 }

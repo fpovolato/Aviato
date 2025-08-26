@@ -38,117 +38,105 @@ import { Router, ActivatedRoute } from '@angular/router';
             </button>
           </div>
 
-          <!-- Statistics -->
+          <!-- Simplified Statistics -->
           <div
             *ngIf="seatsData"
-            class="mb-8 grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-4"
+            class="mb-10 grid grid-cols-2 md:grid-cols-4 gap-6"
           >
-            <div class="bg-blue-50 p-4 rounded-lg text-center">
-              <div class="text-2xl font-bold text-blue-600">
+            <div class="bg-gradient-to-br from-blue-50 to-blue-100 p-6 rounded-xl text-center border border-blue-200/50 shadow-sm">
+              <div class="text-3xl font-bold bg-gradient-to-r from-blue-600 to-blue-700 bg-clip-text text-transparent">
                 {{ seatsData.stats.total }}
               </div>
-              <div class="text-sm text-blue-800">Total Seats</div>
+              <div class="text-sm font-medium text-blue-800">Total Seats</div>
             </div>
-            <div class="bg-green-50 p-4 rounded-lg text-center">
-              <div class="text-2xl font-bold text-green-600">
+            <div class="bg-gradient-to-br from-emerald-50 to-emerald-100 p-6 rounded-xl text-center border border-emerald-200/50 shadow-sm">
+              <div class="text-3xl font-bold bg-gradient-to-r from-emerald-600 to-emerald-700 bg-clip-text text-transparent">
                 {{ seatsData.stats.available }}
               </div>
-              <div class="text-sm text-green-800">Available</div>
+              <div class="text-sm font-medium text-emerald-800">Available</div>
             </div>
-            <div class="bg-yellow-50 p-4 rounded-lg text-center">
-              <div class="text-2xl font-bold text-yellow-600">
+            <div class="bg-gradient-to-br from-green-50 to-green-100 p-6 rounded-xl text-center border border-green-200/50 shadow-sm">
+              <div class="text-3xl font-bold bg-gradient-to-r from-green-600 to-green-700 bg-clip-text text-transparent">
                 {{ seatsData.stats.first }}
               </div>
-              <div class="text-sm text-yellow-800">First Class</div>
+              <div class="text-sm font-medium text-green-800">First Class</div>
             </div>
-            <div class="bg-gray-50 p-4 rounded-lg text-center">
-              <div class="text-2xl font-bold text-gray-600">
+            <div class="bg-gradient-to-br from-slate-50 to-slate-100 p-6 rounded-xl text-center border border-slate-200/50 shadow-sm">
+              <div class="text-3xl font-bold bg-gradient-to-r from-slate-600 to-slate-700 bg-clip-text text-transparent">
                 {{ seatsData.stats.economy }}
               </div>
-              <div class="text-sm text-gray-800">Economy</div>
-            </div>
-            <div class="bg-purple-50 p-4 rounded-lg text-center">
-              <div class="text-2xl font-bold text-purple-600">
-                {{ seatsData.stats.window }}
-              </div>
-              <div class="text-sm text-purple-800">Window</div>
-            </div>
-            <div class="bg-orange-50 p-4 rounded-lg text-center">
-              <div class="text-2xl font-bold text-orange-600">
-                {{ seatsData.stats.aisle }}
-              </div>
-              <div class="text-sm text-orange-800">Aisle</div>
-            </div>
-            <div class="bg-red-50 p-4 rounded-lg text-center">
-              <div class="text-2xl font-bold text-red-600">
-                {{ seatsData.stats.emergencyExit }}
-              </div>
-              <div class="text-sm text-red-800">Emergency Exit</div>
-            </div>
-            <div class="bg-indigo-50 p-4 rounded-lg text-center">
-              <div class="text-2xl font-bold text-indigo-600">
-                {{ seatsData.stats.bulkhead }}
-              </div>
-              <div class="text-sm text-indigo-800">Bulkhead</div>
+              <div class="text-sm font-medium text-slate-800">Economy</div>
             </div>
           </div>
 
-          <!-- Seat Map -->
+          <!-- Enhanced Seat Map -->
           <div
             *ngIf="seatsData"
-            class="bg-white rounded-lg border border-gray-200 p-6"
+            class="bg-white/90 backdrop-blur-sm rounded-2xl shadow-xl border border-white/20 p-8"
           >
-            <h3 class="text-lg font-semibold mb-4 text-gray-800">
-              Seat Layout
-            </h3>
+            <div class="flex items-center space-x-3 mb-6">
+              <div class="w-8 h-8 bg-gradient-to-br from-green-500 to-emerald-600 rounded-lg flex items-center justify-center">
+                <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"/>
+                </svg>
+              </div>
+              <h3 class="text-2xl font-bold text-gray-800">Aircraft Seat Layout</h3>
+            </div>
 
-            <!-- Legend -->
-            <div class="mb-6 flex flex-wrap gap-4 text-sm">
-              <div class="flex items-center">
-                <div class="w-4 h-4 bg-gray-200 rounded mr-2"></div>
-                <span>Available</span>
-              </div>
-              <div class="flex items-center">
-                <div class="w-4 h-4 bg-green-500 rounded mr-2"></div>
-                <span>First Class</span>
-              </div>
-              <div class="flex items-center">
-                <div class="w-4 h-4 bg-blue-500 rounded mr-2"></div>
-                <span>Economy</span>
-              </div>
-              <div class="flex items-center">
-                <div class="w-4 h-4 bg-purple-500 rounded mr-2"></div>
-                <span>Window</span>
-              </div>
-              <div class="flex items-center">
-                <div class="w-4 h-4 bg-orange-500 rounded mr-2"></div>
-                <span>Aisle</span>
-              </div>
-              <div class="flex items-center">
-                <div class="w-4 h-4 bg-red-500 rounded mr-2"></div>
-                <span>Emergency Exit</span>
+            <!-- Simplified Legend -->
+            <div class="mb-8 flex items-center justify-center">
+              <div class="flex flex-wrap gap-8 text-sm">
+                <div class="flex items-center gap-3">
+                  <div class="w-6 h-6 bg-gradient-to-br from-green-400 to-green-500 rounded-lg shadow-sm border border-green-300"></div>
+                  <span class="font-semibold text-gray-700">First Class</span>
+                </div>
+                <div class="flex items-center gap-3">
+                  <div class="w-6 h-6 bg-gradient-to-br from-blue-400 to-blue-500 rounded-lg shadow-sm border border-blue-300"></div>
+                  <span class="font-semibold text-gray-700">Economy</span>
+                </div>
               </div>
             </div>
 
-            <!-- Seat Grid -->
-            <div class="overflow-x-auto">
-              <div class="inline-block min-w-full">
-                <div *ngFor="let row of seatRows" class="mb-2">
-                  <div class="flex items-center">
-                    <div class="w-12 text-center font-bold text-gray-600">
-                      {{ row }}
-                    </div>
-                    <div class="flex gap-1 ml-4">
-                      <div
-                        *ngFor="let seat of getSeatsForRow(row)"
-                        [ngClass]="getSeatClass(seat)"
-                        class="w-8 h-8 rounded flex items-center justify-center text-xs font-bold text-white cursor-pointer hover:opacity-80 transition-opacity"
-                        [title]="getSeatTooltip(seat)"
-                      >
-                        {{ seat.number }}
+            <!-- Horizontal Aircraft Layout -->
+            <div class="bg-gradient-to-r from-slate-50 to-slate-100 rounded-2xl p-6 border-2 border-slate-200">
+              <div class="flex items-center justify-center space-x-4">
+                <!-- Aircraft nose -->
+                <div class="flex flex-col items-center">
+                  <div class="w-8 h-20 bg-gradient-to-r from-slate-300 to-slate-400 rounded-l-full border-2 border-slate-300 relative">
+                    <div class="absolute left-1 top-1/2 transform -translate-y-1/2 w-2 h-2 bg-red-400 rounded-full"></div>
+                  </div>
+                  <div class="text-xs font-semibold text-slate-600 mt-2 rotate-90 whitespace-nowrap">Nose</div>
+                </div>
+
+                <!-- Compact Seat Grid -->
+                <div class="flex-1 overflow-x-auto">
+                  <div class="flex items-center space-x-2 min-w-max">
+                    <div *ngFor="let row of seatRows" class="flex flex-col items-center space-y-2 bg-white/70 rounded-xl p-3 border border-slate-200">
+                      <!-- Row number at top -->
+                      <div class="text-xs font-bold text-slate-700 bg-slate-200 rounded-lg px-2 py-1">{{ row }}</div>
+                      
+                      <!-- Seats in vertical column for each row -->
+                      <div class="flex flex-col gap-1">
+                        <ng-container *ngFor="let seat of getSeatsForRow(row); let i = index">
+                          <div
+                            [ngClass]="getSeatClass(seat)"
+                            class="w-8 h-8 rounded-lg font-bold text-xs transition-all duration-300 shadow-sm hover:shadow-md transform hover:scale-110 border cursor-pointer"
+                            [title]="getSeatTooltip(seat)"
+                          >
+                            {{ seat.number }}
+                          </div>
+                          <!-- Add separator after 3rd seat for corridor -->
+                          <div *ngIf="seat.number === 3" class="h-1 border-t border-dashed border-slate-300 mx-2"></div>
+                        </ng-container>
                       </div>
                     </div>
                   </div>
+                </div>
+
+                <!-- Aircraft tail -->
+                <div class="flex flex-col items-center">
+                  <div class="w-6 h-16 bg-gradient-to-l from-slate-300 to-slate-400 rounded-r-full border-2 border-slate-300"></div>
+                  <div class="text-xs font-semibold text-slate-600 mt-2 rotate-90 whitespace-nowrap">Tail</div>
                 </div>
               </div>
             </div>
@@ -256,19 +244,10 @@ export class PlaneSeatsComponent implements OnInit {
   }
 
   getSeatClass(seat: Seat): string {
-    let classes =
-      'w-8 h-8 rounded flex items-center justify-center text-xs font-bold text-white cursor-pointer hover:opacity-80 transition-opacity';
-
-    if (seat.isEmergencyExit) {
-      return classes + ' bg-red-500';
-    } else if (seat.isWindow) {
-      return classes + ' bg-purple-500';
-    } else if (seat.isAisle) {
-      return classes + ' bg-orange-500';
-    } else if (seat.seatClass === 'first') {
-      return classes + ' bg-green-500';
+    if (seat.seatClass === 'first') {
+      return 'flex items-center justify-center bg-gradient-to-br from-green-400 to-green-500 text-white border-green-500';
     } else {
-      return classes + ' bg-blue-500';
+      return 'flex items-center justify-center bg-gradient-to-br from-blue-400 to-blue-500 text-white border-blue-500';
     }
   }
 
@@ -276,12 +255,7 @@ export class PlaneSeatsComponent implements OnInit {
     let tooltip = `Seat ${seat.row}${seat.number}\n`;
     tooltip += `Class: ${
       seat.seatClass === 'first' ? 'First Class' : 'Economy'
-    }\n`;
-
-    if (seat.isWindow) tooltip += 'Window seat\n';
-    if (seat.isAisle) tooltip += 'Aisle seat\n';
-    if (seat.isEmergencyExit) tooltip += 'Emergency exit row\n';
-    if (seat.isBulkhead) tooltip += 'Bulkhead row\n';
+    }`;
 
     return tooltip;
   }

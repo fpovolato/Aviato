@@ -11,7 +11,26 @@ const getCart = async (req, res) => {
   const userId = req.user._id;
   let cart = await Cart.findOne({ user: userId }).populate({
     path: "items.flight",
-    select: "flightNumber departureDate arrivalDate price",
+    select: "flightNumber departureDate arrivalDate price firstClassPrice additionalLuggagePrice seatsAvailable",
+    populate: [
+      {
+        path: "route",
+        populate: [
+          {
+            path: "departureAirport",
+            select: "name city country iata icao",
+          },
+          {
+            path: "arrivalAirport", 
+            select: "name city country iata icao",
+          },
+        ],
+      },
+      {
+        path: "airline",
+        select: "name code",
+      },
+    ],
   });
   if (!cart) {
     cart = await Cart.create({ user: userId, items: [] });
@@ -59,12 +78,30 @@ const addToCart = async (req, res) => {
     });
   }
   await cart.save();
-  res.json(
-    await cart.populate(
-      "items.flight",
-      "flightNumber departureDate arrivalDate price"
-    )
-  );
+  const populatedCart = await cart.populate({
+    path: "items.flight",
+    select: "flightNumber departureDate arrivalDate price firstClassPrice additionalLuggagePrice seatsAvailable",
+    populate: [
+      {
+        path: "route",
+        populate: [
+          {
+            path: "departureAirport",
+            select: "name city country iata icao",
+          },
+          {
+            path: "arrivalAirport", 
+            select: "name city country iata icao",
+          },
+        ],
+      },
+      {
+        path: "airline",
+        select: "name code",
+      },
+    ],
+  });
+  res.json(populatedCart);
 };
 
 /**

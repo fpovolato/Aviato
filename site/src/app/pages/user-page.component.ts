@@ -80,234 +80,279 @@ import { Router } from '@angular/router';
                   d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
                 />
               </svg>
-              Order History
+              Cronologia Ordini
             </h3>
 
             <div
               *ngIf="orders().length === 0"
-              class="text-gray-500 italic text-center py-8"
+              class="text-gray-500 text-center py-8 bg-gray-50 rounded-lg"
             >
-              No orders found.
+              <svg
+                class="w-12 h-12 mx-auto text-gray-300 mb-4"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                ></path>
+              </svg>
+              <p>Nessun ordine trovato.</p>
+              <p class="text-sm mt-1">
+                I tuoi ordini appariranno qui dopo il primo acquisto.
+              </p>
             </div>
 
             <div *ngIf="orders().length > 0" class="space-y-4">
               <div
                 *ngFor="let order of orders()"
-                class="border border-gray-200 rounded-lg p-4 shadow-sm hover:shadow-md transition-shadow"
+                class="bg-white border border-gray-200 rounded-lg shadow-sm hover:shadow-md transition-shadow overflow-hidden"
               >
-                <div class="flex justify-between items-start mb-3">
-                  <div>
-                    <div class="font-semibold text-gray-800">
-                      Order #{{ order._id?.slice(-8) }}
-                    </div>
-                    <div class="text-sm text-gray-500">
-                      {{ order.purchasedAt | date : 'medium' }}
-                    </div>
-                  </div>
-                  <div class="flex items-center gap-2">
-                    <span
-                      [class]="getStatusClass(order.status)"
-                      class="px-3 py-1 rounded-full text-xs font-medium"
-                    >
-                      {{ order.status }}
-                    </span>
-                    <div class="text-lg font-bold text-blue-600">
-                      €{{ order.total.toFixed(2) }}
-                    </div>
-                  </div>
-                </div>
-
-                <div class="space-y-2">
-                  <div
-                    *ngFor="let item of order.items"
-                    class="flex justify-between items-start py-3 border-b border-gray-100 last:border-b-0"
-                  >
-                    <div class="flex-1">
-                      <div class="font-medium text-gray-800 mb-2">
-                        Flight {{ getFlightDisplay(item.flight).flightNumber }}
+                <!-- Order Header -->
+                <div
+                  class="bg-gradient-to-r from-blue-50 to-indigo-50 px-4 py-3 border-b border-gray-200"
+                >
+                  <div class="flex justify-between items-center">
+                    <div>
+                      <div class="font-semibold text-gray-900">
+                        Ordine #{{ getShortOrderId(order._id) }}
                       </div>
-
-                      <!-- Flight Route and Times -->
-                      <div class="text-sm text-gray-600 mb-2">
-                        <div class="flex items-center gap-4">
-                          <div class="flex items-center gap-2">
-                            <svg
-                              class="w-4 h-4 text-green-500"
-                              fill="none"
-                              stroke="currentColor"
-                              stroke-width="2"
-                              viewBox="0 0 24 24"
-                            >
-                              <path
-                                stroke-linecap="round"
-                                stroke-linejoin="round"
-                                d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
-                              />
-                            </svg>
-                            <span class="font-medium">{{
-                              getFlightDisplay(item.flight).from
-                            }}</span>
-                            <span class="text-gray-400">→</span>
-                            <span class="font-medium">{{
-                              getFlightDisplay(item.flight).to
-                            }}</span>
-                          </div>
+                      <div class="text-sm text-gray-600">
+                        {{ order.purchasedAt | date : 'dd/MM/yyyy HH:mm' }}
+                      </div>
+                    </div>
+                    <div class="flex items-center gap-3">
+                      <span
+                        [class]="getStatusClass(order.status)"
+                        class="px-3 py-1 rounded-full text-xs font-medium"
+                      >
+                        {{ getStatusText(order.status) }}
+                      </span>
+                      <div class="text-right">
+                        <div class="text-xl font-bold text-blue-600">
+                          {{ order.total | currency : 'EUR' }}
                         </div>
-
-                        <div class="flex items-center gap-6 mt-1">
-                          <div class="flex items-center gap-1">
-                            <svg
-                              class="w-3 h-3 text-blue-500"
-                              fill="none"
-                              stroke="currentColor"
-                              stroke-width="2"
-                              viewBox="0 0 24 24"
-                            >
-                              <path
-                                stroke-linecap="round"
-                                stroke-linejoin="round"
-                                d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
-                              />
-                            </svg>
-                            <span class="text-xs">{{
-                              getFlightDisplay(item.flight).departure
-                            }}</span>
-                          </div>
-                          <div class="flex items-center gap-1">
-                            <svg
-                              class="w-3 h-3 text-red-500"
-                              fill="none"
-                              stroke="currentColor"
-                              stroke-width="2"
-                              viewBox="0 0 24 24"
-                            >
-                              <path
-                                stroke-linecap="round"
-                                stroke-linejoin="round"
-                                d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
-                              />
-                            </svg>
-                            <span class="text-xs">{{
-                              getFlightDisplay(item.flight).arrival
-                            }}</span>
-                          </div>
-                        </div>
-
-                        <div class="text-xs text-gray-500 mt-1">
+                        <!-- Mostra avviso se i prezzi non coincidono -->
+                        <div
+                          *ngIf="!verifyOrderPriceConsistency(order)"
+                          class="text-xs text-red-600 font-medium"
+                        >
+                          ⚠️ Totale calcolato:
                           {{
-                            getFlightDisplay(item.flight).departureDate
-                              | date : 'dd/MM/yyyy'
+                            getCalculatedOrderTotal(order) | currency : 'EUR'
                           }}
                         </div>
                       </div>
-
-                      <div class="text-sm text-gray-500">
-                        Quantity: {{ item.quantity }} × €{{
-                          item.priceAtPurchase.toFixed(2)
-                        }}
-                      </div>
-
-                      <!-- Cost Summary -->
-                      <div class="mt-2 p-2 bg-gray-50 rounded-lg">
-                        <div class="text-xs font-medium text-gray-700 mb-1">
-                          Cost Breakdown:
-                        </div>
-                        <div class="space-y-1 text-xs text-gray-600">
-                          <div class="flex justify-between">
-                            <span
-                              >Base fare ({{
-                                getItemDetails(item).passengers
-                              }}
-                              passenger{{
-                                getItemDetails(item).passengers > 1 ? 's' : ''
-                              }})</span
-                            >
-                            <span>€{{ getBaseFare(item).toFixed(2) }}</span>
-                            >
-                          </div>
-                          <div
-                            *ngIf="getItemDetails(item).seatClass === 'first'"
-                            class="flex justify-between text-blue-600"
-                          >
-                            <span>First class upgrade</span>
-                            <span
-                              >€{{ getFirstClassTotal(item).toFixed(2) }}</span
-                            >
-                          </div>
-                          <div
-                            *ngIf="
-                              getItemDetails(item).additionalLuggage &&
-                              getItemDetails(item).additionalLuggage > 0
-                            "
-                            class="flex justify-between text-green-600"
-                          >
-                            <span
-                              >Additional luggage ({{
-                                getItemDetails(item).additionalLuggage
-                              }}
-                              × €{{ getLuggagePrice(item) }})</span
-                            >
-                            <span
-                              >€{{
-                                (
-                                  getItemDetails(item).passengers *
-                                  getItemDetails(item).additionalLuggage *
-                                  getLuggagePrice(item)
-                                ).toFixed(2)
-                              }}</span
-                            >
-                          </div>
-                        </div>
-                      </div>
-
-                      <div
-                        *ngIf="item.selectedSeat"
-                        class="text-xs text-blue-600 mt-1"
-                      >
-                        Seat: {{ item.selectedSeat.row
-                        }}{{ item.selectedSeat.number }} ({{
-                          item.selectedSeat.seatClass
-                        }})
-                      </div>
-                    </div>
-                    <div class="text-right">
-                      <div class="font-medium">
-                        €{{ (item.quantity * item.priceAtPurchase).toFixed(2) }}
-                      </div>
                     </div>
                   </div>
                 </div>
 
-                <!-- Order Summary -->
-                <div class="mt-4 p-3 bg-blue-50 rounded-lg">
-                  <div class="text-sm font-medium text-blue-800 mb-2">
-                    Order Summary:
-                  </div>
-                  <div class="space-y-1 text-xs text-blue-700">
-                    <div class="flex justify-between">
-                      <span>Total passengers</span>
-                      <span>{{ getTotalPassengers(order.items) }}</span>
-                    </div>
-                    <div class="flex justify-between">
-                      <span>First class upgrades</span>
-                      <span>{{ getFirstClassCount(order.items) }}</span>
-                    </div>
-                    <div class="flex justify-between">
-                      <span>Additional luggage</span>
-                      <span>{{ getTotalLuggage(order.items) }} pieces</span>
-                    </div>
+                <!-- Order Content -->
+                <div class="p-4">
+                  <!-- Flight Items -->
+                  <div class="space-y-3 mb-4">
                     <div
-                      class="flex justify-between font-medium pt-1 border-t border-blue-200"
+                      *ngFor="let item of order.items; let i = index"
+                      class="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
                     >
-                      <span>Total amount</span>
-                      <span>€{{ order.total.toFixed(2) }}</span>
+                      <div class="flex-1">
+                        <div class="flex items-center gap-3 mb-2">
+                          <div class="font-medium text-gray-900">
+                            {{ getFlightDisplay(item.flight, item).from }} →
+                            {{ getFlightDisplay(item.flight, item).to }}
+                          </div>
+                          <div class="text-sm text-gray-500">
+                            {{
+                              getFlightDisplay(item.flight, item).departureDate
+                                | date : 'dd/MM'
+                            }}
+                          </div>
+                        </div>
+
+                        <div class="flex flex-col gap-2 text-sm text-gray-600">
+                          <div class="flex items-center gap-4">
+                            <span>{{ item.quantity }} passeggero(i)</span>
+                            <span>{{ getAirlineName(item.flight, item) }}</span>
+                          </div>
+
+                          <!-- Flight Number -->
+                          <div class="text-xs text-gray-500">
+                            Volo:
+                            {{
+                              getFlightDisplay(item.flight, item).flightNumber
+                            }}
+                          </div>
+
+                          <!-- Additional Services -->
+                          <div
+                            *ngIf="hasAdditionalServices(item)"
+                            class="flex gap-2"
+                          >
+                            <!-- Simplified Luggage Display -->
+                            <div
+                              *ngIf="
+                                item.additionalLuggage &&
+                                item.additionalLuggage > 0 &&
+                                getLuggagePrice(item) > 0;
+                                else noLuggageAdded
+                              "
+                              class="mt-2"
+                            >
+                              <div class="flex items-center gap-2 mb-2">
+                                <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
+                                </svg>
+                                <span class="text-sm font-medium text-blue-700">
+                                  {{ item.additionalLuggage }} bagaglio/i extra
+                                </span>
+                                <span class="text-xs text-gray-500">
+                                  ({{ getTotalLuggagePrice(item) | currency: 'EUR' }})
+                                </span>
+                              </div>
+                              
+                              <!-- Luggage Visual Grid -->
+                              <div class="flex flex-wrap gap-1.5">
+                                <div
+                                  *ngFor="let bag of getLuggageArray(item.additionalLuggage); let i = index"
+                                  class="group relative"
+                                >
+                                  <div class="px-3 py-2 bg-blue-50 border border-blue-200 rounded-md text-center min-w-[50px] hover:bg-blue-100 transition-colors">
+                                    <div class="flex flex-col items-center">
+                                      <svg class="w-5 h-5 text-blue-600 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
+                                      </svg>
+                                      <div class="text-xs font-semibold text-gray-700">
+                                        Bag {{ i + 1 }}
+                                      </div>
+                                    </div>
+                                  </div>
+                                  
+                                  <!-- Tooltip -->
+                                  <div class="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-1 px-2 py-1 bg-gray-800 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-10">
+                                    Bagaglio {{ i + 1 }} - {{ getLuggagePrice(item) | currency: 'EUR' }}
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                            
+                            <ng-template #noLuggageAdded>
+                              <div class="mt-2 flex items-center gap-2">
+                                <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                </svg>
+                                <span class="text-sm text-gray-500">Nessun bagaglio extra</span>
+                              </div>
+                            </ng-template>
+                            <!-- Simplified Seat Display -->
+                            <div
+                              *ngIf="
+                                item.selectedSeats &&
+                                item.selectedSeats.length > 0;
+                                else noSeatsSelected
+                              "
+                              class="mt-2"
+                            >
+                              <div class="flex items-center gap-2 mb-2">
+                                <svg class="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                                </svg>
+                                <span class="text-sm font-medium text-green-700">
+                                  {{ item.selectedSeats.length }} posti prenotati
+                                </span>
+                                <span class="text-xs text-gray-500">
+                                  ({{ getTotalSeatPrice(item.selectedSeats) | currency: 'EUR' }})
+                                </span>
+                              </div>
+                              
+                              <!-- Seat Grid -->
+                              <div class="flex flex-wrap gap-1.5">
+                                <div
+                                  *ngFor="let seat of item.selectedSeats; let i = index"
+                                  class="group relative"
+                                >
+                                  <div 
+                                    class="px-3 py-1.5 bg-green-50 border border-green-200 rounded-md text-center min-w-[60px] hover:bg-green-100 transition-colors"
+                                    [class.border-purple-300]="seat.seatClass === 'first'"
+                                    [class.bg-purple-50]="seat.seatClass === 'first'"
+                                  >
+                                    <div class="text-sm font-mono font-semibold text-gray-800">
+                                      {{ seat.seatRow }}{{ seat.seatNumber }}
+                                    </div>
+                                    <div class="text-xs text-gray-500">
+                                      {{ seat.seatClass === 'first' ? 'Prima' : 'Economy' }}
+                                    </div>
+                                  </div>
+                                  
+                                  <!-- Tooltip -->
+                                  <div class="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-1 px-2 py-1 bg-gray-800 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-10">
+                                    Passeggero {{ i + 1 }} - {{ seat.price | currency: 'EUR' }}
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                            
+                            <ng-template #noSeatsSelected>
+                              <div class="mt-2 flex items-center gap-2">
+                                <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                </svg>
+                                <span class="text-sm text-gray-500">Nessun posto prenotato</span>
+                              </div>
+                            </ng-template>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div class="text-right">
+                        <div class="font-semibold text-gray-900">
+                          {{ getItemTotalPrice(item) | currency : 'EUR' }}
+                        </div>
+                        <div class="text-xs text-gray-500">
+                          {{ getItemBreakdown(item) }}
+                        </div>
+                      </div>
                     </div>
                   </div>
-                </div>
 
-                <div class="mt-3 pt-3 border-t border-gray-200">
-                  <div class="text-sm text-gray-600">
-                    Payment: {{ order.paymentMethod }}
+                  <!-- Order Summary -->
+                  <div class="bg-blue-50 rounded-lg p-3">
+                    <div
+                      class="grid grid-cols-2 sm:grid-cols-5 gap-4 text-center"
+                    >
+                      <div>
+                        <div class="text-lg font-semibold text-blue-900">
+                          {{ getTotalPassengers(order.items) }}
+                        </div>
+                        <div class="text-xs text-blue-600">Passeggeri</div>
+                      </div>
+                      <div>
+                        <div class="text-lg font-semibold text-blue-900">
+                          {{ order.items.length }}
+                        </div>
+                        <div class="text-xs text-blue-600">Voli</div>
+                      </div>
+                      <div>
+                        <div class="text-lg font-semibold text-blue-900">
+                          {{ getTotalLuggage(order.items) }}
+                        </div>
+                        <div class="text-xs text-blue-600">Bagagli Extra</div>
+                      </div>
+                      <div>
+                        <div class="text-lg font-semibold text-blue-900">
+                          {{ getTotalReservedSeats(order.items) }}
+                        </div>
+                        <div class="text-xs text-blue-600">Posti Prenotati</div>
+                      </div>
+                      <div>
+                        <div class="text-lg font-semibold text-blue-900">
+                          {{ order.paymentMethod }}
+                        </div>
+                        <div class="text-xs text-blue-600">Pagamento</div>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -353,12 +398,30 @@ export class UserPageComponent implements OnInit {
     });
   }
 
-  getFlightDisplay(flight: string | any): any {
+  getFlightDisplay(flight: string | any, item?: any): any {
+    // Priorità 1: informazioni salvate durante il checkout
+    if (item?.flightInfo?.from && item?.flightInfo?.to) {
+      return {
+        flightNumber: item.flightInfo.flightNumber || 'Unknown Flight',
+        from: item.flightInfo.from,
+        to: item.flightInfo.to,
+        departure: '00:00',
+        arrival: '00:00',
+        departureDate: item.flightInfo.departureDate
+          ? new Date(item.flightInfo.departureDate)
+          : new Date(),
+        arrivalDate: item.flightInfo.arrivalDate
+          ? new Date(item.flightInfo.arrivalDate)
+          : new Date(),
+      };
+    }
+
+    // Priorità 2: se flight è un ID stringa, non possiamo mostrare i dettagli
     if (typeof flight === 'string') {
       return {
-        flightNumber: flight,
-        from: 'Unknown',
-        to: 'Unknown',
+        flightNumber: 'Flight ID: ' + flight.slice(-8),
+        from: 'Dati non disponibili',
+        to: 'Dati non disponibili',
         departure: '00:00',
         arrival: '00:00',
         departureDate: new Date(),
@@ -366,24 +429,35 @@ export class UserPageComponent implements OnInit {
       };
     }
 
-    // Extract airport information from the nested structure
+    // Priorità 3: Extract airport information from the nested structure
     const departureAirport = flight?.route?.departureAirport;
     const arrivalAirport = flight?.route?.arrivalAirport;
 
+    if (departureAirport && arrivalAirport) {
+      return {
+        flightNumber: flight?.flightNumber || 'Unknown Flight',
+        from: `${departureAirport.city} (${departureAirport.iata || departureAirport.name
+          })`,
+        to: `${arrivalAirport.city} (${arrivalAirport.iata || arrivalAirport.name
+          })`,
+        departure: flight?.departure || '00:00',
+        arrival: flight?.arrival || '00:00',
+        departureDate: flight?.departureDate
+          ? new Date(flight.departureDate)
+          : new Date(),
+        arrivalDate: flight?.arrivalDate
+          ? new Date(flight.arrivalDate)
+          : new Date(),
+      };
+    }
+
+    // Fallback: se non abbiamo informazioni sufficienti
     return {
       flightNumber: flight?.flightNumber || 'Unknown Flight',
-      from: departureAirport
-        ? `${departureAirport.city} (${
-            departureAirport.iata || departureAirport.name
-          })`
-        : 'Unknown',
-      to: arrivalAirport
-        ? `${arrivalAirport.city} (${
-            arrivalAirport.iata || arrivalAirport.name
-          })`
-        : 'Unknown',
-      departure: flight?.departure || '00:00',
-      arrival: flight?.arrival || '00:00',
+      from: 'Dati non disponibili',
+      to: 'Dati non disponibili',
+      departure: '00:00',
+      arrival: '00:00',
       departureDate: flight?.departureDate
         ? new Date(flight.departureDate)
         : new Date(),
@@ -393,37 +467,128 @@ export class UserPageComponent implements OnInit {
     };
   }
 
-  getItemDetails(item: any): any {
-    // Use the data saved in the order from backend
-    return {
-      additionalLuggage: item.additionalLuggage || 0,
-      seatClass: item.seatClass || 'economy',
-      passengers: item.passengers || item.quantity || 1,
-    };
+  getShortOrderId(orderId: string | undefined): string {
+    if (!orderId) return 'N/A';
+    return orderId.slice(-8).toUpperCase();
   }
 
-  getBaseFare(item: any): number {
-    const passengers = this.getItemDetails(item).passengers;
-    const basePrice =
-      typeof item.flight === 'string' ? 0 : (item.flight as any)?.price || 0;
-    return passengers * basePrice;
+  getStatusText(status: string): string {
+    switch (status) {
+      case 'Completed':
+        return 'Confermato';
+      case 'Pending':
+        return 'In Attesa';
+      case 'Cancelled':
+        return 'Cancellato';
+      case 'Refunded':
+        return 'Rimborsato';
+      default:
+        return status;
+    }
   }
 
-  getLuggageTotal(item: any): number {
-    const details = this.getItemDetails(item);
-    const luggagePrice = this.getLuggagePrice(item);
-    return details.passengers * details.additionalLuggage * luggagePrice;
+  hasAdditionalServices(item: any): boolean {
+    return !!(
+      item.seatClass === 'first' ||
+      (item.additionalLuggage &&
+        item.additionalLuggage > 0 &&
+        this.getLuggagePrice(item) > 0) ||
+      (item.selectedSeats && item.selectedSeats.length > 0)
+    );
   }
 
-  getFirstClassTotal(item: any): number {
-    const details = this.getItemDetails(item);
-    return details.seatClass === 'first' ? details.passengers * 100 : 0;
+  getItemTotalPrice(item: any): number {
+    let total = item.priceAtPurchase * item.quantity;
+
+    // Add luggage costs - luggage is per booking, not per passenger
+    if (
+      item.additionalLuggage &&
+      item.additionalLuggage > 0 &&
+      this.getLuggagePrice(item) > 0
+    ) {
+      const luggagePrice = this.getLuggagePrice(item);
+      total += luggagePrice * item.additionalLuggage; // NOT multiplied by passengers!
+    }
+
+    // Add seat selection costs - this IS per passenger
+    if (item.selectedSeats && item.selectedSeats.length > 0) {
+      const seatTotal = item.selectedSeats.reduce(
+        (sum: number, seat: any) => sum + seat.price,
+        0
+      );
+      total += seatTotal;
+    }
+
+    return total;
+  }
+
+  getItemBreakdown(item: any): string {
+    const basePrice = item.priceAtPurchase;
+    const quantity = item.quantity;
+    let parts = [`${basePrice}€ × ${quantity}`];
+
+    if (
+      item.additionalLuggage &&
+      item.additionalLuggage > 0 &&
+      this.getLuggagePrice(item) > 0
+    ) {
+      const luggagePrice = this.getLuggagePrice(item);
+      parts.push(`+${luggagePrice}€ × ${item.additionalLuggage} bagagli`);
+    }
+
+    if (item.selectedSeats && item.selectedSeats.length > 0) {
+      const seatTotal = item.selectedSeats.reduce(
+        (sum: number, seat: any) => sum + seat.price,
+        0
+      );
+      parts.push(`+${seatTotal}€ posti selezionati`);
+    }
+
+    return parts.join(' ');
+  }
+
+  getAirlineName(flight: any, item?: any): string {
+    // Priorità 1: informazioni salvate durante il checkout
+    if (item?.flightInfo?.airline?.name) {
+      return item.flightInfo.airline.name;
+    }
+
+    // Priorità 2: informazioni dal volo popolato
+    if (typeof flight === 'object' && flight) {
+      if (typeof flight.airline === 'string') {
+        return flight.airline;
+      }
+      if (typeof flight.airline === 'object' && flight.airline?.name) {
+        return flight.airline.name;
+      }
+    }
+    return 'N/D';
   }
 
   getLuggagePrice(item: any): number {
-    return typeof item.flight === 'string'
-      ? 30
-      : (item.flight as any)?.additionalLuggagePrice || 30;
+    // Priorità 1: prezzo salvato nell'ordine
+    if (item.additionalLuggagePrice && item.additionalLuggagePrice > 0) {
+      return item.additionalLuggagePrice;
+    }
+
+    // Priorità 2: prezzo salvato nel flightInfo
+    if (
+      item.flightInfo?.additionalLuggagePrice &&
+      item.flightInfo.additionalLuggagePrice > 0
+    ) {
+      return item.flightInfo.additionalLuggagePrice;
+    }
+
+    // Priorità 3: prezzo del volo popolato
+    if (
+      typeof item.flight === 'object' &&
+      item.flight?.additionalLuggagePrice
+    ) {
+      return item.flight.additionalLuggagePrice;
+    }
+
+    // Fallback: prezzo di default (dovrebbe essere raramente usato)
+    return 45;
   }
 
   getTotalPassengers(items: any[]): number {
@@ -432,20 +597,58 @@ export class UserPageComponent implements OnInit {
     }, 0);
   }
 
-  getFirstClassCount(items: any[]): number {
-    return items.reduce((total, item) => {
-      return (
-        total +
-        (item.seatClass === 'first' ? item.passengers || item.quantity || 1 : 0)
-      );
+  // Verifica la coerenza dei prezzi dell'ordine
+  verifyOrderPriceConsistency(order: any): boolean {
+    const calculatedTotal = order.items.reduce((sum: number, item: any) => {
+      return sum + this.getItemTotalPrice(item);
+    }, 0);
+
+    return Math.abs(calculatedTotal - order.total) < 0.01; // Tolleranza per errori di arrotondamento
+  }
+
+  // Ottieni il totale calcolato per confronto
+  getCalculatedOrderTotal(order: any): number {
+    return order.items.reduce((sum: number, item: any) => {
+      return sum + this.getItemTotalPrice(item);
     }, 0);
   }
 
+  // FIXED: Luggage count is NOT multiplied by passengers
   getTotalLuggage(items: any[]): number {
     return items.reduce((total, item) => {
-      const passengers = item.passengers || item.quantity || 1;
-      return total + (item.additionalLuggage || 0) * passengers;
+      if (
+        item.additionalLuggage &&
+        item.additionalLuggage > 0 &&
+        this.getLuggagePrice(item) > 0
+      ) {
+        return total + item.additionalLuggage; // No multiplication by passengers!
+      }
+      return total;
     }, 0);
+  }
+
+  // Get total number of reserved seats across all order items
+  getTotalReservedSeats(items: any[]): number {
+    return items.reduce((total, item) => {
+      if (item.selectedSeats && item.selectedSeats.length > 0) {
+        return total + item.selectedSeats.length;
+      }
+      return total;
+    }, 0);
+  }
+
+  // Get formatted seat information for display
+  getSeatInfo(item: any): string {
+    if (!item.selectedSeats || item.selectedSeats.length === 0) {
+      return 'Nessun posto selezionato';
+    }
+
+    const seatDetails = item.selectedSeats.map((seat: any, index: number) => {
+      return `${seat.seatRow}${seat.seatNumber} (${seat.seatClass === 'first' ? '1ª' : 'Eco'
+        })`;
+    });
+
+    return seatDetails.join(', ');
   }
 
   getStatusClass(status: string): string {
@@ -461,6 +664,28 @@ export class UserPageComponent implements OnInit {
       default:
         return 'bg-gray-100 text-gray-800';
     }
+  }
+
+  // Calculate total price for selected seats
+  getTotalSeatPrice(selectedSeats: any[]): number {
+    if (!selectedSeats || selectedSeats.length === 0) {
+      return 0;
+    }
+    return selectedSeats.reduce((total, seat) => total + (seat.price || 0), 0);
+  }
+
+  // Calculate total price for additional luggage
+  getTotalLuggagePrice(item: any): number {
+    if (!item.additionalLuggage || item.additionalLuggage <= 0) {
+      return 0;
+    }
+    const pricePerBag = this.getLuggagePrice(item);
+    return pricePerBag * item.additionalLuggage;
+  }
+
+  // Create array for *ngFor to display luggage icons
+  getLuggageArray(count: number): any[] {
+    return new Array(count).fill(null);
   }
 
   logout() {

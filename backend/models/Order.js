@@ -6,6 +6,21 @@ const orderItemSchema = new mongoose.Schema({
 		ref: "Flight",
 		required: true,
 	},
+	// Informazioni complete del volo salvate durante il checkout
+	flightInfo: {
+		flightNumber: String,
+		from: String,
+		to: String,
+		departureDate: String,
+		arrivalDate: String,
+		airline: {
+			name: String,
+			code: String,
+		},
+		price: Number,
+		firstClassPrice: Number,
+		additionalLuggagePrice: Number,
+	},
 	quantity: {
 		type: Number,
 		required: true,
@@ -21,6 +36,11 @@ const orderItemSchema = new mongoose.Schema({
 		default: 0,
 		min: 0,
 	},
+	additionalLuggagePrice: {
+		type: Number,
+		default: 0,
+		min: 0,
+	},
 	seatClass: {
 		type: String,
 		enum: ["economy", "first"],
@@ -31,6 +51,34 @@ const orderItemSchema = new mongoose.Schema({
 		default: 1,
 		min: 1,
 	},
+	// Posti selezionati per ogni passeggero
+	selectedSeats: [
+		{
+			passengerNumber: {
+				type: Number,
+				required: true,
+				min: 1,
+			},
+			seatRow: {
+				type: String,
+				required: true,
+			},
+			seatNumber: {
+				type: Number,
+				required: true,
+			},
+			seatClass: {
+				type: String,
+				enum: ["economy", "first"],
+				required: true,
+			},
+			price: {
+				type: Number,
+				required: true,
+				min: 0,
+			},
+		},
+	],
 });
 
 const orderSchema = new mongoose.Schema(

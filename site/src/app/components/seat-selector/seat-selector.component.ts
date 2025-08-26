@@ -206,8 +206,8 @@ import { SeatReservationService } from '../../services/seat-reservation.service'
 export class SeatSelectorComponent {
   flightId = input.required<string>();
   @Output() seatSelected = new EventEmitter<{
-    row: string;
-    number: number;
+    seatRow: string; // Aggiornato per essere coerente con il backend
+    seatNumber: number; // Aggiornato per essere coerente con il backend
     seatClass: 'first' | 'economy';
     price: number;
   }>();
@@ -268,8 +268,8 @@ export class SeatSelectorComponent {
   confirmSelection() {
     if (this.selectedSeat()) {
       this.seatSelected.emit({
-        row: this.selectedSeat().row,
-        number: this.selectedSeat().number,
+        seatRow: this.selectedSeat().row, // Mappa row -> seatRow
+        seatNumber: this.selectedSeat().number, // Mappa number -> seatNumber
         seatClass: this.selectedSeat().seatClass,
         price: this.selectedSeat().price,
       });
