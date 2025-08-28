@@ -1,6 +1,5 @@
 const mongoose = require("mongoose");
 
-// Schema per un singolo posto
 const seatSchema = new mongoose.Schema(
 	{
 		row: {
@@ -31,7 +30,6 @@ const seatSchema = new mongoose.Schema(
 	{ _id: false }
 );
 
-// Schema per la configurazione della cabina
 const cabinConfigSchema = new mongoose.Schema(
 	{
 		name: {
@@ -101,7 +99,6 @@ const planeSchema = new mongoose.Schema({
 		required: true,
 		min: 1,
 	},
-	// Nuova configurazione per i posti a sedere
 	cabinConfiguration: {
 		type: [cabinConfigSchema],
 		required: true,
@@ -112,12 +109,10 @@ const planeSchema = new mongoose.Schema({
 			message: "At least one cabin configuration is required",
 		},
 	},
-	// Posti specifici dell'aereo
 	seatsConfiguration: {
 		type: [seatSchema],
 		default: [],
 	},
-	// Configurazione generale dell'aereo
 	totalRows: {
 		type: Number,
 		required: true,
@@ -128,7 +123,6 @@ const planeSchema = new mongoose.Schema({
 		required: true,
 		min: 1,
 	},
-	// Informazioni aggiuntive
 	hasWiFi: {
 		type: Boolean,
 		default: false,
@@ -143,7 +137,7 @@ const planeSchema = new mongoose.Schema({
 	},
 });
 
-// Pre-save middleware per generare automaticamente la configurazione dei posti
+// Pre-save middleware to auto generate seat configuration
 planeSchema.pre("save", function (next) {
 	if (
 		this.isModified("cabinConfiguration") ||
@@ -154,7 +148,6 @@ planeSchema.pre("save", function (next) {
 	next();
 });
 
-// Metodi per la gestione dei posti
 planeSchema.methods.generateSeatsConfiguration = function () {
 	const seats = [];
 
@@ -182,19 +175,16 @@ planeSchema.methods.generateSeatsConfiguration = function () {
 	return seats;
 };
 
-// Metodo per ottenere i posti disponibili
 planeSchema.methods.getAvailableSeats = function () {
 	return this.seatsConfiguration.filter(
 		(seat) => seat.isAvailable && !seat.isReserved
 	);
 };
 
-// Metodo per ottenere i posti per classe
 planeSchema.methods.getSeatsByClass = function (seatClass) {
 	return this.seatsConfiguration.filter((seat) => seat.seatClass === seatClass);
 };
 
-// Metodo per prenotare un posto
 planeSchema.methods.reserveSeat = function (row, number) {
 	const seat = this.seatsConfiguration.find(
 		(s) => s.row === row && s.number === number
@@ -206,7 +196,6 @@ planeSchema.methods.reserveSeat = function (row, number) {
 	return false;
 };
 
-// Metodo per liberare un posto
 planeSchema.methods.releaseSeat = function (row, number) {
 	const seat = this.seatsConfiguration.find(
 		(s) => s.row === row && s.number === number
@@ -218,7 +207,6 @@ planeSchema.methods.releaseSeat = function (row, number) {
 	return false;
 };
 
-// Metodo per ottenere la configurazione dei posti organizzata per file
 planeSchema.methods.getSeatsByRows = function () {
 	const seatsByRows = {};
 
@@ -229,7 +217,6 @@ planeSchema.methods.getSeatsByRows = function () {
 		seatsByRows[seat.row].push(seat);
 	});
 
-	// Ordina i posti per numero
 	Object.keys(seatsByRows).forEach((row) => {
 		seatsByRows[row].sort((a, b) => a.number - b.number);
 	});
@@ -237,7 +224,6 @@ planeSchema.methods.getSeatsByRows = function () {
 	return seatsByRows;
 };
 
-// Metodo per ottenere statistiche dei posti
 planeSchema.methods.getSeatsStats = function () {
 	const stats = {
 		total: this.seatsConfiguration.length,

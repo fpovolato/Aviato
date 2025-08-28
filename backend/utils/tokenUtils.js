@@ -7,7 +7,7 @@ const TOKEN_CONFIG = {
 		expiresIn: "1h",
 	},
 	refresh: {
-		secret: process.env.JWT_SECRET, // Using same secret for now, can be changed to JWT_REFRESH_SECRET later
+		secret: process.env.JWT_SECRET,
 		expiresIn: "7d",
 	},
 };

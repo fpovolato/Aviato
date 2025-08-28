@@ -11,7 +11,6 @@ const getFlightSeats = async (req, res) => {
 	try {
 		const { flightId } = req.params;
 
-		// Trova il volo e popola l'aereo
 		const flight = await Flight.findById(flightId).populate({
 			path: "plane",
 			select: "cabinConfiguration seatsConfiguration totalRows maxSeatsPerRow",
@@ -21,13 +20,11 @@ const getFlightSeats = async (req, res) => {
 			return res.status(404).json({ message: "Volo non trovato" });
 		}
 
-		// Ottieni le prenotazioni esistenti per questo volo
 		const reservations = await SeatReservation.find({
 			flight: flightId,
 			status: { $in: ["reserved", "confirmed"] },
 		});
 
-		// Crea una mappa dei posti occupati
 		const occupiedSeats = new Map();
 		reservations.forEach((reservation) => {
 			const key = `${reservation.seatRow}-${reservation.seatNumber}`;
@@ -38,10 +35,8 @@ const getFlightSeats = async (req, res) => {
 			});
 		});
 
-		// Organizza i posti per file
 		const seatsByRows = flight.plane.getSeatsByRows();
 
-		// Aggiungi informazioni di occupazione ai posti
 		Object.keys(seatsByRows).forEach((row) => {
 			seatsByRows[row].forEach((seat) => {
 				const key = `${seat.row}-${seat.number}`;
@@ -56,7 +51,6 @@ const getFlightSeats = async (req, res) => {
 					seat.isReserved = false;
 					seat.reservationStatus = null;
 					seat.reservedBy = null;
-					// Il prezzo della selezione del posto è solo il 10% del biglietto base
 					const basePrice =
 						seat.seatClass === "first" ? flight.firstClassPrice : flight.price;
 					seat.price = Math.round(basePrice * 0.1 * 100) / 100; // Solo il 10%
@@ -64,7 +58,6 @@ const getFlightSeats = async (req, res) => {
 			});
 		});
 
-		// Ottieni statistiche
 		const stats = flight.plane.getSeatsStats();
 
 		res.json({
@@ -107,16 +100,14 @@ const reserveSeat = async (req, res) => {
 	try {
 		const { flightId } = req.params;
 		const { seatRow, seatNumber, specialRequests } = req.body;
-		const userId = req.user.id; // Assumendo che l'autenticazione sia implementata
+		const userId = req.user.id;
 
-		// Verifica che il volo esista
 		const flight = await Flight.findById(flightId).populate("plane");
 
 		if (!flight) {
 			return res.status(404).json({ message: "Volo non trovato" });
 		}
 
-		// Verifica che il posto esista nell'aereo
 		const seat = flight.plane.seatsConfiguration.find(
 			(s) => s.row === seatRow && s.number === seatNumber
 		);
@@ -125,7 +116,6 @@ const reserveSeat = async (req, res) => {
 			return res.status(400).json({ message: "Posto non valido" });
 		}
 
-		// Verifica che il posto sia disponibile
 		const isAvailable = await SeatReservation.isSeatAvailable(
 			flightId,
 			seatRow,
@@ -136,12 +126,10 @@ const reserveSeat = async (req, res) => {
 			return res.status(400).json({ message: "Posto già occupato" });
 		}
 
-		// Il prezzo della selezione del posto è solo il 10% del biglietto base
 		const basePrice =
 			seat.seatClass === "first" ? flight.firstClassPrice : flight.price;
 		const price = Math.round(basePrice * 0.1 * 100) / 100; // Solo il 10%
 
-		// Crea la prenotazione
 		const reservation = new SeatReservation({
 			flight: flightId,
 			user: userId,
@@ -155,7 +143,6 @@ const reserveSeat = async (req, res) => {
 
 		await reservation.save();
 
-		// Popola le informazioni dell'utente
 		await reservation.populate("user", "name email");
 
 		res.status(201).json({
@@ -199,12 +186,10 @@ const confirmReservation = async (req, res) => {
 			return res.status(404).json({ message: "Prenotazione non trovata" });
 		}
 
-		// Verifica che l'utente sia il proprietario della prenotazione
 		if (reservation.user.toString() !== userId) {
 			return res.status(403).json({ message: "Non autorizzato" });
 		}
 
-		// Verifica che la prenotazione non sia scaduta
 		if (reservation.isExpired()) {
 			return res.status(400).json({ message: "Prenotazione scaduta" });
 		}
@@ -243,7 +228,6 @@ const cancelReservation = async (req, res) => {
 			return res.status(404).json({ message: "Prenotazione non trovata" });
 		}
 
-		// Verifica che l'utente sia il proprietario della prenotazione
 		if (reservation.user.toString() !== userId) {
 			return res.status(403).json({ message: "Non autorizzato" });
 		}
@@ -283,7 +267,6 @@ const extendReservation = async (req, res) => {
 			return res.status(404).json({ message: "Prenotazione non trovata" });
 		}
 
-		// Verifica che l'utente sia il proprietario della prenotazione
 		if (reservation.user.toString() !== userId) {
 			return res.status(403).json({ message: "Non autorizzato" });
 		}

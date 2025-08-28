@@ -56,12 +56,7 @@ const registerUser = async (req, res) => {
 			userData.airlines = airlines;
 		}
 
-		console.log("🔍 Debug - Request body:", req.body);
-		console.log("🔍 Debug - User data to create:", userData);
-
 		const user = await User.create(userData);
-
-		console.log("🔍 Debug - Created user roles:", user.roles);
 
 		res.status(201).json({
 			_id: user._id,

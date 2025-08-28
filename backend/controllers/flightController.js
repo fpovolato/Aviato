@@ -562,20 +562,17 @@ const searchFlights = async (req, res) => {
 			.populate({ path: "plane", select: "code manifacturer model seats" })
 			.sort({ departureDate: 1 });
 
-		// Trova tutte le rotte dal from verso aeroporti intermedi
 		const firstLegRoutes = await Route.find({
 			departureAirport: from,
 			arrivalAirport: { $ne: to },
 		});
 		const oneStopResults = [];
 		for (const firstLeg of firstLegRoutes) {
-			// Trova tutte le rotte dal secondo aeroporto verso to
 			const secondLegRoutes = await Route.find({
 				departureAirport: firstLeg.arrivalAirport,
 				arrivalAirport: to,
 			});
 			for (const secondLeg of secondLegRoutes) {
-				// Trova i voli per il primo segmento
 				let firstFlightQuery = {
 					route: firstLeg._id,
 					departureDate: { $gte: currentDate }, // Add current date filter
@@ -614,10 +611,9 @@ const searchFlights = async (req, res) => {
 					.populate({ path: "airline", select: "name code" })
 					.populate({ path: "plane", select: "code manifacturer model seats" });
 
-				// Per ogni volo del primo segmento, cerca voli del secondo segmento compatibili
 				for (const firstFlight of firstFlights) {
 					const minConnectionTime = new Date(firstFlight.arrivalDate);
-					minConnectionTime.setMinutes(minConnectionTime.getMinutes() + 120); // almeno 120 min di scalo
+					minConnectionTime.setMinutes(minConnectionTime.getMinutes() + 120);
 
 					let secondFlightQuery = {
 						route: secondLeg._id,
@@ -662,16 +658,13 @@ const searchFlights = async (req, res) => {
 			}
 		}
 
-		// Prepara i risultati diretti
 		const directResults = directFlights.map((flight) => ({
 			type: "direct",
 			segments: [flight],
 		}));
 
-		// Combina tutti i risultati
 		let allResults = [...directResults, ...oneStopResults];
 
-		// Applica il sorting se specificato
 		if (sortBy) {
 			const order = sortOrder === "desc" ? -1 : 1;
 
@@ -680,8 +673,6 @@ const searchFlights = async (req, res) => {
 
 				switch (sortBy) {
 					case "price":
-						// Per i voli diretti, usa il prezzo del volo
-						// Per i voli con scalo, somma i prezzi dei segmenti
 						aValue =
 							a.type === "direct"
 								? a.segments[0].price
@@ -693,13 +684,11 @@ const searchFlights = async (req, res) => {
 						break;
 
 					case "departureDate":
-						// Usa la data di partenza del primo segmento
 						aValue = new Date(a.segments[0].departureDate);
 						bValue = new Date(b.segments[0].departureDate);
 						break;
 
 					case "duration":
-						// Calcola la durata totale del viaggio
 						aValue =
 							a.type === "direct"
 								? new Date(a.segments[0].arrivalDate) -
@@ -715,7 +704,6 @@ const searchFlights = async (req, res) => {
 						break;
 
 					case "airline":
-						// Usa il nome della compagnia aerea del primo segmento
 						aValue = a.segments[0].airline?.name || "";
 						bValue = b.segments[0].airline?.name || "";
 						break;

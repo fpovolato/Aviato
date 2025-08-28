@@ -6,7 +6,6 @@ const orderItemSchema = new mongoose.Schema({
 		ref: "Flight",
 		required: true,
 	},
-	// Informazioni complete del volo salvate durante il checkout
 	flightInfo: {
 		flightNumber: String,
 		from: String,
@@ -51,7 +50,6 @@ const orderItemSchema = new mongoose.Schema({
 		default: 1,
 		min: 1,
 	},
-	// Posti selezionati per ogni passeggero
 	selectedSeats: [
 		{
 			passengerNumber: {

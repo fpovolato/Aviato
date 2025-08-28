@@ -87,4 +87,9 @@ export class AuthService {
     const roles = this.user()?.roles || [];
     return allowed.some((r) => roles.includes(r));
   }
+
+  // Helper method to check authentication status
+  checkAuthenticationSync(): boolean {
+    return this.isLoggedIn;
+  }
 }

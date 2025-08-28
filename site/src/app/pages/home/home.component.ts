@@ -5,6 +5,7 @@ import { CommonModule } from '@angular/common';
 import { debounceTime, distinctUntilChanged, switchMap, of } from 'rxjs';
 import { FlightCardComponent } from '../flights-list/flight-card/flight-card.component';
 import { CartService } from '../../services/cart.service';
+import { AuthService } from '../../services/auth.service';
 import { Flight } from '../../models/flights.model';
 
 @Component({
@@ -303,7 +304,11 @@ export class HomeComponent {
   private justSelectedFrom = false;
   private justSelectedTo = false;
 
-  constructor(private http: HttpClient, private cartService: CartService) {
+  constructor(
+    private http: HttpClient, 
+    private cartService: CartService,
+    private authService: AuthService
+  ) {
     this.fromControl.valueChanges
       .pipe(
         debounceTime(300),
@@ -527,7 +532,7 @@ export class HomeComponent {
         continue;
       }
 
-      this.cartService.addToCart(cartFlight);
+      this.cartService.addToCart(cartFlight, this.authService.isLoggedIn);
       addedCount++;
     }
 
@@ -556,7 +561,7 @@ export class HomeComponent {
   ) {
     // Create a simple notification
     const notification = document.createElement('div');
-    notification.className = `fixed top-4 right-4 z-50 px-6 py-3 rounded-lg shadow-lg text-white font-semibold ${
+    notification.className = `fixed top-10 right-4 z-50 px-6 py-3 rounded-lg shadow-lg text-white font-semibold ${
       type === 'success' ? 'bg-green-500' : 'bg-red-500'
     }`;
     notification.textContent = message;

@@ -55,7 +55,6 @@ const createPlane = async (req, res) => {
 			hasPowerOutlets,
 		});
 
-		// Genera automaticamente la configurazione dei posti
 		plane.generateSeatsConfiguration();
 		await plane.save();
 
@@ -206,7 +205,6 @@ const updatePlaneConfiguration = async (req, res) => {
 			return res.status(404).json({ message: "Plane not found" });
 		}
 
-		// Aggiorna la configurazione
 		plane.totalRows = totalRows || plane.totalRows;
 		plane.maxSeatsPerRow = maxSeatsPerRow || plane.maxSeatsPerRow;
 		plane.cabinConfiguration = cabinConfiguration || plane.cabinConfiguration;
@@ -218,7 +216,6 @@ const updatePlaneConfiguration = async (req, res) => {
 		plane.hasPowerOutlets =
 			hasPowerOutlets !== undefined ? hasPowerOutlets : plane.hasPowerOutlets;
 
-		// Rigenera la configurazione dei posti
 		plane.generateSeatsConfiguration();
 		await plane.save();
 

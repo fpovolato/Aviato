@@ -34,7 +34,7 @@ npm test       # Run tests with ng test
 ```bash
 cd site
 npm install
-npm start      # ng serve on http://localhost:4300
+npm start      # ng serve on http://localhost:4200 (default Angular port)
 npm run build  # Production build
 npm test       # Run tests with ng test
 ```
@@ -46,8 +46,8 @@ docker compose up --build
 
 # Services run on:
 # Backend: https://localhost:3443
-# Dashboard: https://localhost:4443  
-# Site: https://localhost:4543
+# Dashboard: https://localhost:4443 (HTTPS), http://localhost:4200 (HTTP)  
+# Site: https://localhost:4543 (HTTPS), http://localhost:4300 (HTTP)
 # MongoDB: localhost:27017
 ```
 
@@ -96,7 +96,7 @@ Base URL: `https://localhost:3443/api`
 ```
 MONGO_URI=mongodb://localhost:27017/backenddb
 JWT_SECRET=super-secret
-JWT_REFRESH_SECRET=super-secret  # Note: Should match JWT_SECRET until key uniformity
+JWT_REFRESH_SECRET=super-secret  # Note: Currently uses JWT_SECRET for both access and refresh tokens
 SSL_PORT=3443
 ```
 
@@ -117,9 +117,8 @@ Backend allows origins: `http://localhost:4200`, `https://localhost:4443`, `http
 ### Seeding Data (Run in order)
 1. Import airports: `POST /api/airports/import-csv` with CSV file from `Dump/airports.csv`
 2. Create airline via API or dashboard
-3. Seed planes: `node utils/planeSeeder.js` 
-4. Seed flights: `node utils/flightSeeder.js`
-5. Associate planes to flights: `node utils/updateFlights.js`
+3. Create planes manually via API or dashboard (no seeder utility available)
+4. Create flights manually via API or dashboard (no seeder utility available)
 
 ### Common Development Workflows
 - **User Management**: Admin creates managers+airlines, managers create employees for their airline
@@ -129,12 +128,16 @@ Backend allows origins: `http://localhost:4200`, `https://localhost:4443`, `http
 
 ## Testing & API Documentation
 - OpenAPI spec available at root: `openapi.json`
-- Postman collections: `backend/Postman/`
 - No formal test suite defined (uses echo "Error: no test specified")
 - Angular projects configured with Jasmine/Karma but skip tests by default
+
+### Linting and Type Checking
+- No formal linting configured across projects
+- TypeScript compilation available through Angular CLI for frontend projects
 
 ## Build & Deployment Notes
 - Backend serves HTTPS only (requires SSL certificates)
 - Frontend apps use Nginx reverse proxy in Docker
 - Docker Compose handles service orchestration and SSL cert mounting
-- Frontend development uses `ng serve` with proxy configuration for API calls
+- Frontend development uses `ng serve` with proxy configuration for API calls (`proxy.conf.json`)
+- Both dashboard and site have identical proxy configurations pointing to backend HTTPS endpoint

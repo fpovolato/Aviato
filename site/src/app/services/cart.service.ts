@@ -2,6 +2,7 @@ import { Injectable, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Flight } from '../models/flights.model';
 import { environment } from '../../environments/environment';
+import { Router } from '@angular/router';
 
 export interface CartItem {
   flight: Flight;
@@ -23,9 +24,10 @@ export interface CartItem {
 })
 export class CartService {
   cart = signal<CartItem[]>([]);
+  private pendingCartItem = signal<Flight | null>(null);
   private apiUrl = `${environment.apiUrl}/cart`;
 
-  constructor(private http: HttpClient) {
+  constructor(private http: HttpClient, private router: Router) {
     this.loadCartFromBackend();
   }
 
@@ -107,7 +109,19 @@ export class CartService {
     });
   }
 
-  addToCart(flight: Flight) {
+  addToCart(flight: Flight, isAuthenticated: boolean = true) {
+    if (!isAuthenticated) {
+      // Store the flight for later and redirect to login
+      this.setPendingCartItem(flight);
+      this.router.navigate(['/login'], { 
+        queryParams: { 
+          returnUrl: '/', 
+          pendingItem: 'true'
+        } 
+      });
+      return;
+    }
+
     // Add to local cart first for immediate UI update
     const cartItem: CartItem = {
       flight,
@@ -220,5 +234,45 @@ export class CartService {
 
   isLuggageAvailable(flight: Flight): boolean {
     return (flight.additionalLuggagePrice || 0) > 0;
+  }
+
+  // Methods for handling pending cart items
+  setPendingCartItem(flight: Flight): void {
+    this.pendingCartItem.set(flight);
+    // Store in sessionStorage for persistence across page reloads
+    sessionStorage.setItem('pendingCartItem', JSON.stringify(flight));
+  }
+
+  getPendingCartItem(): Flight | null {
+    let pending = this.pendingCartItem();
+    if (!pending) {
+      // Try to restore from sessionStorage
+      const stored = sessionStorage.getItem('pendingCartItem');
+      if (stored) {
+        try {
+          pending = JSON.parse(stored);
+          this.pendingCartItem.set(pending);
+        } catch (error) {
+          console.error('Error parsing pending cart item from storage:', error);
+          sessionStorage.removeItem('pendingCartItem');
+        }
+      }
+    }
+    return pending;
+  }
+
+  processPendingCartItem(): boolean {
+    const pendingItem = this.getPendingCartItem();
+    if (pendingItem) {
+      this.addToCart(pendingItem, true); // Force add as user is now authenticated
+      this.clearPendingCartItem();
+      return true;
+    }
+    return false;
+  }
+
+  clearPendingCartItem(): void {
+    this.pendingCartItem.set(null);
+    sessionStorage.removeItem('pendingCartItem');
   }
 }

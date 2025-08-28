@@ -49,9 +49,7 @@ const createOrder = async (req, res) => {
 				additionalLuggagePrice: item.additionalLuggagePrice || 0,
 				seatClass: item.seatClass || "economy",
 				passengers: item.passengers || item.quantity || 1,
-				// Salva le informazioni complete del volo se fornite
 				flightInfo: item.flightInfo || null,
-				// Gestisci i posti selezionati
 				selectedSeats: item.selectedSeats || [],
 			}));
 			total = req.body.total || 0;
@@ -64,7 +62,6 @@ const createOrder = async (req, res) => {
 				return res.status(400).json({ message: "Cart is empty" });
 			}
 
-			// Controllo e aggiornamento posti disponibili
 			for (const item of cart.items) {
 				if (item.quantity > item.flight.seatsAvailable) {
 					return res.status(400).json({
@@ -90,17 +87,14 @@ const createOrder = async (req, res) => {
 			total = items.reduce((sum, i) => sum + i.quantity * i.priceAtPurchase, 0);
 		}
 
-		// Gestisci i posti per ogni item dell'ordine
 		for (const item of items) {
 			if (item.selectedSeats && item.selectedSeats.length > 0) {
-				// Verifica che il numero di posti selezionati corrisponda al numero di passeggeri
 				if (item.selectedSeats.length !== item.passengers) {
 					return res.status(400).json({
 						message: `Il numero di posti selezionati (${item.selectedSeats.length}) deve corrispondere al numero di passeggeri (${item.passengers}) per il volo ${item.flight}`,
 					});
 				}
 
-				// Verifica che tutti i posti selezionati siano disponibili
 				for (const seat of item.selectedSeats) {
 					const isAvailable = await SeatReservation.isSeatAvailable(
 						item.flight,
@@ -114,7 +108,6 @@ const createOrder = async (req, res) => {
 					}
 				}
 			} else {
-				// Assegnazione automatica dei posti se non selezionati
 				const flight = await Flight.findById(item.flight).populate("plane");
 				if (!flight || !flight.plane) {
 					return res.status(400).json({
@@ -122,7 +115,6 @@ const createOrder = async (req, res) => {
 					});
 				}
 
-				// Ottieni posti disponibili per la classe selezionata
 				const availableSeats = flight.plane.seatsConfiguration.filter(
 					(seat) =>
 						seat.seatClass === item.seatClass &&
@@ -136,7 +128,6 @@ const createOrder = async (req, res) => {
 					});
 				}
 
-				// Assegna posti casuali
 				const shuffledSeats = availableSeats.sort(() => 0.5 - Math.random());
 				item.selectedSeats = shuffledSeats
 					.slice(0, item.passengers)
@@ -162,9 +153,7 @@ const createOrder = async (req, res) => {
 			paymentDetails: req.body.paymentDetails,
 		});
 
-		// Crea le prenotazioni dei posti per tutti gli item
 		for (const item of items) {
-			// Get the flight with its plane information
 			const flightWithPlane = await Flight.findById(item.flight).populate(
 				"plane"
 			);
@@ -196,7 +185,6 @@ const createOrder = async (req, res) => {
 			await cart.save();
 		}
 
-		// Popola l'ordine per la risposta
 		const populatedOrder = await Order.findById(order._id)
 			.populate("user", "name email")
 			.populate({

@@ -47,12 +47,11 @@ const seatReservationSchema = new mongoose.Schema(
 			required: true,
 			min: 0,
 		},
-		// Note speciali (es. richieste speciali, disabilità, etc.)
+        // TODO: Feature not (yet) implemented
 		specialRequests: {
 			type: String,
 			trim: true,
 		},
-		// Timestamp per la scadenza della prenotazione (se non confermata)
 		expiresAt: {
 			type: Date,
 			required: function() {
@@ -75,46 +74,37 @@ seatReservationSchema.index(
 	{ unique: true }
 );
 
-// Indice per le query per utente
 seatReservationSchema.index({ user: 1, flight: 1 });
 
-// Indice per le prenotazioni scadute
 seatReservationSchema.index({ expiresAt: 1 });
 
-// Pre-save middleware per impostare la data di scadenza
 seatReservationSchema.pre("save", function (next) {
 	if (this.isNew && !this.expiresAt) {
-		// La prenotazione scade dopo 15 minuti se non confermata
 		this.expiresAt = new Date(Date.now() + 15 * 60 * 1000);
 	}
 	next();
 });
 
-// Metodo per verificare se la prenotazione è scaduta
 seatReservationSchema.methods.isExpired = function () {
 	return new Date() > this.expiresAt;
 };
 
-// Metodo per estendere la prenotazione
 seatReservationSchema.methods.extendReservation = function (minutes = 15) {
 	this.expiresAt = new Date(Date.now() + minutes * 60 * 1000);
 	return this.save();
 };
 
-// Metodo per confermare la prenotazione
 seatReservationSchema.methods.confirm = function () {
 	this.status = "confirmed";
-	this.expiresAt = null; // Rimuove la scadenza per le prenotazioni confermate
+	this.expiresAt = null;
 	return this.save();
 };
 
-// Metodo per cancellare la prenotazione
 seatReservationSchema.methods.cancel = function () {
 	this.status = "cancelled";
 	return this.save();
 };
 
-// Metodo statico per pulire le prenotazioni scadute
 seatReservationSchema.statics.cleanExpiredReservations = async function () {
 	const result = await this.deleteMany({
 		expiresAt: { $lt: new Date() },
@@ -123,7 +113,6 @@ seatReservationSchema.statics.cleanExpiredReservations = async function () {
 	return result.deletedCount;
 };
 
-// Metodo statico per ottenere le prenotazioni di un volo
 seatReservationSchema.statics.getFlightReservations = function (flightId) {
 	return this.find({
 		flight: flightId,
@@ -131,7 +120,6 @@ seatReservationSchema.statics.getFlightReservations = function (flightId) {
 	}).populate("user", "name email");
 };
 
-// Metodo statico per verificare se un posto è disponibile
 seatReservationSchema.statics.isSeatAvailable = async function (
 	flightId,
 	seatRow,

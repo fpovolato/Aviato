@@ -21,7 +21,6 @@ export class AuthService {
       .get<User>('/api/users/profile', { withCredentials: true })
       .pipe(
         catchError((error) => {
-          // Silently handle 401 errors (user not logged in)
           if (error.status === 401) {
             console.log('User not authenticated');
             return of(null);

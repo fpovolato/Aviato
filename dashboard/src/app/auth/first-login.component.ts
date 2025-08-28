@@ -266,7 +266,6 @@ export class FirstLoginComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    // Check if user needs to complete first login
     this.auth.user$.subscribe((user) => {
       if (!user) {
         this.router.navigate(['/login']);
@@ -274,12 +273,10 @@ export class FirstLoginComponent implements OnInit {
       }
 
       if (!user.passwordMustChange) {
-        // User has already completed first login, redirect to dashboard
         this.router.navigate(['/dashboard']);
         return;
       }
 
-      // Pre-fill with current user data
       this.name = user.name || '';
       this.surname = user.surname || '';
       this.birthDate = user.birthDate
@@ -302,7 +299,6 @@ export class FirstLoginComponent implements OnInit {
 
     this.http.post('/api/users/first-login', updateData).subscribe({
       next: () => {
-        // Refresh user data and redirect to dashboard
         this.auth.refreshUser();
         this.router.navigate(['/dashboard']);
       },

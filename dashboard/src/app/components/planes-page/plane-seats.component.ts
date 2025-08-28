@@ -69,7 +69,7 @@ import { Router, ActivatedRoute } from '@angular/router';
             </div>
           </div>
 
-          <!-- Enhanced Seat Map -->
+          <!-- Seat Map -->
           <div
             *ngIf="seatsData"
             class="bg-white/90 backdrop-blur-sm rounded-2xl shadow-xl border border-white/20 p-8"

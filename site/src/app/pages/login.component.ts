@@ -6,8 +6,9 @@ import {
   Validators,
   FormGroup,
 } from '@angular/forms';
-import { Router, RouterModule } from '@angular/router';
+import { Router, RouterModule, ActivatedRoute } from '@angular/router';
 import { AuthService } from '../services/auth.service';
+import { CartService } from '../services/cart.service';
 
 @Component({
   selector: 'app-login',
@@ -116,15 +117,25 @@ export class LoginComponent {
   form: FormGroup;
   error = '';
   loading = false;
+  private returnUrl: string = '/';
+  private hasPendingItem: boolean = false;
 
   constructor(
     private fb: FormBuilder,
     private auth: AuthService,
-    private router: Router
+    private router: Router,
+    private route: ActivatedRoute,
+    private cartService: CartService
   ) {
     this.form = this.fb.group({
       email: ['', [Validators.required, Validators.email]],
       password: ['', [Validators.required]],
+    });
+
+    // Get query parameters
+    this.route.queryParams.subscribe(params => {
+      this.returnUrl = params['returnUrl'] || '/';
+      this.hasPendingItem = params['pendingItem'] === 'true';
     });
   }
 
@@ -136,7 +147,18 @@ export class LoginComponent {
     this.auth.login(email, password).subscribe({
       next: (user) => {
         this.loading = false;
-        this.router.navigate(['/']);
+        
+        // Process pending cart item if present
+        if (this.hasPendingItem) {
+          const wasProcessed = this.cartService.processPendingCartItem();
+          if (wasProcessed) {
+            // Show success message or notification here if needed
+            console.log('Pending flight added to cart after login');
+          }
+        }
+        
+        // Navigate to return URL
+        this.router.navigate([this.returnUrl]);
       },
       error: () => {
         this.loading = false;
