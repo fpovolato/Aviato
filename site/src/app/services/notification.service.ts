@@ -24,7 +24,6 @@ export class NotificationService {
 
     this.notifications.push(fullNotification);
 
-    // Rimuovi automaticamente la notifica dopo la durata specificata
     setTimeout(() => {
       this.remove(id);
     }, fullNotification.duration);

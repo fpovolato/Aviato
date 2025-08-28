@@ -538,7 +538,6 @@ export class PlanesPageComponent implements OnInit {
         this.loading = false;
       },
       error: (error) => {
-        console.error('Error creating plane:', error);
         this.loading = false;
       },
     });
@@ -581,8 +580,6 @@ export class PlanesPageComponent implements OnInit {
   }
 
   editPlane(plane: Plane) {
-    // TODO: Implement edit functionality
-    console.log('Edit plane:', plane);
   }
 
   deletePlane(planeId: string) {

@@ -14,7 +14,7 @@ export class AuthGuard implements CanActivate {
 
   canActivate(route: ActivatedRouteSnapshot): Observable<boolean | UrlTree> {
     return this.auth.loading$.pipe(
-      filter((loading) => !loading), // Wait until loading is complete
+      filter((loading) => !loading),
       take(1),
       switchMap(() => this.auth.user$),
       take(1),
@@ -23,7 +23,6 @@ export class AuthGuard implements CanActivate {
           return this.router.parseUrl('/login');
         }
 
-        // Check if user needs to complete first login (except for the first-login route itself)
         if (
           user.passwordMustChange &&
           route.routeConfig?.path !== 'first-login'
@@ -33,20 +32,8 @@ export class AuthGuard implements CanActivate {
 
         const allowed = route.data['roles'] as string[] | undefined;
         if (allowed && !this.auth.hasRole(...allowed)) {
-          console.log(
-            '❌ Access denied - User roles:',
-            user.roles,
-            'Required roles:',
-            allowed
-          );
           return this.router.parseUrl('/');
         }
-        console.log(
-          '✅ Access granted - User roles:',
-          user.roles,
-          'Required roles:',
-          allowed
-        );
         return true;
       })
     );

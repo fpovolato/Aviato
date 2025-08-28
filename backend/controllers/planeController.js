@@ -27,7 +27,7 @@ const createPlane = async (req, res) => {
 			return res.status(400).json({ message: "Plane already exists" });
 		}
 
-		// Scope: employee/manager can only create planes for their airline
+		// Employee/manager can only create planes for their airline
 		const requester = req.user;
 		const isAdmin = requester.roles.includes("admin");
 		if (!isAdmin) {
@@ -60,7 +60,7 @@ const createPlane = async (req, res) => {
 
 		res.status(201).json(plane);
 	} catch (error) {
-		console.error("❌ Error in createPlane:", error);
+		console.error("Error in createPlane:", error);
 		res.status(500).json({ message: "Server error", error: error.message });
 	}
 };
@@ -75,7 +75,7 @@ const getPlanes = async (req, res) => {
 		const planes = await Plane.find().populate("airline", "name code");
 		res.json(planes);
 	} catch (error) {
-		console.error("❌ Error in getPlanes:", error);
+		console.error("Error in getPlanes:", error);
 		res.status(500).json({ message: "Server error", error: error.message });
 	}
 };
@@ -98,7 +98,7 @@ const getPlaneById = async (req, res) => {
 			res.status(404).json({ message: "Plane not found" });
 		}
 	} catch (error) {
-		console.error("❌ Error in getPlaneById:", error);
+		console.error("Error in getPlaneById:", error);
 		res.status(500).json({ message: "Server error", error: error.message });
 	}
 };
@@ -122,7 +122,7 @@ const getPlaneByCode = async (req, res) => {
 			res.status(404).json({ message: "Plane not found" });
 		}
 	} catch (error) {
-		console.error("❌ Error in getPlaneByCode:", error);
+		console.error("Error in getPlaneByCode:", error);
 		res.status(500).json({ message: "Server error", error: error.message });
 	}
 };
@@ -142,7 +142,7 @@ const getPlanesByAirline = async (req, res) => {
 		);
 		res.json(planes);
 	} catch (error) {
-		console.error("❌ Error in getPlanesByAirline:", error);
+		console.error("Error in getPlanesByAirline:", error);
 		res.status(500).json({ message: "Server error", error: error.message });
 	}
 };
@@ -177,7 +177,7 @@ const getPlaneSeats = async (req, res) => {
 			stats,
 		});
 	} catch (error) {
-		console.error("❌ Error in getPlaneSeats:", error);
+		console.error("Error in getPlaneSeats:", error);
 		res.status(500).json({ message: "Server error", error: error.message });
 	}
 };
@@ -224,7 +224,7 @@ const updatePlaneConfiguration = async (req, res) => {
 			plane,
 		});
 	} catch (error) {
-		console.error("❌ Error in updatePlaneConfiguration:", error);
+		console.error("Error in updatePlaneConfiguration:", error);
 		res.status(500).json({ message: "Server error", error: error.message });
 	}
 };
@@ -257,7 +257,7 @@ const getPlaneStats = async (req, res) => {
 			totalRows: Object.keys(seatsByRows).length,
 		});
 	} catch (error) {
-		console.error("❌ Error in getPlaneStats:", error);
+		console.error("Error in getPlaneStats:", error);
 		res.status(500).json({ message: "Server error", error: error.message });
 	}
 };

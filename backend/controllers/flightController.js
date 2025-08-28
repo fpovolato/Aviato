@@ -50,7 +50,7 @@ const createFlight = async (req, res) => {
 			return res.status(400).json({ message: "Flight already exists" });
 		}
 
-		// Scope: employee/manager can only create for their airline
+		// Employee/manager can only create flights for their airline
 		const requester = req.user;
 		const isAdmin = requester.roles.includes("admin");
 		if (!isAdmin) {
@@ -85,7 +85,6 @@ const createFlight = async (req, res) => {
 				.json({ message: "arrivalDate must be after departureDate" });
 		}
 
-		// Controllo sovrapposizione voli per lo stesso aereo
 		if (plane) {
 			const overlappingFlight = await Flight.findOne({
 				plane: plane,
@@ -98,7 +97,7 @@ const createFlight = async (req, res) => {
 			});
 			if (overlappingFlight) {
 				return res.status(400).json({
-					message: "Esiste già un volo sovrapposto per questo aereo.",
+					message: "Overlapping flight already exists for this plane.",
 				});
 			}
 		}
@@ -131,7 +130,7 @@ const createFlight = async (req, res) => {
 			.populate("plane", "code manifacturer model seats");
 		return res.status(201).json(fullFlight);
 	} catch (error) {
-		console.error("❌ Error in createFlight:", error);
+		console.error("Error in createFlight:", error);
 		return res
 			.status(500)
 			.json({ message: "Server error", error: error.message });
@@ -176,7 +175,7 @@ const getFlights = async (req, res) => {
 		});
 		return res.status(200).json(flightWithDuration);
 	} catch (error) {
-		console.error("❌ Error in getFlights:", error);
+		console.error("Error in getFlights:", error);
 		return res
 			.status(500)
 			.json({ message: "Server error", error: error.message });
@@ -225,7 +224,7 @@ const getFlightById = async (req, res) => {
 		obj.duration = `${hours}h ${minutes}m`;
 		return res.status(200).json(obj);
 	} catch (error) {
-		console.error("❌ Error in getFlightById:", error);
+		console.error("Error in getFlightById:", error);
 		return res
 			.status(500)
 			.json({ message: "Server error", error: error.message });
@@ -285,7 +284,7 @@ const getFlightsByAirline = async (req, res) => {
 		});
 		return res.status(200).json(flightWithDuration);
 	} catch (error) {
-		console.error("❌ Error in getFlightsByAirline:", error);
+		console.error("Error in getFlightsByAirline:", error);
 		return res
 			.status(500)
 			.json({ message: "Server error", error: error.message });
@@ -323,7 +322,6 @@ const updateFlight = async (req, res) => {
 			return res.status(404).json({ message: "Flight not found" });
 		}
 
-		// Admin only via route guard, but keep defense-in-depth for managers/employees if route changes
 		const requester = req.user;
 		const isAdmin = requester.roles.includes("admin");
 		if (!isAdmin) {
@@ -386,7 +384,7 @@ const updateFlight = async (req, res) => {
 			.populate("plane", "code manifacturer model seats");
 		return res.status(200).json(fullFlight);
 	} catch (error) {
-		console.error("❌ Error in updateFlight:", error);
+		console.error("Error in updateFlight:", error);
 		return res
 			.status(500)
 			.json({ message: "Server error", error: error.message });
@@ -412,7 +410,7 @@ const deleteFlight = async (req, res) => {
 		}
 		return res.status(200).json({ message: "Flight deleted successfully" });
 	} catch (error) {
-		console.error("❌ Error in deleteFlight:", error);
+		console.error("Error in deleteFlight:", error);
 		return res
 			.status(500)
 			.json({ message: "Server error", error: error.message });
@@ -449,7 +447,7 @@ const updateFlightStatus = async (req, res) => {
 		await flight.save();
 		return res.status(200).json(flight);
 	} catch (error) {
-		console.error("❌ Error in updateFlightStatus:", error);
+		console.error("Error in updateFlightStatus:", error);
 		return res
 			.status(500)
 			.json({ message: "Server error", error: error.message });
@@ -505,10 +503,8 @@ const searchFlights = async (req, res) => {
 			return res.status(400).json({ message: "from and to are required" });
 		}
 
-		// Get current date and time to exclude past flights
 		const currentDate = new Date();
 
-		// Trova tutte le rotte dirette
 		const directRoutes = await Route.find({
 			departureAirport: from,
 			arrivalAirport: to,
@@ -516,7 +512,6 @@ const searchFlights = async (req, res) => {
 		const directRouteIds = directRoutes.map((r) => r._id);
 		let flightQuery = { route: { $in: directRouteIds } };
 
-		// Add current date filter to exclude past flights
 		flightQuery["departureDate"] = { $gte: currentDate };
 
 		if (departureDate && departureDateEnd) {
@@ -575,7 +570,7 @@ const searchFlights = async (req, res) => {
 			for (const secondLeg of secondLegRoutes) {
 				let firstFlightQuery = {
 					route: firstLeg._id,
-					departureDate: { $gte: currentDate }, // Add current date filter
+					departureDate: { $gte: currentDate },
 				};
 
 				if (departureDate && departureDateEnd) {
@@ -720,7 +715,7 @@ const searchFlights = async (req, res) => {
 
 		return res.status(200).json(allResults);
 	} catch (error) {
-		console.error("❌ Error in searchFlights:", error);
+		console.error("Error in searchFlights:", error);
 		return res
 			.status(500)
 			.json({ message: "Server error", error: error.message });

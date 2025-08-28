@@ -14,7 +14,6 @@ const getDashboardAnalytics = async (req, res) => {
 	try {
 		const user = req.user;
 
-		// Check if user is admin
 		if (user.roles.includes("admin")) {
 			return res.status(200).json({
 				isAdmin: true,
@@ -260,7 +259,7 @@ const getDashboardAnalytics = async (req, res) => {
 
 		res.status(200).json(analytics);
 	} catch (error) {
-		console.error("❌ Error fetching analytics:", error);
+		console.error("Error fetching analytics:", error);
 		res.status(500).json({ message: "Server error", error: error.message });
 	}
 };
@@ -387,7 +386,7 @@ const getAirlineAnalytics = async (req, res) => {
 
 		res.status(200).json(analytics);
 	} catch (error) {
-		console.error("❌ Error fetching airline analytics:", error);
+		console.error("Error fetching airline analytics:", error);
 		res.status(500).json({ message: "Server error", error: error.message });
 	}
 };

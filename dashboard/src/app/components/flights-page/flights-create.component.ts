@@ -217,11 +217,9 @@ export class FlightsCreateComponent implements OnInit {
           user.airlines &&
           user.airlines.length > 0
         ) {
-          // Mostra solo le airline dell'employee
           this.airlines = data.filter((a) =>
             user.airlines.some((ua: any) => ua._id === a._id)
           );
-          // Se c'è una sola airline, la seleziona di default
           if (this.airlines.length === 1)
             this.flight.airline = String(this.airlines[0]._id);
         } else {
@@ -241,7 +239,6 @@ export class FlightsCreateComponent implements OnInit {
     this.loading = true;
     this.error = '';
     const body = { ...this.flight };
-    // Convert datetime-local to ISO string
     if (body.departureDate)
       body.departureDate = new Date(body.departureDate).toISOString();
     if (body.arrivalDate)

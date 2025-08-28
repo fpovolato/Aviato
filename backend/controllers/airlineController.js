@@ -75,7 +75,7 @@ const getAirlines = async (req, res) => {
     const airlines = await Airline.find();
     res.json(airlines);
   } catch (error) {
-    console.error("❌ Error in getAirlines:", error);
+    console.error("Error in getAirlines:", error);
     res.status(500).json({ message: "Server error", error: error.message });
   }
 };
@@ -164,7 +164,7 @@ const inviteEmployee = async (req, res) => {
     await userToInvite.save();
     res.status(200).json({ message: "Invitation successful" });
   } catch (error) {
-    console.error("❌ Error in inviteEmployee:", error);
+    console.error("Error in inviteEmployee:", error);
     res.status(500).json({ message: "Server error", error: error.message });
   }
 };
@@ -214,7 +214,7 @@ const getAllEmployees = async (req, res) => {
 
     return res.json(airlinesWithEmployees);
   } catch (error) {
-    console.error("❌ Error in getAllEmployees:", error);
+    console.error("Error in getAllEmployees:", error);
     return res
       .status(500)
       .json({ message: "Server error", error: error.message });
@@ -257,7 +257,7 @@ const getEmployeesByAirline = async (req, res) => {
 
     res.json(employees);
   } catch (error) {
-    console.error("❌ Error in getEmployeesByAirline:", error);
+    console.error("Error in getEmployeesByAirline:", error);
     res.status(500).json({ message: "Server error", error: error.message });
   }
 };

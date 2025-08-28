@@ -21,13 +21,11 @@ exports.createRoute = async (req, res) => {
 	try {
 		const { departureAirport, arrivalAirport, code } = req.body;
 
-		// Check if route code already exists
 		const existingRoute = await Route.findOne({ code });
 		if (existingRoute) {
 			return res.status(400).json({ message: "Route code already exists" });
 		}
 
-		// Validate that airports exist
 		const Airport = require("../models/Airport");
 		const [depAirport, arrAirport] = await Promise.all([
 			Airport.findById(departureAirport),

@@ -3,7 +3,7 @@ const router = express.Router();
 const seatController = require("../controllers/seatController");
 const { protect, adminOnly } = require("../middleware/auth");
 
-// Ottieni la configurazione dei posti per un volo
+// Get seat configuration for a flight
 /**
  * @openapi
  * /api/seats/flights/{flightId}/seats:
@@ -13,7 +13,7 @@ const { protect, adminOnly } = require("../middleware/auth");
  */
 router.get("/flights/:flightId/seats", seatController.getFlightSeats);
 
-// Prenota un posto (richiede autenticazione)
+// Reserve a seat (requires authentication)
 /**
  * @openapi
  * /api/seats/flights/{flightId}/seats/reserve:
@@ -28,7 +28,7 @@ router.post(
 	seatController.reserveSeat
 );
 
-// Conferma una prenotazione (richiede autenticazione)
+// Confirm a reservation (requires authentication)
 /**
  * @openapi
  * /api/seats/reservations/{reservationId}/confirm:
@@ -43,7 +43,7 @@ router.put(
 	seatController.confirmReservation
 );
 
-// Cancella una prenotazione (richiede autenticazione)
+// Cancel a reservation (requires authentication)
 /**
  * @openapi
  * /api/seats/reservations/{reservationId}:
@@ -58,7 +58,7 @@ router.delete(
 	seatController.cancelReservation
 );
 
-// Estendi una prenotazione (richiede autenticazione)
+// Extend a reservation (requires authentication)
 /**
  * @openapi
  * /api/seats/reservations/{reservationId}/extend:
@@ -73,7 +73,7 @@ router.put(
 	seatController.extendReservation
 );
 
-// Ottieni le prenotazioni di un utente (richiede autenticazione)
+// Get user's reservations (requires authentication)
 /**
  * @openapi
  * /api/seats/user/reservations:
@@ -84,7 +84,7 @@ router.put(
  */
 router.get("/user/reservations", protect, seatController.getUserReservations);
 
-// Pulisci le prenotazioni scadute (endpoint admin)
+// Clean expired reservations (admin endpoint)
 /**
  * @openapi
  * /api/seats/admin/clean-expired:

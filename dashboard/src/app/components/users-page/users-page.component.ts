@@ -179,7 +179,7 @@ interface Airline {
           </table>
         </div>
 
-        <!-- Modal per assegnazione compagnia aerea -->
+        <!-- Modal for airline assignment -->
         <div
           *ngIf="showAirlineModal"
           class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-40 z-50"
@@ -396,12 +396,10 @@ export class UsersPageComponent implements OnInit {
   onRoleChange(user: User, newRole: string) {
     const currentRole = user.roles[0];
 
-    // Se il ruolo non è cambiato, non fare nulla
+    // If role hasn't changed, do nothing
     if (currentRole === newRole) return;
 
-    // Only admins and managers can change roles
     if (!this.isAdmin && !this.isManager) {
-      console.log('Only admins and managers can change user roles');
       return;
     }
 
@@ -409,7 +407,7 @@ export class UsersPageComponent implements OnInit {
     this.selectedNewRole = newRole;
     this.updatingUser = user._id;
 
-    // Caso 1: Promozione a Employee (serve compagnia aerea)
+    // Case 1: Promotion to Employee (airline required)
     if (
       newRole === 'employee' &&
       (!user.airlines || user.airlines.length === 0)
@@ -420,19 +418,19 @@ export class UsersPageComponent implements OnInit {
       return;
     }
 
-    // Caso 2: Promozione a Admin (rimuovere compagnie)
+    // Case 2: Promotion to Admin (remove airlines)
     if (newRole === 'admin' && user.airlines && user.airlines.length > 0) {
       this.showRemoveAirlineModal = true;
       return;
     }
 
-    // Caso 3: Retrocessione a Customer (rimuovere compagnie)
+    // Case 3: Demotion to Customer (remove airlines)
     if (newRole === 'customer' && user.airlines && user.airlines.length > 0) {
       this.showRemoveAirlineModal = true;
       return;
     }
 
-    // Caso 4: Cambio ruolo senza compagnie (aggiornamento diretto)
+    // Case 4: Role change without airlines (direct update)
     this.updateUserRole(user, newRole);
   }
 
@@ -449,7 +447,6 @@ export class UsersPageComponent implements OnInit {
           this.applyFilter();
         },
         error: (error) => {
-          console.error('Error updating user role:', error);
           alert(error.error?.message || 'Error updating user role');
           this.updatingUser = null;
           // Revert the select to the original value
@@ -491,7 +488,6 @@ export class UsersPageComponent implements OnInit {
           this.applyFilter();
         },
         error: (error) => {
-          console.error('Error updating user:', error);
           this.airlineModalError =
             error?.error?.message || 'Failed to update user. Please try again.';
           this.confirmingAirline = false;
@@ -517,7 +513,6 @@ export class UsersPageComponent implements OnInit {
           this.applyFilter();
         },
         error: (error) => {
-          console.error('Error updating user role:', error);
           this.confirmingAirline = false;
           // Revert the select to the original value
           this.fetchUsers();
@@ -549,7 +544,6 @@ export class UsersPageComponent implements OnInit {
 
   deleteUser(id: string) {
     if (!this.isAdmin && !this.isManager) {
-      console.log('Only admins and managers can delete users');
       return;
     }
     if (!confirm('Are you sure you want to delete this user?')) return;
@@ -559,7 +553,6 @@ export class UsersPageComponent implements OnInit {
         this.applyFilter();
       },
       error: (error) => {
-        console.error('Error deleting user:', error);
         alert(error.error?.message || 'Error deleting user');
       },
     });
@@ -567,7 +560,6 @@ export class UsersPageComponent implements OnInit {
 
   goToCreateUser() {
     if (!this.isAdmin) {
-      console.log('Only admins can create users');
       return;
     }
     this.router.navigate(['/users/create']);
@@ -575,7 +567,6 @@ export class UsersPageComponent implements OnInit {
 
   goToCreateEmployee() {
     if (!this.isAdmin && !this.isManager) {
-      console.log('Only admins and managers can create employees');
       return;
     }
     this.router.navigate(['/users/create-employee']);
@@ -583,7 +574,6 @@ export class UsersPageComponent implements OnInit {
 
   goToCreateManager() {
     if (!this.isAdmin) {
-      console.log('Only admins can create managers');
       return;
     }
     this.router.navigate(['/users/create-manager']);

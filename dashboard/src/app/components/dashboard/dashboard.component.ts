@@ -595,7 +595,6 @@ export class DashboardComponent implements OnInit {
         this.loading = false;
       },
       error: (error) => {
-        console.error('Error loading analytics:', error);
         this.loading = false;
       },
     });

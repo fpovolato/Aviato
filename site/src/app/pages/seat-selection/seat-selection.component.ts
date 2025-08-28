@@ -22,11 +22,11 @@ import { CartService } from '../../services/cart.service';
                   </svg>
                 </div>
                 <h1 class="text-4xl font-bold bg-gradient-to-r from-gray-900 to-gray-700 bg-clip-text text-transparent">
-                  Selezione Posti
+                  Seat Selection
                 </h1>
               </div>
               <p class="text-lg text-gray-600 ml-15">
-                Scegli i posti per <span class="font-semibold text-blue-600">{{ cartItem?.passengers || 1 }} passeggero(i)</span>
+                Choose seats for <span class="font-semibold text-blue-600">{{ cartItem?.passengers || 1 }} passenger(s)</span>
                 per il volo <span class="font-semibold text-indigo-600">{{ flightData?.flight?.flightNumber }}</span>
               </p>
             </div>
@@ -34,7 +34,7 @@ import { CartService } from '../../services/cart.service';
               (click)="goBack()"
               class="px-6 py-3 text-gray-600 hover:text-gray-800 font-semibold transition-all duration-200 hover:bg-white/50 rounded-xl"
             >
-              ← Torna al carrello
+              ← Back to cart
             </button>
           </div>
         </div>
@@ -65,7 +65,7 @@ import { CartService } from '../../services/cart.service';
               <div class="text-3xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
                 {{ flightData.flight.price | currency : 'EUR' }}
               </div>
-              <div class="text-sm text-gray-500 font-medium">Prezzo base per passeggero</div>
+              <div class="text-sm text-gray-500 font-medium">Base price per passenger</div>
             </div>
           </div>
         </div>
@@ -82,9 +82,9 @@ import { CartService } from '../../services/cart.service';
             </div>
             <div>
               <h3 class="text-lg font-bold text-gray-800">
-                {{ cartItem.ticketClass === 'first' ? 'Prima Classe' : 'Classe Economy' }}
+                {{ cartItem.ticketClass === 'first' ? 'First Class' : 'Economy Class' }}
               </h3>
-              <p class="text-gray-600 text-sm">Classe selezionata nel carrello</p>
+              <p class="text-gray-600 text-sm">Selected class in cart</p>
             </div>
             <div class="ml-auto text-right">
               <div class="text-xl font-bold" [class]="cartItem.ticketClass === 'first' ? 'text-amber-600' : 'text-blue-600'">
@@ -105,20 +105,20 @@ import { CartService } from '../../services/cart.service';
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"/>
                 </svg>
               </div>
-              <h3 class="text-2xl font-bold text-gray-800">Mappa dei Posti</h3>
+              <h3 class="text-2xl font-bold text-gray-800">Seat Map</h3>
             </div>
             <div class="flex items-center gap-6 text-sm">
               <div class="flex items-center gap-2">
                 <div class="w-5 h-5 bg-gradient-to-br from-green-400 to-green-500 rounded-lg shadow-sm"></div>
-                <span class="font-medium text-gray-700">Disponibile</span>
+                <span class="font-medium text-gray-700">Available</span>
               </div>
               <div class="flex items-center gap-2">
                 <div class="w-5 h-5 bg-gradient-to-br from-gray-400 to-gray-500 rounded-lg shadow-sm"></div>
-                <span class="font-medium text-gray-700">Occupato</span>
+                <span class="font-medium text-gray-700">Occupied</span>
               </div>
               <div class="flex items-center gap-2">
                 <div class="w-5 h-5 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg shadow-sm"></div>
-                <span class="font-medium text-gray-700">Selezionato</span>
+                <span class="font-medium text-gray-700">Selected</span>
               </div>
             </div>
           </div>
@@ -131,7 +131,7 @@ import { CartService } from '../../services/cart.service';
                 <div class="w-8 h-16 bg-gradient-to-r from-slate-300 to-slate-400 rounded-l-full border-2 border-slate-300 relative">
                   <div class="absolute left-1 top-1/2 transform -translate-y-1/2 w-2 h-2 bg-red-400 rounded-full"></div>
                 </div>
-                <div class="text-xs font-semibold text-slate-600 mt-1 rotate-90 whitespace-nowrap">Prua</div>
+                <div class="text-xs font-semibold text-slate-600 mt-1 rotate-90 whitespace-nowrap">Front</div>
               </div>
 
               <!-- Compact Seat Grid -->
@@ -150,7 +150,7 @@ import { CartService } from '../../services/cart.service';
                             [disabled]="!isSeatAvailable(seat)"
                             [class]="getSeatClass(seat)"
                             class="w-8 h-8 rounded-lg font-bold text-xs transition-all duration-300 disabled:cursor-not-allowed shadow-sm hover:shadow-md transform hover:scale-110 border"
-                            [attr.title]="'Posto ' + row + seat.number + ' - ' + (seat.seatClass | titlecase)"
+                            [attr.title]="'Seat ' + row + seat.number + ' - ' + (seat.seatClass | titlecase)"
                           >
                             {{ seat.number }}
                           </button>
@@ -167,7 +167,7 @@ import { CartService } from '../../services/cart.service';
               <!-- Aircraft tail -->
               <div class="flex flex-col items-center">
                 <div class="w-6 h-12 bg-gradient-to-l from-slate-300 to-slate-400 rounded-r-full border-2 border-slate-300"></div>
-                <div class="text-xs font-semibold text-slate-600 mt-1 rotate-90 whitespace-nowrap">Coda</div>
+                <div class="text-xs font-semibold text-slate-600 mt-1 rotate-90 whitespace-nowrap">Tail</div>
               </div>
             </div>
           </div>
@@ -184,7 +184,7 @@ import { CartService } from '../../services/cart.service';
               </svg>
             </div>
             <h3 class="text-2xl font-bold text-blue-800">
-              Posti Selezionati ({{ selectedSeats.length }}/{{ cartItem?.passengers || 1 }})
+              Selected Seats ({{ selectedSeats.length }}/{{ cartItem?.passengers || 1 }})
             </h3>
           </div>
           <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -198,7 +198,7 @@ import { CartService } from '../../services/cart.service';
                     </svg>
                   </div>
                   <span class="font-bold text-blue-800">
-                    Passeggero {{ seat.passengerNumber }}
+                    Passenger {{ seat.passengerNumber }}
                   </span>
                 </div>
                 <button
@@ -216,7 +216,7 @@ import { CartService } from '../../services/cart.service';
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
                   </svg>
-                  <span class="text-blue-700 font-semibold">Posto: {{ seat.seatRow }}{{ seat.seatNumber }}</span>
+                  <span class="text-blue-700 font-semibold">Seat: {{ seat.seatRow }}{{ seat.seatNumber }}</span>
                 </div>
                 <div class="flex items-center space-x-2">
                   <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -247,7 +247,7 @@ import { CartService } from '../../services/cart.service';
               <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
               </svg>
-              <span>Annulla</span>
+              <span>Cancel</span>
             </div>
           </button>
           <button
@@ -259,7 +259,7 @@ import { CartService } from '../../services/cart.service';
               <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
               </svg>
-              <span>Conferma Selezione</span>
+              <span>Confirm Selection</span>
             </div>
           </button>
         </div>
@@ -299,7 +299,7 @@ export class SeatSelectionComponent implements OnInit {
         this.seatRows = Object.keys(this.seats);
       },
       error: (error) => {
-        console.error('Errore nel caricamento dei posti:', error);
+        console.error('Error loading seats:', error);
         this.goBack();
       },
     });
@@ -335,7 +335,6 @@ export class SeatSelectionComponent implements OnInit {
       return 'bg-gradient-to-br from-gray-200 to-gray-300 text-gray-500 cursor-not-allowed border-gray-300';
     }
 
-    // Verifica se il posto è già selezionato
     const isSelected = this.selectedSeats.some(
       (s) => s.seatRow === seat.row && s.seatNumber === seat.number
     );
@@ -344,7 +343,6 @@ export class SeatSelectionComponent implements OnInit {
       return 'bg-gradient-to-br from-blue-500 to-blue-600 text-white hover:from-blue-600 hover:to-blue-700 border-blue-600 ring-2 ring-blue-400 ring-opacity-75';
     }
 
-    // Different colors for different classes
     if (seat.seatClass === 'first') {
       return 'bg-gradient-to-br from-amber-400 to-amber-500 text-white hover:from-amber-500 hover:to-amber-600 border-amber-500';
     }

@@ -421,7 +421,6 @@ export class HomeComponent {
       if (this.departureTime) {
         params.departureDate = this.departureDate + 'T' + this.departureTime;
       } else {
-        // Filtro per tutto il giorno: >= inizio giorno, < giorno successivo
         params.departureDate = this.departureDate + 'T00:00';
         params.departureDateEnd = this.addOneDay(this.departureDate) + 'T00:00';
       }

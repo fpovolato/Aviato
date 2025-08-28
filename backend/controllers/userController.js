@@ -47,8 +47,7 @@ const registerUser = async (req, res) => {
 			password,
 		};
 
-		// Only set roles and airlines if they are provided
-		// This allows both public registration (customer) and admin-created users (any role)
+		// Allows both public registration (customer) and admin-created users (any role)
 		if (roles) {
 			userData.roles = roles;
 		}
@@ -66,7 +65,7 @@ const registerUser = async (req, res) => {
 			roles: user.roles,
 		});
 	} catch (error) {
-		console.error("❌ Error in registerUser:", error);
+		console.error("Error in registerUser:", error);
 		res.status(500).json({ message: "Server error" });
 	}
 };
@@ -104,12 +103,12 @@ const loginUser = async (req, res) => {
 				.cookie("accessToken", accessToken, {
 					httpOnly: true,
 					sameSite: "strict",
-					maxAge: 3600000, // 1 hour
+					maxAge: 3600000,
 				})
 				.cookie("refreshToken", refreshToken, {
 					httpOnly: true,
 					sameSite: "strict",
-					maxAge: 604800000, // 7 days
+					maxAge: 604800000,
 				})
 				.json({
 					_id: user._id,
@@ -230,7 +229,7 @@ const getAllUsers = async (req, res) => {
 		const { role, airline } = req.query;
 		const filter = {};
 
-		// If user is a manager, they can only see employees from their airline
+		// Managers can only see employees from their airline
 		if (
 			req.user.roles.includes("manager") &&
 			!req.user.roles.includes("admin")
@@ -239,10 +238,8 @@ const getAllUsers = async (req, res) => {
 				airline.toString()
 			);
 			filter.airlines = { $in: managerAirlineIds };
-			// Managers can only see employees, not other managers or admins
 			filter.roles = { $in: ["employee"] };
 		} else {
-			// Admin can see all users with optional filters
 			if (role) filter.roles = role;
 			if (airline) filter.airlines = airline;
 		}
@@ -275,12 +272,11 @@ const deleteUser = async (req, res) => {
 		const user = await User.findById(req.params.id);
 		if (!user) return res.status(404).json({ message: "User not found" });
 
-		// If user is a manager, they can only delete employees from their airline
+		// Managers can only delete employees from their airline
 		if (
 			req.user.roles.includes("manager") &&
 			!req.user.roles.includes("admin")
 		) {
-			// Check if the user to delete is an employee
 			if (!user.roles.includes("employee")) {
 				return res.status(403).json({
 					message: "Managers can only delete employees",
@@ -576,7 +572,7 @@ const createEmployeeForManager = async (req, res) => {
 			passwordMustChange: employee.passwordMustChange,
 		});
 	} catch (error) {
-		console.error("❌ Error in createEmployeeForManager:", error);
+		console.error("Error in createEmployeeForManager:", error);
 		return res
 			.status(500)
 			.json({ message: "Server error", error: error.message });

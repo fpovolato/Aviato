@@ -64,7 +64,7 @@ const seatReservationSchema = new mongoose.Schema(
 	}
 );
 
-// Indice composto per evitare prenotazioni duplicate dello stesso posto
+// Composite index to avoid duplicate reservations for the same seat
 seatReservationSchema.index(
 	{
 		flight: 1,

@@ -14,7 +14,6 @@ export class AuthService {
       .get<User>('/api/users/profile', { withCredentials: true })
       .pipe(
         catchError((error) => {
-          // Silently handle 401 errors (user not logged in)
           if (error.status === 401) {
             return of(null);
           }
@@ -88,7 +87,6 @@ export class AuthService {
     return allowed.some((r) => roles.includes(r));
   }
 
-  // Helper method to check authentication status
   checkAuthenticationSync(): boolean {
     return this.isLoggedIn;
   }

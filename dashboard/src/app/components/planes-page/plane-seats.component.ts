@@ -125,7 +125,6 @@ import { Router, ActivatedRoute } from '@angular/router';
                           >
                             {{ seat.number }}
                           </div>
-                          <!-- Add separator after 3rd seat for corridor -->
                           <div *ngIf="seat.number === 3" class="h-1 border-t border-dashed border-slate-300 mx-2"></div>
                         </ng-container>
                       </div>

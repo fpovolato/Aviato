@@ -17,7 +17,7 @@ const getFlightSeats = async (req, res) => {
 		});
 
 		if (!flight) {
-			return res.status(404).json({ message: "Volo non trovato" });
+			return res.status(404).json({ message: "Flight not found" });
 		}
 
 		const reservations = await SeatReservation.find({
@@ -53,7 +53,7 @@ const getFlightSeats = async (req, res) => {
 					seat.reservedBy = null;
 					const basePrice =
 						seat.seatClass === "first" ? flight.firstClassPrice : flight.price;
-					seat.price = Math.round(basePrice * 0.1 * 100) / 100; // Solo il 10%
+					seat.price = Math.round(basePrice * 0.1 * 100) / 100;
 				}
 			});
 		});
@@ -85,8 +85,8 @@ const getFlightSeats = async (req, res) => {
 			},
 		});
 	} catch (error) {
-		console.error("Errore nel recupero dei posti:", error);
-		res.status(500).json({ message: "Errore interno del server" });
+		console.error("Error retrieving seats:", error);
+		res.status(500).json({ message: "Internal server error" });
 	}
 };
 
@@ -105,7 +105,7 @@ const reserveSeat = async (req, res) => {
 		const flight = await Flight.findById(flightId).populate("plane");
 
 		if (!flight) {
-			return res.status(404).json({ message: "Volo non trovato" });
+			return res.status(404).json({ message: "Flight not found" });
 		}
 
 		const seat = flight.plane.seatsConfiguration.find(
@@ -113,7 +113,7 @@ const reserveSeat = async (req, res) => {
 		);
 
 		if (!seat) {
-			return res.status(400).json({ message: "Posto non valido" });
+			return res.status(400).json({ message: "Invalid seat" });
 		}
 
 		const isAvailable = await SeatReservation.isSeatAvailable(
@@ -123,12 +123,12 @@ const reserveSeat = async (req, res) => {
 		);
 
 		if (!isAvailable) {
-			return res.status(400).json({ message: "Posto già occupato" });
+			return res.status(400).json({ message: "Seat already occupied" });
 		}
 
 		const basePrice =
 			seat.seatClass === "first" ? flight.firstClassPrice : flight.price;
-		const price = Math.round(basePrice * 0.1 * 100) / 100; // Solo il 10%
+		const price = Math.round(basePrice * 0.1 * 100) / 100;
 
 		const reservation = new SeatReservation({
 			flight: flightId,
@@ -146,7 +146,7 @@ const reserveSeat = async (req, res) => {
 		await reservation.populate("user", "name email");
 
 		res.status(201).json({
-			message: "Posto prenotato con successo",
+			message: "Seat reserved successfully",
 			reservation: {
 				id: reservation._id,
 				seatRow: reservation.seatRow,
@@ -159,13 +159,13 @@ const reserveSeat = async (req, res) => {
 			},
 		});
 	} catch (error) {
-		console.error("Errore nella prenotazione del posto:", error);
+		console.error("Error reserving seat:", error);
 
 		if (error.code === 11000) {
-			return res.status(400).json({ message: "Posto già prenotato" });
+			return res.status(400).json({ message: "Seat already reserved" });
 		}
 
-		res.status(500).json({ message: "Errore interno del server" });
+		res.status(500).json({ message: "Internal server error" });
 	}
 };
 
@@ -183,21 +183,21 @@ const confirmReservation = async (req, res) => {
 		const reservation = await SeatReservation.findById(reservationId);
 
 		if (!reservation) {
-			return res.status(404).json({ message: "Prenotazione non trovata" });
+			return res.status(404).json({ message: "Reservation not found" });
 		}
 
 		if (reservation.user.toString() !== userId) {
-			return res.status(403).json({ message: "Non autorizzato" });
+			return res.status(403).json({ message: "Not authorized" });
 		}
 
 		if (reservation.isExpired()) {
-			return res.status(400).json({ message: "Prenotazione scaduta" });
+			return res.status(400).json({ message: "Reservation expired" });
 		}
 
 		await reservation.confirm();
 
 		res.json({
-			message: "Prenotazione confermata",
+			message: "Reservation confirmed",
 			reservation: {
 				id: reservation._id,
 				seatRow: reservation.seatRow,
@@ -206,8 +206,8 @@ const confirmReservation = async (req, res) => {
 			},
 		});
 	} catch (error) {
-		console.error("Errore nella conferma della prenotazione:", error);
-		res.status(500).json({ message: "Errore interno del server" });
+		console.error("Error confirming reservation:", error);
+		res.status(500).json({ message: "Internal server error" });
 	}
 };
 
@@ -225,17 +225,17 @@ const cancelReservation = async (req, res) => {
 		const reservation = await SeatReservation.findById(reservationId);
 
 		if (!reservation) {
-			return res.status(404).json({ message: "Prenotazione non trovata" });
+			return res.status(404).json({ message: "Reservation not found" });
 		}
 
 		if (reservation.user.toString() !== userId) {
-			return res.status(403).json({ message: "Non autorizzato" });
+			return res.status(403).json({ message: "Not authorized" });
 		}
 
 		await reservation.cancel();
 
 		res.json({
-			message: "Prenotazione cancellata",
+			message: "Reservation cancelled",
 			reservation: {
 				id: reservation._id,
 				seatRow: reservation.seatRow,
@@ -244,8 +244,8 @@ const cancelReservation = async (req, res) => {
 			},
 		});
 	} catch (error) {
-		console.error("Errore nella cancellazione della prenotazione:", error);
-		res.status(500).json({ message: "Errore interno del server" });
+		console.error("Error cancelling reservation:", error);
+		res.status(500).json({ message: "Internal server error" });
 	}
 };
 
@@ -264,25 +264,25 @@ const extendReservation = async (req, res) => {
 		const reservation = await SeatReservation.findById(reservationId);
 
 		if (!reservation) {
-			return res.status(404).json({ message: "Prenotazione non trovata" });
+			return res.status(404).json({ message: "Reservation not found" });
 		}
 
 		if (reservation.user.toString() !== userId) {
-			return res.status(403).json({ message: "Non autorizzato" });
+			return res.status(403).json({ message: "Not authorized" });
 		}
 
 		await reservation.extendReservation(minutes);
 
 		res.json({
-			message: "Prenotazione estesa",
+			message: "Reservation extended",
 			reservation: {
 				id: reservation._id,
 				expiresAt: reservation.expiresAt,
 			},
 		});
 	} catch (error) {
-		console.error("Errore nell'estensione della prenotazione:", error);
-		res.status(500).json({ message: "Errore interno del server" });
+		console.error("Error extending reservation:", error);
+		res.status(500).json({ message: "Internal server error" });
 	}
 };
 
@@ -319,8 +319,8 @@ const getUserReservations = async (req, res) => {
 			})),
 		});
 	} catch (error) {
-		console.error("Errore nel recupero delle prenotazioni:", error);
-		res.status(500).json({ message: "Errore interno del server" });
+		console.error("Error retrieving reservations:", error);
+		res.status(500).json({ message: "Internal server error" });
 	}
 };
 
@@ -335,12 +335,12 @@ const cleanExpiredReservations = async (req, res) => {
 		const deletedCount = await SeatReservation.cleanExpiredReservations();
 
 		res.json({
-			message: `${deletedCount} prenotazioni scadute rimosse`,
+			message: `${deletedCount} expired reservations removed`,
 			deletedCount,
 		});
 	} catch (error) {
-		console.error("Errore nella pulizia delle prenotazioni:", error);
-		res.status(500).json({ message: "Errore interno del server" });
+		console.error("Error cleaning up reservations:", error);
+		res.status(500).json({ message: "Internal server error" });
 	}
 };
 

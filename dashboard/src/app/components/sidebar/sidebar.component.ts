@@ -1,4 +1,3 @@
-// src/app/dashboard/sidebar.component.ts
 import { Component } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../auth/auth.service';
@@ -76,7 +75,7 @@ export class SidebarComponent {
   onUsersClick(event: Event) {
     if (!this.isAdmin && !this.isManager) {
       event.preventDefault();
-      alert('Accesso consentito solo agli admin e manager.');
+      alert('Access allowed only for admins and managers.');
     } else {
       this.router.navigate(['/users']);
     }
@@ -85,7 +84,7 @@ export class SidebarComponent {
   onAirlinesClick(event: Event) {
     if (!this.isAdmin) {
       event.preventDefault();
-      alert('Accesso consentito solo agli admin.');
+      alert('Access allowed only for admins.');
     } else {
       this.router.navigate(['/airlines']);
     }
@@ -94,7 +93,7 @@ export class SidebarComponent {
   onPlanesClick(event: Event) {
     if (!this.isAdmin && !this.isManager) {
       event.preventDefault();
-      alert('Accesso consentito solo agli admin e manager.');
+      alert('Access allowed only for admins and managers.');
     } else {
       this.router.navigate(['/planes']);
     }

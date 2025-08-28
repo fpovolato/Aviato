@@ -132,7 +132,6 @@ export class LoginComponent {
       password: ['', [Validators.required]],
     });
 
-    // Get query parameters
     this.route.queryParams.subscribe(params => {
       this.returnUrl = params['returnUrl'] || '/';
       this.hasPendingItem = params['pendingItem'] === 'true';
@@ -148,16 +147,10 @@ export class LoginComponent {
       next: (user) => {
         this.loading = false;
         
-        // Process pending cart item if present
         if (this.hasPendingItem) {
-          const wasProcessed = this.cartService.processPendingCartItem();
-          if (wasProcessed) {
-            // Show success message or notification here if needed
-            console.log('Pending flight added to cart after login');
-          }
+          this.cartService.processPendingCartItem();
         }
         
-        // Navigate to return URL
         this.router.navigate([this.returnUrl]);
       },
       error: () => {

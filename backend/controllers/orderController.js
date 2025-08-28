@@ -40,7 +40,6 @@ const createOrder = async (req, res) => {
 		let items = [];
 		let total = 0;
 
-		// Check if order data is provided directly in request body
 		if (req.body.items && req.body.items.length > 0) {
 			// Use items from request body (frontend cart)
 			items = req.body.items.map((item) => ({
@@ -65,7 +64,7 @@ const createOrder = async (req, res) => {
 			for (const item of cart.items) {
 				if (item.quantity > item.flight.seatsAvailable) {
 					return res.status(400).json({
-						message: `Non ci sono abbastanza posti disponibili per il volo ${item.flight.flightNumber}`,
+						message: `Not enough seats available for flight ${item.flight.flightNumber}`,
 					});
 				}
 			}
@@ -91,7 +90,7 @@ const createOrder = async (req, res) => {
 			if (item.selectedSeats && item.selectedSeats.length > 0) {
 				if (item.selectedSeats.length !== item.passengers) {
 					return res.status(400).json({
-						message: `Il numero di posti selezionati (${item.selectedSeats.length}) deve corrispondere al numero di passeggeri (${item.passengers}) per il volo ${item.flight}`,
+						message: `The number of selected seats (${item.selectedSeats.length}) must match the number of passengers (${item.passengers}) for flight ${item.flight}`,
 					});
 				}
 
@@ -103,7 +102,7 @@ const createOrder = async (req, res) => {
 					);
 					if (!isAvailable) {
 						return res.status(400).json({
-							message: `Il posto ${seat.seatRow}${seat.seatNumber} non è disponibile per il volo ${item.flight}`,
+							message: `Seat ${seat.seatRow}${seat.seatNumber} is not available for flight ${item.flight}`,
 						});
 					}
 				}
@@ -111,7 +110,7 @@ const createOrder = async (req, res) => {
 				const flight = await Flight.findById(item.flight).populate("plane");
 				if (!flight || !flight.plane) {
 					return res.status(400).json({
-						message: `Impossibile trovare l'aereo per il volo ${item.flight}`,
+						message: `Cannot find aircraft for flight ${item.flight}`,
 					});
 				}
 
@@ -124,7 +123,7 @@ const createOrder = async (req, res) => {
 
 				if (availableSeats.length < item.passengers) {
 					return res.status(400).json({
-						message: `Non ci sono abbastanza posti disponibili per la classe ${item.seatClass} nel volo ${item.flight}`,
+						message: `Not enough seats available for class ${item.seatClass} on flight ${item.flight}`,
 					});
 				}
 
@@ -213,7 +212,7 @@ const createOrder = async (req, res) => {
 
 		res.status(201).json(populatedOrder);
 	} catch (error) {
-		console.error("❌ Error creating order:", error);
+		console.error("Error creating order:", error);
 		res.status(500).json({ message: "Server error", error: error.message });
 	}
 };
@@ -231,7 +230,7 @@ const getOrders = async (req, res) => {
 			.sort({ purchasedAt: -1 });
 		res.status(200).json(orders);
 	} catch (error) {
-		console.error("❌ Error fetching orders:", error);
+		console.error("Error fetching orders:", error);
 		res.status(500).json({ message: "Server error", error: error.message });
 	}
 };
@@ -279,7 +278,7 @@ const getOrderById = async (req, res) => {
 		}
 		res.status(200).json(order);
 	} catch (error) {
-		console.error("❌ Error fetching order:", error);
+		console.error("Error fetching order:", error);
 		res.status(500).json({ message: "Server error", error: error.message });
 	}
 };
@@ -319,7 +318,7 @@ const getUserOrders = async (req, res) => {
 			.sort({ purchasedAt: -1 });
 		res.status(200).json(orders);
 	} catch (error) {
-		console.error("❌ Error fetching user orders:", error);
+		console.error("Error fetching user orders:", error);
 		res.status(500).json({ message: "Server error", error: error.message });
 	}
 };
@@ -346,7 +345,7 @@ const updateOrderStatus = async (req, res) => {
 		await order.save();
 		res.status(200).json(order);
 	} catch (error) {
-		console.error("❌ Error updating order status:", error);
+		console.error("Error updating order status:", error);
 		res.status(500).json({ message: "Server error", error: error.message });
 	}
 };

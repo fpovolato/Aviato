@@ -41,7 +41,6 @@ export class SeatReservationService extends BaseApiService {
     return this.get<SeatReservation[]>(`${this.seatApiUrl}/flight/${flightId}`);
   }
 
-  // Alias for compatibility with SeatService
   getFlightSeats(flightId: string): Observable<any> {
     return this.get<any>(`/seats/flights/${flightId}/seats`);
   }

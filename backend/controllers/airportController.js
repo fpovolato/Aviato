@@ -75,7 +75,7 @@ const createAirport = async (req, res) => {
 
 		res.status(201).json(airport);
 	} catch (error) {
-		console.error("❌ Error in createAirport:", error);
+		console.error("Error in createAirport:", error);
 		res.status(500).json({ message: "Server error", error: error.message });
 	}
 };
@@ -93,7 +93,7 @@ const bulkCreateAirports = async (req, res) => {
 		const createdAirports = await Airport.insertMany(airports);
 		res.status(201).json(createdAirports);
 	} catch (error) {
-		console.error("❌ Error in bulkCreateAirports:", error);
+		console.error("Error in bulkCreateAirports:", error);
 		res.status(500).json({ message: "Server error", error: error.message });
 	}
 };
@@ -108,7 +108,7 @@ const getAirports = async (req, res) => {
 		const airports = await Airport.find();
 		res.json(airports);
 	} catch (error) {
-		console.error("❌ Error in getAirports:", error);
+		console.error("Error in getAirports:", error);
 		res.status(500).json({ message: "Server error", error: error.message });
 	}
 };
@@ -133,7 +133,7 @@ const getAirportById = async (req, res) => {
 			res.status(404).json({ message: "Airport not found" });
 		}
 	} catch (error) {
-		console.error("❌ Error in getAirportById:", error);
+		console.error("Error in getAirportById:", error);
 		res.status(500).json({ message: "Server error", error: error.message });
 	}
 };
@@ -157,7 +157,7 @@ const getAirportsByIata = async (req, res) => {
 				.json({ message: "No airports found with the given IATA code" });
 		}
 	} catch (error) {
-		console.error("❌ Error in getAirportsByIata:", error);
+		console.error("Error in getAirportsByIata:", error);
 		res.status(500).json({ message: "Server error", error: error.message });
 	}
 };
@@ -176,7 +176,7 @@ const getAirportsByIcao = async (req, res) => {
 				.json({ message: "No airports found with the given ICAO code" });
 		}
 	} catch (error) {
-		console.error("❌ Error in getAirportsByIcao:", error);
+		console.error("Error in getAirportsByIcao:", error);
 		res.status(500).json({ message: "Server error", error: error.message });
 	}
 };
@@ -192,7 +192,7 @@ const getAirportsByCity = async (req, res) => {
 			res.status(404).json({ message: "No airports found in the given city" });
 		}
 	} catch (error) {
-		console.error("❌ Error in getAirportsByCity:", error);
+		console.error("Error in getAirportsByCity:", error);
 		res.status(500).json({ message: "Server error", error: error.message });
 	}
 };
@@ -210,7 +210,7 @@ const getAirportsByCountry = async (req, res) => {
 				.json({ message: "No airports found in the given country" });
 		}
 	} catch (error) {
-		console.error("❌ Error in getAirportsByCountry:", error);
+		console.error("Error in getAirportsByCountry:", error);
 		res.status(500).json({ message: "Server error", error: error.message });
 	}
 };
@@ -242,7 +242,7 @@ const searchAirports = async (req, res) => {
 		}).limit(10);
 		res.json(airports);
 	} catch (error) {
-		console.error("❌ Error in searchAirports:", error);
+		console.error("Error in searchAirports:", error);
 		res.status(500).json({ message: "Server error", error: error.message });
 	}
 };
@@ -262,7 +262,7 @@ const updateAirport = async (req, res) => {
 			res.status(404).json({ message: "Airport not found" });
 		}
 	} catch (error) {
-		console.error("❌ Error in updateAirport:", error);
+		console.error("Error in updateAirport:", error);
 		res.status(500).json({ message: "Server error", error: error.message });
 	}
 };
@@ -278,7 +278,7 @@ const deleteAirport = async (req, res) => {
 			res.status(404).json({ message: "Airport not found" });
 		}
 	} catch (error) {
-		console.error("❌ Error in deleteAirport:", error);
+		console.error("Error in deleteAirport:", error);
 		res.status(500).json({ message: "Server error", error: error.message });
 	}
 };
@@ -292,7 +292,7 @@ const deleteAirport = async (req, res) => {
  */
 const importAirportsFromCSV = async (req, res) => {
 	if (!req.file) {
-		return res.status(400).json({ message: "Devi inviare un file CSV" });
+		return res.status(400).json({ message: "You must upload a CSV file" });
 	}
 
 	const results = [];
@@ -321,14 +321,12 @@ const importAirportsFromCSV = async (req, res) => {
 			})
 		)
 		.on("data", (row) => {
-			// Converti i campi numerici
 			row.airportId = Number(row.airportId);
 			row.latitude = parseFloat(row.latitude);
 			row.longitude = parseFloat(row.longitude);
 			row.altitude = Number(row.altitude);
 			row.timezone = parseFloat(row.timezone);
 
-			// Se iata/icao sono stringhe vuote, metti null
 			if (!row.iata) row.iata = null;
 			if (!row.icao) row.icao = null;
 
@@ -336,25 +334,23 @@ const importAirportsFromCSV = async (req, res) => {
 		})
 		.on("end", async () => {
 			try {
-				// inserimento non‐ordinato: ignora eventuali duplicati già in db
 				const inserted = await Airport.insertMany(results, { ordered: false });
-				// cancella il file temporaneo
 				fs.unlinkSync(filePath);
 				res.status(201).json({ inserted: inserted.length });
 			} catch (error) {
-				console.error("❌ Error in importAirportsFromCSV:", error);
+				console.error("Error in importAirportsFromCSV:", error);
 				fs.unlinkSync(filePath);
 				res
 					.status(500)
-					.json({ message: "Import fallito", error: error.message });
+					.json({ message: "Import failed", error: error.message });
 			}
 		})
 		.on("error", (err) => {
-			console.error("❌ CSV parse error:", err);
+			console.error("CSV parse error:", err);
 			fs.unlinkSync(filePath);
 			res
 				.status(400)
-				.json({ message: "Errore nel parsing del CSV", error: err.message });
+				.json({ message: "CSV parsing error", error: err.message });
 		});
 };
 
