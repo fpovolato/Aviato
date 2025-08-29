@@ -5,7 +5,7 @@ Una piattaforma completa per la prenotazione di voli costruita con architettura 
 ## 🏗️ Architettura
 
 - **Backend**: API REST Express.js con MongoDB/Mongoose, autenticazione JWT via cookie HTTP-only
-- **Dashboard**: Interfaccia admin Angular 19 per la gestione delle compagnie aeree (back-office)  
+- **Dashboard**: Interfaccia admin Angular 19 per la gestione delle compagnie aeree (back-office)
 - **Site**: Frontend Angular 19 per clienti per la prenotazione voli (front-office)
 
 ## 🚀 Setup Rapido
@@ -18,7 +18,7 @@ Una piattaforma completa per la prenotazione di voli costruita con architettura 
 ### 1. Clona il Repository
 
 ```bash
-git clone <repository-url>
+git clone https://github.com/PovolatoFrancesco/Aviato
 cd Aviato
 ```
 
@@ -42,7 +42,7 @@ Lo script automaticamente:
 Dopo il setup, i servizi saranno disponibili su:
 
 - **🖥️ Dashboard Admin**: https://localhost:4443
-- **🌐 Sito Clienti**: https://localhost:4543  
+- **🌐 Sito Clienti**: https://localhost:4543
 - **📡 API Backend**: https://localhost:3443
 - **📋 Documentazione API (Swagger)**: https://localhost:3443/api-docs
 - **🗄️ MongoDB**: localhost:27017
@@ -109,7 +109,7 @@ npm install
 npm run dev  # Sviluppo con nodemon
 ```
 
-#### Dashboard  
+#### Dashboard
 ```bash
 cd dashboard
 npm install
@@ -231,7 +231,7 @@ cd backend
 npm test
 
 # Dashboard
-cd dashboard  
+cd dashboard
 npm test
 
 # Site
