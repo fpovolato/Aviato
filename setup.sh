@@ -68,6 +68,10 @@ check_ssl_certs() {
 start_services() {
     print_status "Starting Docker services..."
     docker compose down > /dev/null 2>&1 || true
+    build_frontend "dashboard" "npm run build -- --configuration production"
+    build_frontend "site" "npm run build -- --configuration production"
+    build_backend_on_host
+
     docker compose up -d --build
     
     print_status "Waiting for services to be ready..."
@@ -138,6 +142,42 @@ seed_database() {
         exit 1
     fi
 }
+
+build_frontend() {
+  local dir="$1"
+  local build_cmd="$2"
+
+  print_status "Building frontend ($dir) on host..."
+  pushd "$dir" > /dev/null
+
+  # Prova prima con ci (deterministico)
+  if ! npm ci --no-audit --no-fund; then
+    print_warning "'npm ci' failed — trying 'npm install' to sync lockfile..."
+    rm -rf node_modules
+    npm install
+  fi
+
+  $build_cmd
+  popd > /dev/null
+  print_success "Built $dir"
+}
+
+build_backend_on_host() {
+  print_status "Preparing backend on host..."
+  pushd backend > /dev/null
+  if ! npm ci --no-audit --no-fund; then
+    print_warning "'npm ci' failed — using 'npm install' to sync lockfile..."
+    rm -rf node_modules
+    npm install
+  fi
+  npm prune --omit=dev
+  popd > /dev/null
+  print_success "Backend ready"
+}
+# ...e chiamalo prima dell'up
+build_backend_on_host
+
+
 
 # Function to show service URLs
 show_services() {

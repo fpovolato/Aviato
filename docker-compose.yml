@@ -32,6 +32,7 @@ services:
 
   site:
     build: ./site
+    image: aviato-site
     ports:
       - "4300:80" # opzionale: mantiene dev HTTP
       - "4543:443" # HTTPS site
