@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, NgForm } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { SidebarComponent } from '../sidebar/sidebar.component';
@@ -20,20 +20,35 @@ import { AuthService } from '../../auth/auth.service';
           class="w-full max-w-2xl bg-white/90 rounded-2xl shadow-xl p-10 border border-indigo-100"
         >
           <h2 class="text-2xl font-bold text-indigo-800 mb-6">Create Flight</h2>
-          <form (ngSubmit)="submit()" #flightForm="ngForm" class="space-y-4">
+          <form (ngSubmit)="submit(flightForm)" #flightForm="ngForm" class="space-y-4">
             <div>
               <label class="block font-semibold mb-1">Flight Number</label>
               <input
                 name="flightNumber"
                 [(ngModel)]="flight.flightNumber"
+                #flightNumber="ngModel"
                 required
+                minlength="3"
                 class="w-full px-3 py-2 border rounded"
+                [class.border-red-500]="flightNumber.invalid && flightNumber.touched"
               />
+              <div *ngIf="flightNumber.invalid && flightNumber.touched" class="text-red-500 text-sm mt-1">
+                <div *ngIf="flightNumber.errors?.['required']">Flight number is required</div>
+                <div *ngIf="flightNumber.errors?.['minlength']">Flight number must be at least 3 characters</div>
+              </div>
             </div>
             <div class="flex gap-4">
               <div class="flex-1">
                 <label class="block font-semibold mb-1">Route</label>
-                <select name="route" [(ngModel)]="flight.route" required>
+                <select
+                  name="route"
+                  [(ngModel)]="flight.route"
+                  #route="ngModel"
+                  required
+                  class="w-full px-3 py-2 border rounded"
+                  [class.border-red-500]="route.invalid && route.touched"
+                >
+                  <option value="" disabled>Select a route</option>
                   <option *ngFor="let r of routes" [value]="r._id">
                     {{ r.departureAirport.name }} ({{
                       r.departureAirport.iata
@@ -42,6 +57,9 @@ import { AuthService } from '../../auth/auth.service';
                     }})
                   </option>
                 </select>
+                <div *ngIf="route.invalid && route.touched" class="text-red-500 text-sm mt-1">
+                  <div *ngIf="route.errors?.['required']">Route is required</div>
+                </div>
               </div>
             </div>
             <div class="flex gap-4">
@@ -50,20 +68,33 @@ import { AuthService } from '../../auth/auth.service';
                 <input
                   name="departureDate"
                   [(ngModel)]="flight.departureDate"
+                  #departureDate="ngModel"
                   type="datetime-local"
                   required
                   class="w-full px-3 py-2 border rounded"
+                  [class.border-red-500]="departureDate.invalid && departureDate.touched"
                 />
+                <div *ngIf="departureDate.invalid && departureDate.touched" class="text-red-500 text-sm mt-1">
+                  <div *ngIf="departureDate.errors?.['required']">Departure date is required</div>
+                </div>
               </div>
               <div class="flex-1">
                 <label class="block font-semibold mb-1">Arrival Date</label>
                 <input
                   name="arrivalDate"
                   [(ngModel)]="flight.arrivalDate"
+                  #arrivalDate="ngModel"
                   type="datetime-local"
                   required
                   class="w-full px-3 py-2 border rounded"
+                  [class.border-red-500]="arrivalDate.invalid && arrivalDate.touched"
                 />
+                <div *ngIf="arrivalDate.invalid && arrivalDate.touched" class="text-red-500 text-sm mt-1">
+                  <div *ngIf="arrivalDate.errors?.['required']">Arrival date is required</div>
+                </div>
+                <div *ngIf="isArrivalBeforeDeparture()" class="text-red-500 text-sm mt-1">
+                  Arrival date must be after departure date
+                </div>
               </div>
             </div>
             <div class="flex gap-4">
@@ -72,14 +103,20 @@ import { AuthService } from '../../auth/auth.service';
                 <select
                   name="airline"
                   [(ngModel)]="flight.airline"
+                  #airline="ngModel"
                   required
                   class="w-full px-3 py-2 border rounded"
                   [disabled]="airlines.length === 0"
+                  [class.border-red-500]="airline.invalid && airline.touched"
                 >
+                  <option value="" disabled>Select an airline</option>
                   <option *ngFor="let al of airlines" [value]="al._id">
                     {{ al.name }} ({{ al.code }})
                   </option>
                 </select>
+                <div *ngIf="airline.invalid && airline.touched" class="text-red-500 text-sm mt-1">
+                  <div *ngIf="airline.errors?.['required']">Airline is required</div>
+                </div>
                 <div
                   *ngIf="airlines.length === 0"
                   class="text-red-500 text-xs mt-1"
@@ -92,13 +129,19 @@ import { AuthService } from '../../auth/auth.service';
                 <select
                   name="plane"
                   [(ngModel)]="flight.plane"
+                  #plane="ngModel"
                   required
                   class="w-full px-3 py-2 border rounded"
+                  [class.border-red-500]="plane.invalid && plane.touched"
                 >
+                  <option value="" disabled>Select a plane</option>
                   <option *ngFor="let p of planes" [value]="p._id">
                     {{ p.code }} - {{ p.manifacturer }} {{ p.model }}
                   </option>
                 </select>
+                <div *ngIf="plane.invalid && plane.touched" class="text-red-500 text-sm mt-1">
+                  <div *ngIf="plane.errors?.['required']">Plane is required</div>
+                </div>
               </div>
             </div>
             <div class="flex gap-4">
@@ -122,11 +165,17 @@ import { AuthService } from '../../auth/auth.service';
                 <input
                   name="price"
                   [(ngModel)]="flight.price"
+                  #price="ngModel"
                   type="number"
                   min="0"
                   required
                   class="w-full px-3 py-2 border rounded"
+                  [class.border-red-500]="price.invalid && price.touched"
                 />
+                <div *ngIf="price.invalid && price.touched" class="text-red-500 text-sm mt-1">
+                  <div *ngIf="price.errors?.['required']">Price is required</div>
+                  <div *ngIf="price.errors?.['min']">Price must be greater than or equal to 0</div>
+                </div>
               </div>
             </div>
             <div class="flex gap-4">
@@ -137,11 +186,17 @@ import { AuthService } from '../../auth/auth.service';
                 <input
                   name="firstClassPrice"
                   [(ngModel)]="flight.firstClassPrice"
+                  #firstClassPrice="ngModel"
                   type="number"
                   min="0"
                   required
                   class="w-full px-3 py-2 border rounded"
+                  [class.border-red-500]="firstClassPrice.invalid && firstClassPrice.touched"
                 />
+                <div *ngIf="firstClassPrice.invalid && firstClassPrice.touched" class="text-red-500 text-sm mt-1">
+                  <div *ngIf="firstClassPrice.errors?.['required']">First class price is required</div>
+                  <div *ngIf="firstClassPrice.errors?.['min']">First class price must be greater than or equal to 0</div>
+                </div>
               </div>
               <div class="flex-1">
                 <label class="block font-semibold mb-1"
@@ -150,11 +205,17 @@ import { AuthService } from '../../auth/auth.service';
                 <input
                   name="additionalLuggagePrice"
                   [(ngModel)]="flight.additionalLuggagePrice"
+                  #additionalLuggagePrice="ngModel"
                   type="number"
                   min="0"
                   required
                   class="w-full px-3 py-2 border rounded"
+                  [class.border-red-500]="additionalLuggagePrice.invalid && additionalLuggagePrice.touched"
                 />
+                <div *ngIf="additionalLuggagePrice.invalid && additionalLuggagePrice.touched" class="text-red-500 text-sm mt-1">
+                  <div *ngIf="additionalLuggagePrice.errors?.['required']">Additional luggage price is required</div>
+                  <div *ngIf="additionalLuggagePrice.errors?.['min']">Additional luggage price must be greater than or equal to 0</div>
+                </div>
               </div>
             </div>
             <div class="flex justify-end gap-4 mt-6">
@@ -167,8 +228,8 @@ import { AuthService } from '../../auth/auth.service';
               </button>
               <button
                 type="submit"
-                [disabled]="flightForm.invalid || loading"
-                class="px-6 py-2 rounded bg-indigo-600 hover:bg-indigo-500 text-white font-semibold"
+                [disabled]="flightForm.invalid || loading || isArrivalBeforeDeparture()"
+                class="px-6 py-2 rounded bg-indigo-600 hover:bg-indigo-500 text-white font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 Create
               </button>
@@ -184,15 +245,15 @@ import { AuthService } from '../../auth/auth.service';
 export class FlightsCreateComponent implements OnInit {
   flight: any = {
     flightNumber: '',
-    route: '',
+    route: null,
     departureDate: '',
     arrivalDate: '',
-    airline: '',
-    plane: '',
+    airline: null,
+    plane: null,
     status: 'scheduled',
-    price: '',
-    firstClassPrice: '',
-    additionalLuggagePrice: '',
+    price: null,
+    firstClassPrice: null,
+    additionalLuggagePrice: null,
   };
   airlines: any[] = [];
   routes: any[] = [];
@@ -206,6 +267,13 @@ export class FlightsCreateComponent implements OnInit {
     public router: Router,
     private auth: AuthService
   ) {}
+
+  isArrivalBeforeDeparture(): boolean {
+    if (!this.flight.departureDate || !this.flight.arrivalDate) {
+      return false;
+    }
+    return new Date(this.flight.arrivalDate) <= new Date(this.flight.departureDate);
+  }
 
   ngOnInit(): void {
     this.auth.user$.subscribe((user) => {
@@ -235,7 +303,25 @@ export class FlightsCreateComponent implements OnInit {
       .subscribe((data) => (this.planes = data));
   }
 
-  submit() {
+  markAllFieldsAsTouched(form: NgForm) {
+    Object.keys(form.controls).forEach(key => {
+      form.controls[key].markAsTouched();
+    });
+  }
+
+  submit(form: NgForm) {
+    this.markAllFieldsAsTouched(form);
+
+    if (form.invalid) {
+      this.error = 'Please fill in all required fields correctly';
+      return;
+    }
+
+    if (this.isArrivalBeforeDeparture()) {
+      this.error = 'Arrival date must be after departure date';
+      return;
+    }
+
     this.loading = true;
     this.error = '';
     const body = { ...this.flight };
