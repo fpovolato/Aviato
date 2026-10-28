@@ -125,14 +125,19 @@ npm start    # ng serve su http://localhost:4200
 
 ### Variabili d'Ambiente
 
-Crea un file `.env` nella cartella `backend/`:
+`./setup.sh` crea `backend/.env` da `backend/.env.example` con un `JWT_SECRET` casuale. Per lo sviluppo senza Docker copialo a mano e cambia `MONGO_URI`:
+
+```bash
+cp backend/.env.example backend/.env
+```
 
 ```env
 MONGO_URI=mongodb://localhost:27017/backenddb
-JWT_SECRET=super-secret
-JWT_REFRESH_SECRET=super-secret
+JWT_SECRET=<stringa casuale lunga>
 SSL_PORT=3443
 ```
+
+`backend/.env` e i certificati in `certs/` non vanno committati: sono esclusi da `.gitignore`.
 
 ### Database
 

@@ -39,3 +39,7 @@ docs_var/
 .DS_Store
 Thumbs.db
 Workflows
+
+# Local secrets and certificates (see backend/.env.example and setup.sh)
+.env
+certs/*.pem

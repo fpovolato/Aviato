@@ -64,6 +64,18 @@ check_ssl_certs() {
     fi
 }
 
+# Function to create backend/.env from the example with a random JWT secret
+check_env_file() {
+    print_status "Checking backend environment file..."
+    if [[ ! -f "./backend/.env" ]]; then
+        print_warning "backend/.env not found. Creating it from backend/.env.example..."
+        sed "s/^JWT_SECRET=.*/JWT_SECRET=$(openssl rand -hex 32)/" backend/.env.example > backend/.env
+        print_success "backend/.env created"
+    else
+        print_success "backend/.env found"
+    fi
+}
+
 # Function to start Docker services
 start_services() {
     print_status "Starting Docker services..."
@@ -226,6 +238,7 @@ main() {
     # Perform setup steps
     check_docker
     check_ssl_certs
+    check_env_file
     start_services
     
     # Check if database needs seeding
