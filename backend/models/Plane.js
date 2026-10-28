@@ -148,6 +148,17 @@ planeSchema.pre("save", function (next) {
 	next();
 });
 
+// Spreadsheet-style labels so rows past 26 stay letters (27 -> AA)
+function rowNumberToLetters(row) {
+	let label = "";
+	while (row > 0) {
+		const remainder = (row - 1) % 26;
+		label = String.fromCharCode(65 + remainder) + label;
+		row = Math.floor((row - 1) / 26);
+	}
+	return label;
+}
+
 planeSchema.methods.generateSeatsConfiguration = function () {
 	const seats = [];
 
@@ -156,7 +167,7 @@ planeSchema.methods.generateSeatsConfiguration = function () {
 		const endRowNum = parseInt(config.endRow);
 
 		for (let row = startRowNum; row <= endRowNum; row++) {
-			const rowLetter = String.fromCharCode(64 + row); // A, B, C, etc.
+			const rowLetter = rowNumberToLetters(row); // A, B, ..., Z, AA, AB, etc.
 
 			for (let seat = 1; seat <= config.seatsPerRow; seat++) {
 				const seatData = {

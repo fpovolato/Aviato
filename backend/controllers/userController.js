@@ -2,6 +2,7 @@ const User = require("../models/User");
 const {
 	generateAccessToken,
 	generateRefreshToken,
+	verifyAccessToken,
 	verifyRefreshToken,
 	generateTokenPair,
 } = require("../utils/tokenUtils");
@@ -47,7 +48,22 @@ const registerUser = async (req, res) => {
 			password,
 		};
 
-		// Allows both public registration (customer) and admin-created users (any role)
+		// Allows both public registration (customer) and admin-created users (any role).
+		// The route is public, so roles and airlines are honoured only for a logged-in admin.
+		if (roles || airlines) {
+			let requester = null;
+			try {
+				const { id } = verifyAccessToken(req.cookies.accessToken);
+				requester = await User.findById(id).select("roles");
+			} catch (err) {
+				requester = null;
+			}
+			if (!requester || !requester.roles.includes("admin")) {
+				return res
+					.status(403)
+					.json({ message: "Only admins can assign roles or airlines" });
+			}
+		}
 		if (roles) {
 			userData.roles = roles;
 		}

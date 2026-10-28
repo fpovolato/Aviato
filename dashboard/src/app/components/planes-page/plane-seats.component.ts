@@ -234,7 +234,10 @@ export class PlaneSeatsComponent implements OnInit {
 
   get seatRows(): string[] {
     if (!this.seatsData) return [];
-    return Object.keys(this.seatsData.seats).sort();
+    // Shorter labels first so AA comes after Z
+    return Object.keys(this.seatsData.seats).sort(
+      (a, b) => a.length - b.length || a.localeCompare(b)
+    );
   }
 
   getSeatsForRow(row: string): Seat[] {

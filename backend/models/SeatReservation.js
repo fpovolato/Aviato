@@ -78,8 +78,9 @@ seatReservationSchema.index({ user: 1, flight: 1 });
 
 seatReservationSchema.index({ expiresAt: 1 });
 
-seatReservationSchema.pre("save", function (next) {
-	if (this.isNew && !this.expiresAt) {
+// Runs before validation, otherwise the required check on expiresAt fails first
+seatReservationSchema.pre("validate", function (next) {
+	if (this.isNew && !this.expiresAt && this.status === "reserved") {
 		this.expiresAt = new Date(Date.now() + 15 * 60 * 1000);
 	}
 	next();
@@ -100,9 +101,11 @@ seatReservationSchema.methods.confirm = function () {
 	return this.save();
 };
 
-seatReservationSchema.methods.cancel = function () {
+// Cancelled reservations are removed, otherwise the unique seat index keeps the seat blocked
+seatReservationSchema.methods.cancel = async function () {
 	this.status = "cancelled";
-	return this.save();
+	await this.deleteOne();
+	return this;
 };
 
 seatReservationSchema.statics.cleanExpiredReservations = async function () {
